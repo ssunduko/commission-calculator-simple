@@ -11,6 +11,8 @@ import java.util.List;
  * 2. How abstract classes define a common structure
  * 3. How the Template Method pattern works
  * 4. How abstraction simplifies interaction with complex systems
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public class AbstractionDemo {
     

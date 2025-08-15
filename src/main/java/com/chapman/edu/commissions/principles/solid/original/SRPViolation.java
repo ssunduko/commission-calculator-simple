@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 /**
  * This class violates the Single Responsibility Principle (SRP).
- * 
  * SRP states that a class should have only one reason to change, meaning it should have
  * only one responsibility. This class handles multiple responsibilities:
  * 1. Commission calculation
@@ -27,14 +26,16 @@ import java.util.logging.Logger;
  * 3. Email notification
  * 4. Logging
  * 5. Report generation
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public class SRPViolation {
 
     private static final Logger LOGGER = Logger.getLogger(SRPViolation.class.getName());
-    private Map<String, CommissionCalculation> calculationsDatabase = new HashMap<>();
-    private Map<String, Deal> dealsDatabase = new HashMap<>();
-    private Map<String, CommissionPlan> plansDatabase = new HashMap<>();
-    private Map<String, User> usersDatabase = new HashMap<>();
+    private final Map<String, CommissionCalculation> calculationsDatabase = new HashMap<>();
+    private final Map<String, Deal> dealsDatabase = new HashMap<>();
+    private final Map<String, CommissionPlan> plansDatabase = new HashMap<>();
+    private final Map<String, User> usersDatabase = new HashMap<>();
 
     /**
      * Calculates commission, saves to database, sends email notification, and generates report.

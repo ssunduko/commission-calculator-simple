@@ -19,7 +19,7 @@ public class EncapsulatedUser {
     private String firstName;
     private String lastName;
     private String passwordHash;
-    private Set<String> roles;
+    private final Set<String> roles;
     private boolean active;
     private LocalDateTime lastLogin;
     

@@ -10,6 +10,8 @@ import java.util.Random;
  * It demonstrates abstraction by:
  * 1. Implementing the abstract methods from the parent class
  * 2. Providing specific implementation for generating commission reports
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public class CommissionReportGenerator extends ReportGenerator {
     

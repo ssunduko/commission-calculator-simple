@@ -9,14 +9,14 @@ import java.util.List;
 
 /**
  * This class violates the Open/Closed Principle (OCP).
- * 
  * OCP states that software entities should be open for extension but closed for modification.
  * This means that the behavior of a module can be extended without modifying its source code.
- * 
  * This class violates OCP because:
  * 1. It uses conditional logic (if-else statements) to handle different product types
  * 2. Adding a new product type requires modifying the existing code
  * 3. The calculateDiscount method would need to be modified for each new discount type
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public class OCPViolation {
 

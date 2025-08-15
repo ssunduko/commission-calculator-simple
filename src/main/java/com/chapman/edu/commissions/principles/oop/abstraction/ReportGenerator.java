@@ -10,6 +10,8 @@ import java.util.List;
  * 1. Declaring abstract methods that must be implemented by subclasses
  * 2. Providing common functionality in concrete methods
  * 3. Implementing the Template Method pattern
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public abstract class ReportGenerator {
     

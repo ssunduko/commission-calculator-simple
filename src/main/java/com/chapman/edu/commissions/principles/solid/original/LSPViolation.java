@@ -7,14 +7,14 @@ import java.util.List;
 
 /**
  * This class hierarchy violates the Liskov Substitution Principle (LSP).
- * 
  * LSP states that objects of a superclass should be replaceable with objects of a subclass
  * without affecting the correctness of the program.
- * 
  * The violation occurs in the commission calculator example because:
  * 1. The CommissionCalculator class has a calculateCommission method with no preconditions
  * 2. The SeniorSalesCommissionCalculator subclass adds a precondition (minimum 5 sales)
  * 3. Code that depends on CommissionCalculator's behavior will break when a SeniorSalesCommissionCalculator is used instead
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public class LSPViolation {
 
