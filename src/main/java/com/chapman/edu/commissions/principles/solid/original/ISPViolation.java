@@ -9,14 +9,14 @@ import java.util.List;
 
 /**
  * This interface violates the Interface Segregation Principle (ISP).
- * 
  * ISP states that no client should be forced to depend on methods it does not use.
  * This means that interfaces should be client-specific rather than general-purpose.
- * 
  * The violation occurs because:
- * 1. The CommissionSystemService interface is too large and has too many responsibilities
+ * 1. The ISPViolation interface is too large and has too many responsibilities
  * 2. Clients that only need commission calculation are forced to depend on dispute resolution methods
  * 3. Clients that only need reporting are forced to depend on user management methods
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public interface ISPViolation {
     

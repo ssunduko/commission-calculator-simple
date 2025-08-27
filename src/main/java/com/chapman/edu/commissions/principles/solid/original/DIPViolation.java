@@ -20,15 +20,15 @@ import java.util.logging.Logger;
 
 /**
  * This class violates the Dependency Inversion Principle (DIP).
- * 
  * DIP states that:
  * 1. High-level modules should not depend on low-level modules. Both should depend on abstractions.
  * 2. Abstractions should not depend on details. Details should depend on abstractions.
- * 
  * The violation occurs because:
  * 1. The CommissionService class directly depends on concrete implementations (MySqlDatabase, FileLogger, EmailSender)
  * 2. The high-level business logic is tightly coupled with low-level implementation details
  * 3. It's difficult to swap out implementations (e.g., changing from MySQL to MongoDB or file logging to cloud logging)
+ * @author Sergey Sundukovskiy Ph.D.
+ * @version 1.0
  */
 public class DIPViolation {
     
