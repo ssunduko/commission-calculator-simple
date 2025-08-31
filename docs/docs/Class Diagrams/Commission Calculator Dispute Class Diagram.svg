@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="1252px" preserveAspectRatio="none" style="width:1655px;height:1252px;background:#FFFFFF;" version="1.1" viewBox="0 0 1655 1252" width="1655px" zoomAndPan="magnify"><defs/><g><!--MD5=[3fd616f346a44cd59a91eb10b19e157c]
+class User--><g id="elem_User"><rect codeLine="5" fill="#FFFFFF" height="146.0879" id="User" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="274" x="688" y="218"/><ellipse cx="805.25" cy="232" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M808.0156,233.5313 L810.4063,234.2813 Q809.8594,236.2656 808.5781,237.2344 Q807.3125,238.2031 805.3438,238.2031 Q802.9219,238.2031 801.3594,236.5469 Q799.8125,234.8906 799.8125,232.0156 Q799.8125,228.9844 801.375,227.3125 Q802.9375,225.625 805.5,225.625 Q807.7344,225.625 809.125,226.9375 Q809.9531,227.7188 810.375,229.1875 L807.9375,229.7656 Q807.7188,228.8125 807.0313,228.2656 Q806.3594,227.7188 805.375,227.7188 Q804.0156,227.7188 803.1719,228.7031 Q802.3438,229.6719 802.3438,231.8438 Q802.3438,234.1406 803.1719,235.125 Q804,236.1094 805.3281,236.1094 Q806.3125,236.1094 807.0156,235.4844 Q807.7188,234.8594 808.0156,233.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="32" x="822.75" y="237.5679">User</text><line style="stroke:#000000;stroke-width:1.0;" x1="689" x2="961" y1="246" y2="246"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="694" y="264.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="130" x="694" y="281.0898">-username: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="96" x="694" y="298.1045">-email: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="106" x="694" y="315.1191">-role: UserRole</text><line style="stroke:#000000;stroke-width:1.0;" x1="689" x2="961" y1="322.0586" y2="322.0586"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="176" x="694" y="340.1338">+authenticate(): boolean</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="262" x="694" y="357.1484">+getPermissions(): List&lt;Permission&gt;</text></g><!--MD5=[fe139ee4e479f23285df0f8136f9d541]
+class Deal--><g id="elem_Deal"><rect codeLine="14" fill="#FFFFFF" height="146.0879" id="Deal" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="265" x="1072.5" y="655.5"/><ellipse cx="1186.25" cy="669.5" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M1189.0156,671.0313 L1191.4063,671.7813 Q1190.8594,673.7656 1189.5781,674.7344 Q1188.3125,675.7031 1186.3438,675.7031 Q1183.9219,675.7031 1182.3594,674.0469 Q1180.8125,672.3906 1180.8125,669.5156 Q1180.8125,666.4844 1182.375,664.8125 Q1183.9375,663.125 1186.5,663.125 Q1188.7344,663.125 1190.125,664.4375 Q1190.9531,665.2188 1191.375,666.6875 L1188.9375,667.2656 Q1188.7188,666.3125 1188.0313,665.7656 Q1187.3594,665.2188 1186.375,665.2188 Q1185.0156,665.2188 1184.1719,666.2031 Q1183.3438,667.1719 1183.3438,669.3438 Q1183.3438,671.6406 1184.1719,672.625 Q1185,673.6094 1186.3281,673.6094 Q1187.3125,673.6094 1188.0156,672.9844 Q1188.7188,672.3594 1189.0156,671.0313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="30" x="1203.75" y="675.0679">Deal</text><line style="stroke:#000000;stroke-width:1.0;" x1="1073.5" x2="1336.5" y1="683.5" y2="683.5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="1078.5" y="701.5752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="147" x="1078.5" y="718.5898">-amount: BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="187" x="1078.5" y="735.6045">-closeDate: LocalDateTime</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="140" x="1078.5" y="752.6191">-status: DealStatus</text><line style="stroke:#000000;stroke-width:1.0;" x1="1073.5" x2="1336.5" y1="759.5586" y2="759.5586"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="253" x="1078.5" y="777.6338">+calculateCommission(): BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="142" x="1078.5" y="794.6484">+validate(): boolean</text></g><!--MD5=[6f82515434f0f9b0e492c125596c3d44]
+class Commission--><g id="elem_Commission"><rect codeLine="23" fill="#FFFFFF" height="146.0879" id="Commission" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="236" x="268" y="890"/><ellipse cx="339.75" cy="904" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M342.5156,905.5313 L344.9063,906.2813 Q344.3594,908.2656 343.0781,909.2344 Q341.8125,910.2031 339.8438,910.2031 Q337.4219,910.2031 335.8594,908.5469 Q334.3125,906.8906 334.3125,904.0156 Q334.3125,900.9844 335.875,899.3125 Q337.4375,897.625 340,897.625 Q342.2344,897.625 343.625,898.9375 Q344.4531,899.7188 344.875,901.1875 L342.4375,901.7656 Q342.2188,900.8125 341.5313,900.2656 Q340.8594,899.7188 339.875,899.7188 Q338.5156,899.7188 337.6719,900.7031 Q336.8438,901.6719 336.8438,903.8438 Q336.8438,906.1406 337.6719,907.125 Q338.5,908.1094 339.8281,908.1094 Q340.8125,908.1094 341.5156,907.4844 Q342.2188,906.8594 342.5156,905.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="85" x="357.25" y="909.5679">Commission</text><line style="stroke:#000000;stroke-width:1.0;" x1="269" x2="503" y1="918" y2="918"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="274" y="936.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="147" x="274" y="953.0898">-amount: BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="195" x="274" y="970.1045">-status: CommissionStatus</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="224" x="274" y="987.1191">-calculationDate: LocalDateTime</text><line style="stroke:#000000;stroke-width:1.0;" x1="269" x2="503" y1="994.0586" y2="994.0586"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="168" x="274" y="1012.1338">+calculate(): BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="120" x="274" y="1029.1484">+approve(): void</text></g><!--MD5=[72d5a08b053d85d3ab2ec728f93faff3]
+class CommissionPlan--><g id="elem_CommissionPlan"><rect codeLine="32" fill="#FFFFFF" height="129.0732" id="CommissionPlan" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="334" x="658" y="441"/><ellipse cx="764.75" cy="455" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M767.5156,456.5313 L769.9063,457.2813 Q769.3594,459.2656 768.0781,460.2344 Q766.8125,461.2031 764.8438,461.2031 Q762.4219,461.2031 760.8594,459.5469 Q759.3125,457.8906 759.3125,455.0156 Q759.3125,451.9844 760.875,450.3125 Q762.4375,448.625 765,448.625 Q767.2344,448.625 768.625,449.9375 Q769.4531,450.7188 769.875,452.1875 L767.4375,452.7656 Q767.2188,451.8125 766.5313,451.2656 Q765.8594,450.7188 764.875,450.7188 Q763.5156,450.7188 762.6719,451.7031 Q761.8438,452.6719 761.8438,454.8438 Q761.8438,457.1406 762.6719,458.125 Q763.5,459.1094 764.8281,459.1094 Q765.8125,459.1094 766.5156,458.4844 Q767.2188,457.8594 767.5156,456.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="782.25" y="460.5679">CommissionPlan</text><line style="stroke:#000000;stroke-width:1.0;" x1="659" x2="991" y1="469" y2="469"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="664" y="487.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="99" x="664" y="504.0898">-name: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="664" y="521.1045">-isActive: boolean</text><line style="stroke:#000000;stroke-width:1.0;" x1="659" x2="991" y1="528.0439" y2="528.0439"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="249" x="664" y="546.1191">+getTiers(): List&lt;CommissionTier&gt;</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="322" x="664" y="563.1338">+calculateCommission(deal: Deal): BigDecimal</text></g><!--MD5=[3916a419d8f18079c2aff41801ffd25f]
+class CommissionRule--><g id="elem_CommissionRule"><rect codeLine="40" fill="#FFFFFF" height="129.0732" id="CommissionRule" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="227" x="845.5" y="898.5"/><ellipse cx="897.75" cy="912.5" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M900.5156,914.0313 L902.9063,914.7813 Q902.3594,916.7656 901.0781,917.7344 Q899.8125,918.7031 897.8438,918.7031 Q895.4219,918.7031 893.8594,917.0469 Q892.3125,915.3906 892.3125,912.5156 Q892.3125,909.4844 893.875,907.8125 Q895.4375,906.125 898,906.125 Q900.2344,906.125 901.625,907.4375 Q902.4531,908.2188 902.875,909.6875 L900.4375,910.2656 Q900.2188,909.3125 899.5313,908.7656 Q898.8594,908.2188 897.875,908.2188 Q896.5156,908.2188 895.6719,909.2031 Q894.8438,910.1719 894.8438,912.3438 Q894.8438,914.6406 895.6719,915.625 Q896.5,916.6094 897.8281,916.6094 Q898.8125,916.6094 899.5156,915.9844 Q900.2188,915.3594 900.5156,914.0313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="115" x="915.25" y="918.0679">CommissionRule</text><line style="stroke:#000000;stroke-width:1.0;" x1="846.5" x2="1071.5" y1="926.5" y2="926.5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="851.5" y="944.5752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="121" x="851.5" y="961.5898">-ruleType: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="160" x="851.5" y="978.6045">-threshold: BigDecimal</text><line style="stroke:#000000;stroke-width:1.0;" x1="846.5" x2="1071.5" y1="985.5439" y2="985.5439"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="215" x="851.5" y="1003.6191">+apply(deal: Deal): BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="142" x="851.5" y="1020.6338">+validate(): boolean</text></g><!--MD5=[35972b0dc0e8e56273d17773dab25537]
+class CommissionTier--><g id="elem_CommissionTier"><rect codeLine="48" fill="#FFFFFF" height="129.0732" id="CommissionTier" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="431" x="510.5" y="664"/><ellipse cx="666.75" cy="678" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M669.5156,679.5313 L671.9063,680.2813 Q671.3594,682.2656 670.0781,683.2344 Q668.8125,684.2031 666.8438,684.2031 Q664.4219,684.2031 662.8594,682.5469 Q661.3125,680.8906 661.3125,678.0156 Q661.3125,674.9844 662.875,673.3125 Q664.4375,671.625 667,671.625 Q669.2344,671.625 670.625,672.9375 Q671.4531,673.7188 671.875,675.1875 L669.4375,675.7656 Q669.2188,674.8125 668.5313,674.2656 Q667.8594,673.7188 666.875,673.7188 Q665.5156,673.7188 664.6719,674.7031 Q663.8438,675.6719 663.8438,677.8438 Q663.8438,680.1406 664.6719,681.125 Q665.5,682.1094 666.8281,682.1094 Q667.8125,682.1094 668.5156,681.4844 Q669.2188,680.8594 669.5156,679.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="111" x="684.25" y="683.5679">CommissionTier</text><line style="stroke:#000000;stroke-width:1.0;" x1="511.5" x2="940.5" y1="692" y2="692"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="516.5" y="710.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="174" x="516.5" y="727.0898">-minAmount: BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="179" x="516.5" y="744.1045">-maxAmount: BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="121" x="516.5" y="761.1191">-rate: BigDecimal</text><line style="stroke:#000000;stroke-width:1.0;" x1="511.5" x2="940.5" y1="768.0586" y2="768.0586"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="419" x="516.5" y="786.1338">+calculateTierCommission(amount: BigDecimal): BigDecimal</text></g><!--MD5=[9be687320010de235d42f861cee129f6]
+class Dispute--><g id="elem_Dispute"><rect codeLine="56" fill="#FFFFFF" height="163.1025" id="Dispute" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="216" x="14" y="647"/><ellipse cx="91.25" cy="661" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M94.0156,662.5313 L96.4063,663.2813 Q95.8594,665.2656 94.5781,666.2344 Q93.3125,667.2031 91.3438,667.2031 Q88.9219,667.2031 87.3594,665.5469 Q85.8125,663.8906 85.8125,661.0156 Q85.8125,657.9844 87.375,656.3125 Q88.9375,654.625 91.5,654.625 Q93.7344,654.625 95.125,655.9375 Q95.9531,656.7188 96.375,658.1875 L93.9375,658.7656 Q93.7188,657.8125 93.0313,657.2656 Q92.3594,656.7188 91.375,656.7188 Q90.0156,656.7188 89.1719,657.7031 Q88.3438,658.6719 88.3438,660.8438 Q88.3438,663.1406 89.1719,664.125 Q90,665.1094 91.3281,665.1094 Q92.3125,665.1094 93.0156,664.4844 Q93.7188,663.8594 94.0156,662.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="54" x="108.75" y="666.5679">Dispute</text><line style="stroke:#000000;stroke-width:1.0;" x1="15" x2="229" y1="675" y2="675"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="20" y="693.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="87" x="20" y="710.0898">-title: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="138" x="20" y="727.1045">-description: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="164" x="20" y="744.1191">-status: DisputeStatus</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="204" x="20" y="761.1338">-createdDate: LocalDateTime</text><line style="stroke:#000000;stroke-width:1.0;" x1="15" x2="229" y1="768.0732" y2="768.0732"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="119" x="20" y="786.1484">+escalate(): void</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="20" y="803.1631">+resolve(): void</text></g><!--MD5=[c58531ee4716087c42090a5b3a8e9b50]
+class DisputeComment--><g id="elem_DisputeComment"><rect codeLine="66" fill="#FFFFFF" height="112.0586" id="DisputeComment" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="216" x="12" y="907"/><ellipse cx="55.25" cy="921" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M58.0156,922.5313 L60.4063,923.2813 Q59.8594,925.2656 58.5781,926.2344 Q57.3125,927.2031 55.3438,927.2031 Q52.9219,927.2031 51.3594,925.5469 Q49.8125,923.8906 49.8125,921.0156 Q49.8125,917.9844 51.375,916.3125 Q52.9375,914.625 55.5,914.625 Q57.7344,914.625 59.125,915.9375 Q59.9531,916.7188 60.375,918.1875 L57.9375,918.7656 Q57.7188,917.8125 57.0313,917.2656 Q56.3594,916.7188 55.375,916.7188 Q54.0156,916.7188 53.1719,917.7031 Q52.3438,918.6719 52.3438,920.8438 Q52.3438,923.1406 53.1719,924.125 Q54,925.1094 55.3281,925.1094 Q56.3125,925.1094 57.0156,924.4844 Q57.7188,923.8594 58.0156,922.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="122" x="72.75" y="926.5679">DisputeComment</text><line style="stroke:#000000;stroke-width:1.0;" x1="13" x2="227" y1="935" y2="935"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="18" y="953.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="18" y="970.0898">-comment: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="204" x="18" y="987.1045">-createdDate: LocalDateTime</text><line style="stroke:#000000;stroke-width:1.0;" x1="13" x2="227" y1="994.0439" y2="994.0439"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="157" x="18" y="1012.1191">+addComment(): void</text></g><!--MD5=[639fd5ac9d28f676383b6ca2f1944295]
+class AuditEntry--><g id="elem_AuditEntry"><rect codeLine="73" fill="#FFFFFF" height="129.0732" id="AuditEntry" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="205" x="283.5" y="1116"/><ellipse cx="344.75" cy="1130" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M347.5156,1131.5313 L349.9063,1132.2813 Q349.3594,1134.2656 348.0781,1135.2344 Q346.8125,1136.2031 344.8438,1136.2031 Q342.4219,1136.2031 340.8594,1134.5469 Q339.3125,1132.8906 339.3125,1130.0156 Q339.3125,1126.9844 340.875,1125.3125 Q342.4375,1123.625 345,1123.625 Q347.2344,1123.625 348.625,1124.9375 Q349.4531,1125.7188 349.875,1127.1875 L347.4375,1127.7656 Q347.2188,1126.8125 346.5313,1126.2656 Q345.8594,1125.7188 344.875,1125.7188 Q343.5156,1125.7188 342.6719,1126.7031 Q341.8438,1127.6719 341.8438,1129.8438 Q341.8438,1132.1406 342.6719,1133.125 Q343.5,1134.1094 344.8281,1134.1094 Q345.8125,1134.1094 346.5156,1133.4844 Q347.2188,1132.8594 347.5156,1131.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="75" x="362.25" y="1135.5679">AuditEntry</text><line style="stroke:#000000;stroke-width:1.0;" x1="284.5" x2="487.5" y1="1144" y2="1144"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="73" x="289.5" y="1162.0752">-id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="103" x="289.5" y="1179.0898">-action: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="193" x="289.5" y="1196.1045">-timestamp: LocalDateTime</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="106" x="289.5" y="1213.1191">-details: String</text><line style="stroke:#000000;stroke-width:1.0;" x1="284.5" x2="487.5" y1="1220.0586" y2="1220.0586"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="84" x="289.5" y="1238.1338">+log(): void</text></g><!--MD5=[450ef3eaf0cc534204004191c7296897]
+class Calculable--><g id="elem_Calculable"><rect codeLine="81" fill="#FFFFFF" height="78.0293" id="Calculable" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="180" x="458" y="252"/><ellipse cx="508.25" cy="266" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M507.4063,272 L507.4063,259.8281 L509.875,259.8281 L509.875,272 L507.4063,272 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="525.75" y="271.5679">Calculable</text><line style="stroke:#000000;stroke-width:1.0;" x1="459" x2="637" y1="280" y2="280"/><line style="stroke:#000000;stroke-width:1.0;" x1="459" x2="637" y1="288" y2="288"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="168" x="464" y="306.0752">+calculate(): BigDecimal</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="142" x="464" y="323.0898">+validate(): boolean</text></g><!--MD5=[7d75efcc7d06b347edea0516f6aac1d8]
+class BaseEntity--><g id="elem_BaseEntity"><rect codeLine="86" fill="#FFFFFF" height="129.0732" id="BaseEntity" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="250" x="700" y="12"/><ellipse cx="783.75" cy="26" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M790.4531,31 L787.7813,31 L786.7188,28.2344 L781.8594,28.2344 L780.8594,31 L778.25,31 L782.9844,18.8281 L785.5938,18.8281 L790.4531,31 Z M785.9375,26.1875 L784.2656,21.6719 L782.6094,26.1875 L785.9375,26.1875 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="75" x="801.25" y="31.5679">BaseEntity</text><line style="stroke:#000000;stroke-width:1.0;" x1="701" x2="949" y1="40" y2="40"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="77" x="706" y="58.0752">#id: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="208" x="706" y="75.0898">#createdDate: LocalDateTime</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="238" x="706" y="92.1045">#lastModifiedDate: LocalDateTime</text><line style="stroke:#000000;stroke-width:1.0;" x1="701" x2="949" y1="99.0439" y2="99.0439"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="114" x="706" y="117.1191">+getId(): String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="189" x="706" y="134.1338">+updateTimestamp(): void</text></g><!--MD5=[f1f18f67cbc2f19448116c85c6ec7a8c]
+class DealProduct--><g id="elem_DealProduct"><rect codeLine="94" fill="#FFFFFF" height="112.0586" id="DealProduct" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="217" x="1431.5" y="907"/><ellipse cx="1494.25" cy="921" fill="#FFFFFF" rx="9" ry="9" style="stroke:#000000;stroke-width:1.0;"/><path d="M1497.0156,922.5313 L1499.4063,923.2813 Q1498.8594,925.2656 1497.5781,926.2344 Q1496.3125,927.2031 1494.3438,927.2031 Q1491.9219,927.2031 1490.3594,925.5469 Q1488.8125,923.8906 1488.8125,921.0156 Q1488.8125,917.9844 1490.375,916.3125 Q1491.9375,914.625 1494.5,914.625 Q1496.7344,914.625 1498.125,915.9375 Q1498.9531,916.7188 1499.375,918.1875 L1496.9375,918.7656 Q1496.7188,917.8125 1496.0313,917.2656 Q1495.3594,916.7188 1494.375,916.7188 Q1493.0156,916.7188 1492.1719,917.7031 Q1491.3438,918.6719 1491.3438,920.8438 Q1491.3438,923.1406 1492.1719,924.125 Q1493,925.1094 1494.3281,925.1094 Q1495.3125,925.1094 1496.0156,924.4844 Q1496.7188,923.8594 1497.0156,922.5313 Z " fill="#000000"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="84" x="1511.75" y="926.5679">DealProduct</text><line style="stroke:#000000;stroke-width:1.0;" x1="1432.5" x2="1647.5" y1="935" y2="935"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="130" x="1437.5" y="953.0752">-productId: String</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="94" x="1437.5" y="970.0898">-quantity: int</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="152" x="1437.5" y="987.1045">-unitPrice: BigDecimal</text><line style="stroke:#000000;stroke-width:1.0;" x1="1432.5" x2="1647.5" y1="994.0439" y2="994.0439"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="205" x="1437.5" y="1012.1191">+getTotalValue(): BigDecimal</text></g><g id="elem_GMN31"><path d="M1107.5,887 L1107.5,1039.1938 A0,0 0 0 0 1107.5,1039.1938 L1396.5,1039.1938 A0,0 0 0 0 1396.5,1039.1938 L1396.5,897 L1386.5,887 L1240.83,887 L1219.61,801.79 L1232.83,887 L1107.5,887 A0,0 0 0 0 1107.5,887 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M1386.5,887 L1386.5,897 L1396.5,897 L1386.5,887 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="136" x="1113.5" y="905.0698">Relationship Types</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="89" x="1113.5" y="920.8691">Inheritance:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="72" x="1207.5" y="920.8691">&lt;|-- (is-a)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="85" x="1113.5" y="936.6685">Realization:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="116" x="1203.5" y="936.6685">&lt;|.. (implements)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="96" x="1113.5" y="952.4678">Composition:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="153" x="1214.5" y="952.4678">*-- (strong ownership)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="94" x="1113.5" y="968.2671">Aggregation:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="144" x="1212.5" y="968.2671">o-- (weak ownership)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="89" x="1113.5" y="984.0664">Association:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="124" x="1207.5" y="984.0664">--&gt; (knows about)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="96" x="1113.5" y="999.8657">Bidirectional:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="167" x="1214.5" y="999.8657">&lt;--&gt; (mutual knowledge)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="84" x="1113.5" y="1015.665">Undirected:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="145" x="1202.5" y="1015.665">-- (basic relationship)</text><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="95" x="1113.5" y="1031.4644">Dependency:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="144" x="1213.5" y="1031.4644">..&gt; (uses temporarily)</text></g><!--MD5=[399725f92b64944fafc4dbd2678d6279]
+reverse link BaseEntity to User--><g id="link_BaseEntity_User"><path codeLine="102" d="M825,161.37 C825,180 825,199.6 825,217.72 " fill="none" id="BaseEntity-backto-User" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="none" points="818,161.26,825,141.26,832,161.26,818,161.26" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="52" x="826" y="185.0698">extends</text></g><!--MD5=[4ca838c55759e31755c5a11e7c5ca700]
+reverse link BaseEntity to Deal--><g id="link_BaseEntity_Deal"><path codeLine="103" d="M929.97,153.51 C1011.78,219.38 1119.95,322.56 1172,441 C1202.06,509.41 1208.29,595.44 1208.25,655.28 " fill="none" id="BaseEntity-backto-Deal" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="none" points="925.56,158.95,914.24,141.04,934.26,147.98,925.56,158.95" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="52" x="1158" y="408.0698">extends</text></g><!--MD5=[5bee184c4861d51b9a4547c0ae7508f9]
+reverse link BaseEntity to Commission--><g id="link_BaseEntity_Commission"><path codeLine="104" d="M680.16,104.98 C520.2,139.56 285,204.89 285,290 C285,290 285,290 285,729.5 C285,786.6 310.95,845.55 336.54,889.8 " fill="none" id="BaseEntity-backto-Commission" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="none" points="678.74,98.12,699.76,100.81,681.65,111.82,678.74,98.12" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="52" x="286" y="511.0698">extends</text></g><!--MD5=[67f10933240cdbeb2173c2f9187439e5]
+reverse link Calculable to Commission--><g id="link_Calculable_Commission"><path codeLine="107" d="M506.59,346.21 C464.81,404.97 403.6,503.34 383,600 C361.94,698.81 368.51,816.26 376.32,889.99 " fill="none" id="Calculable-backto-Commission" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="500.93,342.09,518.34,330.01,512.27,350.31,500.93,342.09" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="73" x="384" y="614.0698">implements</text></g><!--MD5=[4a1cf2352537d95a8bbb70a70b1d850f]
+reverse link Calculable to CommissionPlan--><g id="link_Calculable_CommissionPlan"><path codeLine="108" d="M613.89,342.55 C652.31,372.02 701.14,409.48 742.15,440.94 " fill="none" id="Calculable-backto-CommissionPlan" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="609.45,347.96,597.84,330.24,617.97,336.86,609.45,347.96" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="73" x="705" y="408.0698">implements</text></g><!--MD5=[a40ac287fb2a7edac1926a2f6af814f1]
+reverse link CommissionPlan to CommissionTier--><g id="link_CommissionPlan_CommissionTier"><path codeLine="111" d="M791.12,582.13 C779.19,608.76 765.91,638.4 754.47,663.94 " fill="none" id="CommissionPlan-backto-CommissionTier" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="796.5,570.13,790.3976,573.972,791.597,581.0827,797.6994,577.2407,796.5,570.13" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="56" x="783" y="614.0698">contains</text></g><!--MD5=[f010448d44aebc2d65a81fb65d55b3c4]
+reverse link Dispute to DisputeComment--><g id="link_Dispute_DisputeComment"><path codeLine="112" d="M117.18,823.32 C116.93,834.67 116.84,846.09 117,857 C117.23,873.23 117.67,890.86 118.13,906.97 " fill="none" id="Dispute-backto-DisputeComment" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="117.53,810.08,113.3666,815.9678,117.2001,822.0755,121.3635,816.1877,117.53,810.08" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="34" x="118" y="854.0698">owns</text></g><!--MD5=[8409757301d754ba197b160304fce53e]
+reverse link CommissionPlan to CommissionRule--><g id="link_CommissionPlan_CommissionRule"><path codeLine="115" d="M910.68,579.9 C929.28,599.86 946.96,622.74 959,647 C1000.93,731.52 1003.5,763.63 990,857 C988.04,870.54 984.73,884.78 980.99,898.24 " fill="none" id="CommissionPlan-backto-CommissionRule" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="none" points="901.5,570.34,902.771,577.4382,909.812,578.9951,908.541,571.8969,901.5,570.34" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="23" x="999" y="734.0698">has</text></g><!--MD5=[b357dd4e91a30be547c4336663d617fb]
+reverse link User to CommissionPlan--><g id="link_User_CommissionPlan"><path codeLine="116" d="M825,377.3 C825,398.56 825,420.99 825,441 " fill="none" id="User-backto-CommissionPlan" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="none" points="825,364.24,821,370.24,825,376.24,829,370.24,825,364.24" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="57" x="826" y="408.0698">assigned</text></g><!--MD5=[71d5ff5216359e069e908fb69e8ba03f]
+link User to Deal--><g id="link_User_Deal"><path codeLine="119" d="M929.19,369.42 C956.27,391.37 984.65,416.11 1009,441 C1071.47,504.87 1082.35,525.72 1132,600 C1142.23,615.31 1152.5,632.12 1161.97,648.37 " fill="none" id="User-Deal" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1161.9702" x2="1171.1662" y1="648.3717" y2="652.3001"/><line style="stroke:#000000;stroke-width:1.0;" x1="1161.9702" x2="1160.7738" y1="648.3717" y2="658.2999"/><line style="stroke:#000000;stroke-width:1.0;" x1="1161.9702" x2="1165.97" y1="648.3717" y2="655.3"/><ellipse cx="1158.9703" cy="643.1755" fill="none" rx="4" ry="4" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="923.3096" x2="928.335" y1="369.815" y2="363.5904"/><line style="stroke:#000000;stroke-width:1.0;" x1="925.6438" x2="930.6692" y1="371.6995" y2="365.4749"/><line style="stroke:#000000;stroke-width:1.0;" x1="928.9346" x2="922.71" y1="369.2154" y2="364.19"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="50" x="1113" y="511.0698">creates</text></g><!--MD5=[147225253484e99424e5f332932ae650]
+link Deal to Commission--><g id="link_Deal_Commission"><path codeLine="120" d="M1066.01,801.86 C1058.97,804.76 1051.94,807.49 1045,810 C864.49,875.16 645.84,919.08 511.34,942.31 " fill="none" id="Deal-Commission" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="508.8197" x2="507.4648" y1="946.8048" y2="938.9203"/><line style="stroke:#000000;stroke-width:1.0;" x1="511.7763" x2="510.4214" y1="946.2967" y2="938.4123"/><line style="stroke:#000000;stroke-width:1.0;" x1="512.0844" x2="504.2" y1="942.1851" y2="943.54"/><line style="stroke:#000000;stroke-width:1.0;" x1="1067.2465" x2="1070.3327" y1="797.0127" y2="804.3935"/><line style="stroke:#000000;stroke-width:1.0;" x1="1064.4788" x2="1067.5649" y1="798.17" y2="805.5508"/><line style="stroke:#000000;stroke-width:1.0;" x1="1065.0993" x2="1072.48" y1="802.2462" y2="799.16"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="66" x="941" y="854.0698">generates</text></g><!--MD5=[df5955c8abe8ecab451bbc2760ff9887]
+link Commission to User--><g id="link_Commission_User"><path codeLine="121" d="M406.16,882.03 C424.25,816.75 453.95,723.19 493,647 C544.3,546.91 571.38,530.12 640,441 C656.56,419.49 659.03,412.38 679,394 C688.23,385.5 698.21,377.14 708.45,369.07 " fill="none" id="Commission-User" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="709.2576" x2="714.1622" y1="363.3822" y2="369.7024"/><line style="stroke:#000000;stroke-width:1.0;" x1="706.8875" x2="711.7921" y1="365.2214" y2="371.5416"/><line style="stroke:#000000;stroke-width:1.0;" x1="708.5498" x2="714.87" y1="368.9946" y2="364.09"/><line style="stroke:#000000;stroke-width:1.0;" x1="406.1346" x2="409.8066" y1="882.1245" y2="891.426"/><line style="stroke:#000000;stroke-width:1.0;" x1="406.1346" x2="398.2334" y1="882.1245" y2="888.254"/><line style="stroke:#000000;stroke-width:1.0;" x1="406.1346" x2="404.02" y1="882.1245" y2="889.84"/><ellipse cx="407.7206" cy="876.3379" fill="none" rx="4" ry="4" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="69" x="520" y="614.0698">belongs to</text></g><!--MD5=[24279f377d03eaadd791b6a004d57519]
+link Deal to DealProduct--><g id="link_Deal_DealProduct"><path codeLine="124" d="M1313.48,804.79 C1359.89,837 1413.24,874.03 1456.5,904.05 " fill="none" id="Deal-DealProduct" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="1460.66,906.93,1455.563,898.5026,1456.5578,904.0713,1450.9891,905.0661,1460.66,906.93" style="stroke:#000000;stroke-width:1.0;"/><polygon fill="#000000" points="1309.16,801.79,1314.2707,810.209,1313.2668,804.642,1318.8339,803.6381,1309.16,801.79" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="131" x="1383" y="854.0698">contains/belongs to</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="8" x="1310.7065" y="822.594">1</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="9" x="1439.87" y="896.1124">*</text></g><!--MD5=[c19e382f6653a66201c80987aa50c21e]
+link Dispute to Commission--><g id="link_Dispute_Commission"><path codeLine="127" d="M157.84,810.2 C167.66,826.93 179.41,843.54 193,857 C196.57,860.53 229.82,878.91 267.75,899.32 " fill="none" id="Dispute-Commission" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="64" x="194" y="854.0698">relates to</text></g><!--MD5=[7c4b127b896defd61caf09e91b22efa2]
+link Commission to AuditEntry--><g id="link_Commission_AuditEntry"><path codeLine="130" d="M386,1036.06 C386,1060.16 386,1086.95 386,1110.79 " fill="none" id="Commission-to-AuditEntry" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#000000" points="386,1115.83,390,1106.83,386,1110.83,382,1106.83,386,1115.83" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="45" x="387" y="1083.0698">logs to</text></g><!--MD5=[ebb52ca5f4e045750e7dc08d3aef8431]
+link Deal to CommissionRule--><g id="link_Deal_CommissionRule"><path codeLine="131" d="M1128.51,801.79 C1097.07,831.51 1060.87,865.72 1030.02,894.88 " fill="none" id="Deal-to-CommissionRule" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#000000" points="1026.28,898.41,1035.5685,895.1352,1029.9139,894.9756,1030.0735,889.321,1026.28,898.41" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="30" x="1083" y="854.0698">uses</text></g><!--MD5=[4982b47e6337ef508cf08701fb8e2957]
+link CommissionPlan to Deal--><g id="link_CommissionPlan_Deal"><path codeLine="132" d="M974.82,570.08 C994.04,579.52 1013.2,589.59 1031,600 C1057.43,615.46 1084.73,634.05 1109.65,652.2 " fill="none" id="CommissionPlan-to-Deal" style="stroke:#000000;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#000000" points="1113.95,655.34,1109.042,646.8012,1109.9125,652.3906,1104.323,653.2611,1113.95,655.34" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="66" x="1057" y="614.0698">processes</text></g><!--MD5=[4ab61674e01ac9958b0172e3178e0cec]
+@startuml Sales Commission Calculator - Model Class Diagram
+!theme plain
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+
+class User {
+    - id: String
+    - username: String
+    - email: String
+    - role: UserRole
+    + authenticate(): boolean
+    + getPermissions(): List<Permission>
+}
+
+class Deal {
+    - id: String
+    - amount: BigDecimal
+    - closeDate: LocalDateTime
+    - status: DealStatus
+    + calculateCommission(): BigDecimal
+    + validate(): boolean
+}
+
+class Commission {
+    - id: String
+    - amount: BigDecimal
+    - status: CommissionStatus
+    - calculationDate: LocalDateTime
+    + calculate(): BigDecimal
+    + approve(): void
+}
+
+class CommissionPlan {
+    - id: String
+    - name: String
+    - isActive: boolean
+    + getTiers(): List<CommissionTier>
+    + calculateCommission(deal: Deal): BigDecimal
+}
+
+class CommissionRule {
+    - id: String
+    - ruleType: String
+    - threshold: BigDecimal
+    + apply(deal: Deal): BigDecimal
+    + validate(): boolean
+}
+
+class CommissionTier {
+    - id: String
+    - minAmount: BigDecimal
+    - maxAmount: BigDecimal
+    - rate: BigDecimal
+    + calculateTierCommission(amount: BigDecimal): BigDecimal
+}
+
+class Dispute {
+    - id: String
+    - title: String
+    - description: String
+    - status: DisputeStatus
+    - createdDate: LocalDateTime
+    + escalate(): void
+    + resolve(): void
+}
+
+class DisputeComment {
+    - id: String
+    - comment: String
+    - createdDate: LocalDateTime
+    + addComment(): void
+}
+
+class AuditEntry {
+    - id: String
+    - action: String
+    - timestamp: LocalDateTime
+    - details: String
+    + log(): void
+}
+
+interface Calculable {
+    + calculate(): BigDecimal
+    + validate(): boolean
+}
+
+abstract class BaseEntity {
+    # id: String
+    # createdDate: LocalDateTime
+    # lastModifiedDate: LocalDateTime
+    + getId(): String
+    + updateTimestamp(): void
+}
+
+class DealProduct {
+    - productId: String
+    - quantity: int
+    - unitPrice: BigDecimal
+    + getTotalValue(): BigDecimal
+}
+
+' Inheritance (Generalization)
+BaseEntity <|- - User : extends
+BaseEntity <|- - Deal : extends
+BaseEntity <|- - Commission : extends
+
+' Realization (Interface Implementation)
+Calculable <|.. Commission : implements
+Calculable <|.. CommissionPlan : implements
+
+' Composition (Strong ownership - parts cannot exist without whole)
+CommissionPlan *- - CommissionTier : contains
+Dispute *- - DisputeComment : owns
+
+' Aggregation (Weak ownership - parts can exist independently)
+CommissionPlan o- - CommissionRule : has
+User o- - CommissionPlan : assigned
+
+' Association with multiplicity
+User ||- -o{ Deal : creates
+Deal ||- -|| Commission : generates
+Commission }o- -|| User : belongs to
+
+' Bidirectional Association
+Deal "1" <- -> "*" DealProduct : contains/belongs to
+
+' Undirected Association
+Dispute - - Commission : relates to
+
+' Dependency (uses relationship)
+Commission ..> AuditEntry : logs to
+Deal ..> CommissionRule : uses
+CommissionPlan ..> Deal : processes
+
+note bottom : **Relationship Types**\n**Inheritance:** <|- - (is-a)\n**Realization:** <|.. (implements)\n**Composition:** *- - (strong ownership)\n**Aggregation:** o- - (weak ownership)\n**Association:** - -> (knows about)\n**Bidirectional:** <- -> (mutual knowledge)\n**Undirected:** - - (basic relationship)\n**Dependency:** ..> (uses temporarily)
+
+@enduml
+
+@startuml Sales Commission Calculator - Model Class Diagram
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+
+class User {
+    - id: String
+    - username: String
+    - email: String
+    - role: UserRole
+    + authenticate(): boolean
+    + getPermissions(): List<Permission>
+}
+
+class Deal {
+    - id: String
+    - amount: BigDecimal
+    - closeDate: LocalDateTime
+    - status: DealStatus
+    + calculateCommission(): BigDecimal
+    + validate(): boolean
+}
+
+class Commission {
+    - id: String
+    - amount: BigDecimal
+    - status: CommissionStatus
+    - calculationDate: LocalDateTime
+    + calculate(): BigDecimal
+    + approve(): void
+}
+
+class CommissionPlan {
+    - id: String
+    - name: String
+    - isActive: boolean
+    + getTiers(): List<CommissionTier>
+    + calculateCommission(deal: Deal): BigDecimal
+}
+
+class CommissionRule {
+    - id: String
+    - ruleType: String
+    - threshold: BigDecimal
+    + apply(deal: Deal): BigDecimal
+    + validate(): boolean
+}
+
+class CommissionTier {
+    - id: String
+    - minAmount: BigDecimal
+    - maxAmount: BigDecimal
+    - rate: BigDecimal
+    + calculateTierCommission(amount: BigDecimal): BigDecimal
+}
+
+class Dispute {
+    - id: String
+    - title: String
+    - description: String
+    - status: DisputeStatus
+    - createdDate: LocalDateTime
+    + escalate(): void
+    + resolve(): void
+}
+
+class DisputeComment {
+    - id: String
+    - comment: String
+    - createdDate: LocalDateTime
+    + addComment(): void
+}
+
+class AuditEntry {
+    - id: String
+    - action: String
+    - timestamp: LocalDateTime
+    - details: String
+    + log(): void
+}
+
+interface Calculable {
+    + calculate(): BigDecimal
+    + validate(): boolean
+}
+
+abstract class BaseEntity {
+    # id: String
+    # createdDate: LocalDateTime
+    # lastModifiedDate: LocalDateTime
+    + getId(): String
+    + updateTimestamp(): void
+}
+
+class DealProduct {
+    - productId: String
+    - quantity: int
+    - unitPrice: BigDecimal
+    + getTotalValue(): BigDecimal
+}
+
+BaseEntity <|- - User : extends
+BaseEntity <|- - Deal : extends
+BaseEntity <|- - Commission : extends
+
+Calculable <|.. Commission : implements
+Calculable <|.. CommissionPlan : implements
+
+CommissionPlan *- - CommissionTier : contains
+Dispute *- - DisputeComment : owns
+
+CommissionPlan o- - CommissionRule : has
+User o- - CommissionPlan : assigned
+
+User ||- -o{ Deal : creates
+Deal ||- -|| Commission : generates
+Commission }o- -|| User : belongs to
+
+Deal "1" <- -> "*" DealProduct : contains/belongs to
+
+Dispute - - Commission : relates to
+
+Commission ..> AuditEntry : logs to
+Deal ..> CommissionRule : uses
+CommissionPlan ..> Deal : processes
+
+note bottom : **Relationship Types**\n**Inheritance:** <|- - (is-a)\n**Realization:** <|.. (implements)\n**Composition:** *- - (strong ownership)\n**Aggregation:** o- - (weak ownership)\n**Association:** - -> (knows about)\n**Bidirectional:** <- -> (mutual knowledge)\n**Undirected:** - - (basic relationship)\n**Dependency:** ..> (uses temporarily)
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 09:10:57 PDT 2022)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

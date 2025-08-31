@@ -1,0 +1,33 @@
+{
+	"plantumlVersion": "latest",
+	"projectName": "Commission Calculator",
+	"homepageName": "Overview",
+	"rootFolder": "src",
+	"distFolder": "docs",
+	"generateMD": false,
+	"generatePDF": true,
+	"generateCompleteMD": false,
+	"generateCompletePDF": true,
+	"generateWEB": true,
+	"webTheme": "//unpkg.com/docsify/lib/themes/vue.css",
+	"supportSearch": true,
+	"repoUrl": "",
+	"docsifyTemplate": "",
+	"webPort": "3000",
+	"pdfCss": "C:\\Users\\ssund\\AppData\\Roaming\\npm\\node_modules\\c4builder\\pdf.css",
+	"includeBreadcrumbs": true,
+	"includeLinkToDiagram": false,
+	"diagramsOnTop": true,
+	"embedDiagram": false,
+	"excludeOtherFiles": false,
+	"generateLocalImages": true,
+	"plantumlServerUrl": "https://www.plantuml.com/plantuml",
+	"diagramFormat": "svg",
+	"charset": "UTF-8",
+	"hasRun": true,
+	"checksums": [
+		"a8a0bb6dad096c815098b0665197a1c3a6476e37e8ccda5be48db389145c3d8a",
+		"bc1959d7c3a2a167634398e3c41d17bb02bde8b3e4699fe301ff3f3a7519cec5",
+		"515648cd36bd80b06f80ffe7657f231632af807d69dccfe07276718343210b33"
+	]
+}

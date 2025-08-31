@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="2769px" preserveAspectRatio="none" style="width:2233px;height:2769px;background:#FFFFFF;" version="1.1" viewBox="0 0 2233 2769" width="2233px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="36.7373" style="stroke:#FFFFFF;stroke-width:0.0;" width="826" x="702" y="10"/><text fill="#000000" font-family="Verdana" font-size="22" font-weight="bold" lengthAdjust="spacing" textLength="816" x="707" y="37.1182">Dispute Service - Sequence Diagram: Create and Process Dispute</text><rect fill="#FFFFFF" height="574.3877" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="222.1499"/><rect fill="#FFFFFF" height="365.7925" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="885.9355"/><rect fill="#FFFFFF" height="194.5952" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="1325.3267"/><rect fill="#FFFFFF" height="484.9897" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="1609.3198"/><rect fill="#FFFFFF" height="456.1904" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="294.7485"/><rect fill="#FFFFFF" height="119.1973" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="1355.126"/><rect fill="#FFFFFF" height="409.5918" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="1639.1191"/><rect fill="#FFFFFF" height="232.5952" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="2175.9082"/><rect fill="#FFFFFF" height="290.3945" style="stroke:#000000;stroke-width:1.0;" width="10" x="1059.5" y="915.7349"/><rect fill="#FFFFFF" height="115.3979" style="stroke:#000000;stroke-width:1.0;" width="10" x="1233.5" y="605.7417"/><rect fill="#FFFFFF" height="115.3979" style="stroke:#000000;stroke-width:1.0;" width="10" x="1233.5" y="1860.7144"/><rect fill="#FFFFFF" height="72.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1233.5" y="2335.9048"/><rect fill="#FFFFFF" height="29.7993" style="stroke:#000000;stroke-width:1.0;" width="10" x="1430.5" y="456.7451"/><rect fill="#FFFFFF" height="29.7993" style="stroke:#000000;stroke-width:1.0;" width="10" x="1430.5" y="1801.1157"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="367.3472"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="1116.7314"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="1384.9253"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="1668.9185"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="2246.5068"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1756" y="516.3438"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="174" x2="174" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="461.5" x2="461.5" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="818" x2="818" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1064" x2="1064" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1238" x2="1238" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1435.5" x2="1435.5" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1592.5" x2="1592.5" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1760.5" x2="1760.5" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2002" x2="2002" y1="130.752" y2="2687.6938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2101" x2="2101" y1="130.752" y2="2687.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="69" x="137" y="127.8125">Sales Rep</text><ellipse cx="174.5" cy="61.7373" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.0;"/><path d="M174.5,69.7373 L174.5,96.7373 M161.5,77.7373 L187.5,77.7373 M174.5,96.7373 L161.5,111.7373 M174.5,96.7373 L187.5,111.7373 " fill="none" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="69" x="137" y="2700.769">Sales Rep</text><ellipse cx="174.5" cy="2712.7085" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.0;"/><path d="M174.5,2720.7085 L174.5,2747.7085 M161.5,2728.7085 L187.5,2728.7085 M174.5,2747.7085 L161.5,2762.7085 M174.5,2747.7085 L187.5,2762.7085 " fill="none" style="stroke:#000000;stroke-width:1.0;"/><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="142" x="390.5" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="128" x="397.5" y="119.8125">Dispute Controller</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="142" x="390.5" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="128" x="397.5" y="2707.769">Dispute Controller</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="123" x="757" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="109" x="764" y="119.8125">Dispute Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="123" x="757" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="109" x="764" y="2707.769">Dispute Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="141" x="994" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="127" x="1001" y="119.8125">Document Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="141" x="994" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="127" x="1001" y="2707.769">Document Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="147" x="1165" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="133" x="1172" y="119.8125">Notification Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="147" x="1165" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="133" x="1172" y="2707.769">Notification Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="106" x="1382.5" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="92" x="1389.5" y="119.8125">Audit Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="106" x="1382.5" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="92" x="1389.5" y="2707.769">Audit Service</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="149" x="1518.5" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="135" x="1525.5" y="119.8125">Dispute Repository</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="149" x="1518.5" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="135" x="1525.5" y="2707.769">Dispute Repository</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="127" x="1697.5" y="98.7373"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="1704.5" y="119.8125">User Repository</text><rect fill="#FFFFFF" height="31.0146" rx="2.5" ry="2.5" style="stroke:#000000;stroke-width:1.0;" width="127" x="1697.5" y="2686.6938"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="1704.5" y="2707.769">User Repository</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="66" x="1966" y="127.8125">Database</text><path d="M1984,77.7373 C1984,67.7373 2002,67.7373 2002,67.7373 C2002,67.7373 2020,67.7373 2020,77.7373 L2020,103.7373 C2020,113.7373 2002,113.7373 2002,113.7373 C2002,113.7373 1984,113.7373 1984,103.7373 L1984,77.7373 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.5;"/><path d="M1984,77.7373 C1984,87.7373 2002,87.7373 2002,87.7373 C2002,87.7373 2020,87.7373 2020,77.7373 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="66" x="1966" y="2700.769">Database</text><path d="M1984,2713.7085 C1984,2703.7085 2002,2703.7085 2002,2703.7085 C2002,2703.7085 2020,2703.7085 2020,2713.7085 L2020,2739.7085 C2020,2749.7085 2002,2749.7085 2002,2749.7085 C2002,2749.7085 1984,2749.7085 1984,2739.7085 L1984,2713.7085 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.5;"/><path d="M1984,2713.7085 C1984,2723.7085 2002,2723.7085 2002,2723.7085 C2002,2723.7085 2020,2723.7085 2020,2713.7085 " fill="none" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="101" x="2048" y="127.8125">Sales Manager</text><ellipse cx="2101.5" cy="61.7373" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.0;"/><path d="M2101.5,69.7373 L2101.5,96.7373 M2088.5,77.7373 L2114.5,77.7373 M2101.5,96.7373 L2088.5,111.7373 M2101.5,96.7373 L2114.5,111.7373 " fill="none" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="101" x="2048" y="2700.769">Sales Manager</text><ellipse cx="2101.5" cy="2712.7085" fill="#FFFFFF" rx="8" ry="8" style="stroke:#000000;stroke-width:1.0;"/><path d="M2101.5,2720.7085 L2101.5,2747.7085 M2088.5,2728.7085 L2114.5,2728.7085 M2101.5,2747.7085 L2088.5,2762.7085 M2101.5,2747.7085 L2114.5,2762.7085 " fill="none" style="stroke:#000000;stroke-width:1.0;"/><rect fill="#FFFFFF" height="574.3877" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="222.1499"/><rect fill="#FFFFFF" height="365.7925" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="885.9355"/><rect fill="#FFFFFF" height="194.5952" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="1325.3267"/><rect fill="#FFFFFF" height="484.9897" style="stroke:#000000;stroke-width:1.0;" width="10" x="456.5" y="1609.3198"/><rect fill="#FFFFFF" height="456.1904" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="294.7485"/><rect fill="#FFFFFF" height="119.1973" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="1355.126"/><rect fill="#FFFFFF" height="409.5918" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="1639.1191"/><rect fill="#FFFFFF" height="232.5952" style="stroke:#000000;stroke-width:1.0;" width="10" x="813.5" y="2175.9082"/><rect fill="#FFFFFF" height="290.3945" style="stroke:#000000;stroke-width:1.0;" width="10" x="1059.5" y="915.7349"/><rect fill="#FFFFFF" height="115.3979" style="stroke:#000000;stroke-width:1.0;" width="10" x="1233.5" y="605.7417"/><rect fill="#FFFFFF" height="115.3979" style="stroke:#000000;stroke-width:1.0;" width="10" x="1233.5" y="1860.7144"/><rect fill="#FFFFFF" height="72.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1233.5" y="2335.9048"/><rect fill="#FFFFFF" height="29.7993" style="stroke:#000000;stroke-width:1.0;" width="10" x="1430.5" y="456.7451"/><rect fill="#FFFFFF" height="29.7993" style="stroke:#000000;stroke-width:1.0;" width="10" x="1430.5" y="1801.1157"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="367.3472"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="1116.7314"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="1384.9253"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="1668.9185"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1588" y="2246.5068"/><rect fill="#FFFFFF" height="59.5986" style="stroke:#000000;stroke-width:1.0;" width="10" x="1756" y="516.3438"/><rect fill="#FFFFFF" height="3" style="stroke:#FFFFFF;stroke-width:1.0;" width="2221" x="5" y="161.6516"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="161.6516" y2="161.6516"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="164.6516" y2="164.6516"/><rect fill="#FFFFFF" height="23.7993" style="stroke:#000000;stroke-width:1.0;" width="139" x="1046" y="150.752"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="121" x="1052" y="167.8218">Dispute Creation</text><polygon fill="#000000" points="444.5,218.1499,454.5,222.1499,444.5,226.1499,448.5,222.1499" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="174.5" x2="450.5" y1="222.1499" y2="222.1499"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="102" x="181.5" y="201.6211">POST /disputes</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="218" x="181.5" y="217.4204">{title, description, calculationId}</text><line style="stroke:#000000;stroke-width:1.0;" x1="466.5" x2="508.5" y1="251.9492" y2="251.9492"/><line style="stroke:#000000;stroke-width:1.0;" x1="508.5" x2="508.5" y1="251.9492" y2="264.9492"/><line style="stroke:#000000;stroke-width:1.0;" x1="467.5" x2="508.5" y1="264.9492" y2="264.9492"/><polygon fill="#000000" points="477.5,260.9492,467.5,264.9492,477.5,268.9492,473.5,264.9492" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="117" x="473.5" y="247.2197">validateRequest()</text><polygon fill="#000000" points="801.5,290.7485,811.5,294.7485,801.5,298.7485,805.5,294.7485" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="466.5" x2="807.5" y1="294.7485" y2="294.7485"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="205" x="473.5" y="290.019">createDispute(disputeRequest)</text><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="865.5" y1="324.5479" y2="324.5479"/><line style="stroke:#000000;stroke-width:1.0;" x1="865.5" x2="865.5" y1="324.5479" y2="337.5479"/><line style="stroke:#000000;stroke-width:1.0;" x1="824.5" x2="865.5" y1="337.5479" y2="337.5479"/><polygon fill="#000000" points="834.5,333.5479,824.5,337.5479,834.5,341.5479,830.5,337.5479" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="154" x="830.5" y="319.8184">validateBusinessRules()</text><polygon fill="#000000" points="1576,363.3472,1586,367.3472,1576,371.3472,1580,367.3472" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1582" y1="367.3472" y2="367.3472"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="91" x="830.5" y="362.6177">save(dispute)</text><polygon fill="#000000" points="1990,393.1465,2000,397.1465,1990,401.1465,1994,397.1465" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1598" x2="1996" y1="397.1465" y2="397.1465"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="146" x="1605" y="392.417">INSERT INTO disputes</text><polygon fill="#000000" points="834.5,422.9458,824.5,426.9458,834.5,430.9458,830.5,426.9458" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1592" y1="426.9458" y2="426.9458"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="61" x="840.5" y="422.2163">disputeId</text><polygon fill="#000000" points="1418.5,452.7451,1428.5,456.7451,1418.5,460.7451,1422.5,456.7451" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1424.5" y1="456.7451" y2="456.7451"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="330" x="830.5" y="452.0156">logAction("DISPUTE_CREATED", disputeId, userId)</text><polygon fill="#000000" points="1990,482.5444,2000,486.5444,1990,490.5444,1994,486.5444" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1435.5" x2="1996" y1="486.5444" y2="486.5444"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="177" x="1442.5" y="481.8149">INSERT INTO audit_entries</text><polygon fill="#000000" points="1744,512.3438,1754,516.3438,1744,520.3438,1748,516.3438" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1750" y1="516.3438" y2="516.3438"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="220" x="830.5" y="511.6143">findManagerByUserId(salesRepId)</text><polygon fill="#000000" points="1990,542.1431,2000,546.1431,1990,550.1431,1994,546.1431" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1766" x2="1996" y1="546.1431" y2="546.1431"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="212" x="1773" y="541.4136">SELECT manager_id FROM users</text><polygon fill="#000000" points="834.5,571.9424,824.5,575.9424,834.5,579.9424,830.5,575.9424" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1760" y1="575.9424" y2="575.9424"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="69" x="840.5" y="571.2129">managerId</text><polygon fill="#000000" points="1221.5,601.7417,1231.5,605.7417,1221.5,609.7417,1225.5,605.7417" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1227.5" y1="605.7417" y2="605.7417"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="359" x="830.5" y="601.0122">sendDisputeCreatedNotification(disputeId, managerId)</text><line style="stroke:#000000;stroke-width:1.0;" x1="1243.5" x2="1285.5" y1="635.541" y2="635.541"/><line style="stroke:#000000;stroke-width:1.0;" x1="1285.5" x2="1285.5" y1="635.541" y2="648.541"/><line style="stroke:#000000;stroke-width:1.0;" x1="1244.5" x2="1285.5" y1="648.541" y2="648.541"/><polygon fill="#000000" points="1254.5,644.541,1244.5,648.541,1254.5,652.541,1250.5,648.541" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="149" x="1250.5" y="630.8115">createEmailTemplate()</text><line style="stroke:#000000;stroke-width:1.0;" x1="1243.5" x2="1285.5" y1="678.3403" y2="678.3403"/><line style="stroke:#000000;stroke-width:1.0;" x1="1285.5" x2="1285.5" y1="678.3403" y2="691.3403"/><line style="stroke:#000000;stroke-width:1.0;" x1="1244.5" x2="1285.5" y1="691.3403" y2="691.3403"/><polygon fill="#000000" points="1254.5,687.3403,1244.5,691.3403,1254.5,695.3403,1250.5,691.3403" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="76" x="1250.5" y="673.6108">sendEmail()</text><polygon fill="#000000" points="834.5,717.1396,824.5,721.1396,834.5,725.1396,830.5,721.1396" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1237.5" y1="721.1396" y2="721.1396"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="105" x="840.5" y="716.4102">notificationSent</text><polygon fill="#000000" points="477.5,746.939,467.5,750.939,477.5,754.939,473.5,750.939" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="471.5" x2="817.5" y1="750.939" y2="750.939"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="100" x="483.5" y="746.2095">createdDispute</text><polygon fill="#000000" points="185.5,792.5376,175.5,796.5376,185.5,800.5376,181.5,796.5376" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="179.5" x2="460.5" y1="796.5376" y2="796.5376"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="81" x="191.5" y="776.0088">201 Created</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="207" x="191.5" y="791.8081">{disputeId, status: "PENDING"}</text><rect fill="#FFFFFF" height="3" style="stroke:#FFFFFF;stroke-width:1.0;" width="2221" x="5" y="825.4373"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="825.4373" y2="825.4373"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="828.4373" y2="828.4373"/><rect fill="#FFFFFF" height="23.7993" style="stroke:#000000;stroke-width:1.0;" width="146" x="1042.5" y="814.5376"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="128" x="1048.5" y="831.6074">Document Upload</text><polygon fill="#000000" points="444.5,881.9355,454.5,885.9355,444.5,889.9355,448.5,885.9355" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="174.5" x2="450.5" y1="885.9355" y2="885.9355"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="263" x="181.5" y="865.4067">POST /disputes/{disputeId}/documents</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="143" x="181.5" y="881.2061">{file, documentType}</text><polygon fill="#000000" points="1047.5,911.7349,1057.5,915.7349,1047.5,919.7349,1051.5,915.7349" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="466.5" x2="1053.5" y1="915.7349" y2="915.7349"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="319" x="473.5" y="911.0054">uploadDocument(disputeId, file, documentType)</text><line style="stroke:#000000;stroke-width:1.0;" x1="1069.5" x2="1111.5" y1="945.5342" y2="945.5342"/><line style="stroke:#000000;stroke-width:1.0;" x1="1111.5" x2="1111.5" y1="945.5342" y2="958.5342"/><line style="stroke:#000000;stroke-width:1.0;" x1="1070.5" x2="1111.5" y1="958.5342" y2="958.5342"/><polygon fill="#000000" points="1080.5,954.5342,1070.5,958.5342,1080.5,962.5342,1076.5,958.5342" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="119" x="1076.5" y="940.8047">validateFileType()</text><line style="stroke:#000000;stroke-width:1.0;" x1="1069.5" x2="1111.5" y1="988.3335" y2="988.3335"/><line style="stroke:#000000;stroke-width:1.0;" x1="1111.5" x2="1111.5" y1="988.3335" y2="1001.3335"/><line style="stroke:#000000;stroke-width:1.0;" x1="1070.5" x2="1111.5" y1="1001.3335" y2="1001.3335"/><polygon fill="#000000" points="1080.5,997.3335,1070.5,1001.3335,1080.5,1005.3335,1076.5,1001.3335" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="113" x="1076.5" y="983.604">validateFileSize()</text><line style="stroke:#000000;stroke-width:1.0;" x1="1069.5" x2="1111.5" y1="1031.1328" y2="1031.1328"/><line style="stroke:#000000;stroke-width:1.0;" x1="1111.5" x2="1111.5" y1="1031.1328" y2="1044.1328"/><line style="stroke:#000000;stroke-width:1.0;" x1="1070.5" x2="1111.5" y1="1044.1328" y2="1044.1328"/><polygon fill="#000000" points="1080.5,1040.1328,1070.5,1044.1328,1080.5,1048.1328,1076.5,1044.1328" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="125" x="1076.5" y="1026.4033">generateFileHash()</text><line style="stroke:#000000;stroke-width:1.0;" x1="1069.5" x2="1111.5" y1="1073.9321" y2="1073.9321"/><line style="stroke:#000000;stroke-width:1.0;" x1="1111.5" x2="1111.5" y1="1073.9321" y2="1086.9321"/><line style="stroke:#000000;stroke-width:1.0;" x1="1070.5" x2="1111.5" y1="1086.9321" y2="1086.9321"/><polygon fill="#000000" points="1080.5,1082.9321,1070.5,1086.9321,1080.5,1090.9321,1076.5,1086.9321" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="131" x="1076.5" y="1069.2026">saveToFileSystem()</text><polygon fill="#000000" points="1576,1112.7314,1586,1116.7314,1576,1120.7314,1580,1116.7314" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1069.5" x2="1582" y1="1116.7314" y2="1116.7314"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="307" x="1076.5" y="1112.002">saveDisputeDocument(disputeId, documentId)</text><polygon fill="#000000" points="1990,1142.5308,2000,1146.5308,1990,1150.5308,1994,1146.5308" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1598" x2="1996" y1="1146.5308" y2="1146.5308"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="219" x="1605" y="1141.8013">INSERT INTO dispute_documents</text><polygon fill="#000000" points="1080.5,1172.3301,1070.5,1176.3301,1080.5,1180.3301,1076.5,1176.3301" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="1074.5" x2="1592" y1="1176.3301" y2="1176.3301"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="53" x="1086.5" y="1171.6006">success</text><polygon fill="#000000" points="477.5,1202.1294,467.5,1206.1294,477.5,1210.1294,473.5,1206.1294" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="471.5" x2="1063.5" y1="1206.1294" y2="1206.1294"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="125" x="483.5" y="1201.3999">documentUploaded</text><polygon fill="#000000" points="185.5,1247.728,175.5,1251.728,185.5,1255.728,181.5,1251.728" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="179.5" x2="460.5" y1="1251.728" y2="1251.728"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="47" x="191.5" y="1231.1992">200 OK</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="159" x="191.5" y="1246.9985">{documentId, fileName}</text><rect fill="#FFFFFF" height="3" style="stroke:#FFFFFF;stroke-width:1.0;" width="2221" x="5" y="1280.6277"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="1280.6277" y2="1280.6277"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="1283.6277" y2="1283.6277"/><rect fill="#FFFFFF" height="23.7993" style="stroke:#000000;stroke-width:1.0;" width="137" x="1047" y="1269.728"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="119" x="1053" y="1286.7979">Manager Review</text><polygon fill="#000000" points="477.5,1321.3267,467.5,1325.3267,477.5,1329.3267,473.5,1325.3267" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="471.5" x2="2100.5" y1="1325.3267" y2="1325.3267"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="175" x="483.5" y="1320.5972">GET /disputes/{disputeId}</text><polygon fill="#000000" points="801.5,1351.126,811.5,1355.126,801.5,1359.126,805.5,1355.126" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="466.5" x2="807.5" y1="1355.126" y2="1355.126"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="173" x="473.5" y="1350.3965">getDisputeById(disputeId)</text><polygon fill="#000000" points="1576,1380.9253,1586,1384.9253,1576,1388.9253,1580,1384.9253" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1582" y1="1384.9253" y2="1384.9253"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="126" x="830.5" y="1380.1958">findById(disputeId)</text><polygon fill="#000000" points="1990,1410.7246,2000,1414.7246,1990,1418.7246,1994,1414.7246" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1598" x2="1996" y1="1414.7246" y2="1414.7246"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="259" x="1605" y="1409.9951">SELECT * FROM disputes WHERE id = ?</text><polygon fill="#000000" points="834.5,1440.5239,824.5,1444.5239,834.5,1448.5239,830.5,1444.5239" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1592" y1="1444.5239" y2="1444.5239"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="92" x="840.5" y="1439.7944">disputeDetails</text><polygon fill="#000000" points="477.5,1470.3232,467.5,1474.3232,477.5,1478.3232,473.5,1474.3232" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="471.5" x2="817.5" y1="1474.3232" y2="1474.3232"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="122" x="483.5" y="1469.5938">disputeWithDetails</text><polygon fill="#000000" points="2089.5,1515.9219,2099.5,1519.9219,2089.5,1523.9219,2093.5,1519.9219" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="461.5" x2="2095.5" y1="1519.9219" y2="1519.9219"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="47" x="468.5" y="1499.3931">200 OK</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="223" x="468.5" y="1515.1924">{dispute, comments, documents}</text><rect fill="#FFFFFF" height="3" style="stroke:#FFFFFF;stroke-width:1.0;" width="2221" x="5" y="1548.8215"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="1548.8215" y2="1548.8215"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="1551.8215" y2="1551.8215"/><rect fill="#FFFFFF" height="23.7993" style="stroke:#000000;stroke-width:1.0;" width="226" x="1002.5" y="1537.9219"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="208" x="1008.5" y="1554.9917">Manager Decision - Approval</text><polygon fill="#000000" points="477.5,1605.3198,467.5,1609.3198,477.5,1613.3198,473.5,1609.3198" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="471.5" x2="2100.5" y1="1609.3198" y2="1609.3198"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="234" x="483.5" y="1588.791">PUT /disputes/{disputeId}/approve</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="157" x="483.5" y="1604.5903">{resolution, comments}</text><polygon fill="#000000" points="801.5,1635.1191,811.5,1639.1191,801.5,1643.1191,805.5,1639.1191" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="466.5" x2="807.5" y1="1639.1191" y2="1639.1191"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="328" x="473.5" y="1634.3896">approveDispute(disputeId, resolution, managerId)</text><polygon fill="#000000" points="1576,1664.9185,1586,1668.9185,1576,1672.9185,1580,1668.9185" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1582" y1="1668.9185" y2="1668.9185"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="301" x="830.5" y="1664.189">updateDisputeStatus(disputeId, "APPROVED")</text><polygon fill="#000000" points="1990,1694.7178,2000,1698.7178,1990,1702.7178,1994,1698.7178" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1598" x2="1996" y1="1698.7178" y2="1698.7178"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="284" x="1605" y="1693.9883">UPDATE disputes SET status = 'APPROVED'</text><polygon fill="#000000" points="834.5,1724.5171,824.5,1728.5171,834.5,1732.5171,830.5,1728.5171" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1592" y1="1728.5171" y2="1728.5171"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="54" x="840.5" y="1723.7876">updated</text><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="865.5" y1="1758.3164" y2="1758.3164"/><line style="stroke:#000000;stroke-width:1.0;" x1="865.5" x2="865.5" y1="1758.3164" y2="1771.3164"/><line style="stroke:#000000;stroke-width:1.0;" x1="824.5" x2="865.5" y1="1771.3164" y2="1771.3164"/><polygon fill="#000000" points="834.5,1767.3164,824.5,1771.3164,834.5,1775.3164,830.5,1771.3164" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="212" x="830.5" y="1753.5869">calculateCorrectedCommission()</text><polygon fill="#000000" points="1418.5,1797.1157,1428.5,1801.1157,1418.5,1805.1157,1422.5,1801.1157" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1424.5" y1="1801.1157" y2="1801.1157"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="367" x="830.5" y="1796.3862">logAction("DISPUTE_APPROVED", disputeId, managerId)</text><polygon fill="#000000" points="1990,1826.915,2000,1830.915,1990,1834.915,1994,1830.915" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1435.5" x2="1996" y1="1830.915" y2="1830.915"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="177" x="1442.5" y="1826.1855">INSERT INTO audit_entries</text><polygon fill="#000000" points="1221.5,1856.7144,1231.5,1860.7144,1221.5,1864.7144,1225.5,1860.7144" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1227.5" y1="1860.7144" y2="1860.7144"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="316" x="830.5" y="1855.9849">sendApprovalNotification(disputeId, salesRepId)</text><line style="stroke:#000000;stroke-width:1.0;" x1="1243.5" x2="1285.5" y1="1890.5137" y2="1890.5137"/><line style="stroke:#000000;stroke-width:1.0;" x1="1285.5" x2="1285.5" y1="1890.5137" y2="1903.5137"/><line style="stroke:#000000;stroke-width:1.0;" x1="1244.5" x2="1285.5" y1="1903.5137" y2="1903.5137"/><polygon fill="#000000" points="1254.5,1899.5137,1244.5,1903.5137,1254.5,1907.5137,1250.5,1903.5137" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="173" x="1250.5" y="1885.7842">createApprovalTemplate()</text><line style="stroke:#000000;stroke-width:1.0;" x1="1243.5" x2="1285.5" y1="1933.313" y2="1933.313"/><line style="stroke:#000000;stroke-width:1.0;" x1="1285.5" x2="1285.5" y1="1933.313" y2="1946.313"/><line style="stroke:#000000;stroke-width:1.0;" x1="1244.5" x2="1285.5" y1="1946.313" y2="1946.313"/><polygon fill="#000000" points="1254.5,1942.313,1244.5,1946.313,1254.5,1950.313,1250.5,1946.313" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="76" x="1250.5" y="1928.5835">sendEmail()</text><polygon fill="#000000" points="834.5,1972.1123,824.5,1976.1123,834.5,1980.1123,830.5,1976.1123" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1237.5" y1="1976.1123" y2="1976.1123"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="105" x="840.5" y="1971.3828">notificationSent</text><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="865.5" y1="2005.9116" y2="2005.9116"/><line style="stroke:#000000;stroke-width:1.0;" x1="865.5" x2="865.5" y1="2005.9116" y2="2018.9116"/><line style="stroke:#000000;stroke-width:1.0;" x1="824.5" x2="865.5" y1="2018.9116" y2="2018.9116"/><polygon fill="#000000" points="834.5,2014.9116,824.5,2018.9116,834.5,2022.9116,830.5,2018.9116" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="178" x="830.5" y="2001.1821">updateCommissionRecord()</text><polygon fill="#000000" points="477.5,2044.7109,467.5,2048.7109,477.5,2052.7109,473.5,2048.7109" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="471.5" x2="817.5" y1="2048.7109" y2="2048.7109"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="110" x="483.5" y="2043.9814">disputeApproved</text><polygon fill="#000000" points="2089.5,2090.3096,2099.5,2094.3096,2089.5,2098.3096,2093.5,2094.3096" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="461.5" x2="2095.5" y1="2094.3096" y2="2094.3096"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="47" x="468.5" y="2073.7808">200 OK</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="227" x="468.5" y="2089.5801">{status: "APPROVED", updatedAt}</text><rect fill="#FFFFFF" height="3" style="stroke:#FFFFFF;stroke-width:1.0;" width="2221" x="5" y="2123.2092"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="2123.2092" y2="2123.2092"/><line style="stroke:#000000;stroke-width:0.5;" x1="5" x2="2226" y1="2126.2092" y2="2126.2092"/><rect fill="#FFFFFF" height="23.7993" style="stroke:#000000;stroke-width:1.0;" width="135" x="1048" y="2112.3096"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="117" x="1054" y="2129.3794">Auto-Resolution</text><line style="stroke:#000000;stroke-width:1.0;" x1="818.5" x2="865.5" y1="2162.9082" y2="2162.9082"/><line style="stroke:#000000;stroke-width:1.0;" x1="865.5" x2="865.5" y1="2162.9082" y2="2175.9082"/><line style="stroke:#000000;stroke-width:1.0;" x1="824.5" x2="865.5" y1="2175.9082" y2="2175.9082"/><polygon fill="#000000" points="834.5,2171.9082,824.5,2175.9082,834.5,2179.9082,830.5,2175.9082" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="232" x="830.5" y="2158.1787">scheduleResolution(disputeId, 24h)</text><path d="M695,2193.9082 L695,2218.9082 L941,2218.9082 L941,2203.9082 L931,2193.9082 L695,2193.9082 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M931,2193.9082 L931,2203.9082 L941,2203.9082 L931,2193.9082 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="225" x="701" y="2211.978">After 24 hours if no further action</text><polygon fill="#000000" points="1576,2242.5068,1586,2246.5068,1576,2250.5068,1580,2246.5068" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1582" y1="2246.5068" y2="2246.5068"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="300" x="830.5" y="2241.7773">updateDisputeStatus(disputeId, "RESOLVED")</text><polygon fill="#000000" points="1990,2272.3062,2000,2276.3062,1990,2280.3062,1994,2276.3062" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="1598" x2="1996" y1="2276.3062" y2="2276.3062"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="283" x="1605" y="2271.5767">UPDATE disputes SET status = 'RESOLVED'</text><polygon fill="#000000" points="834.5,2302.1055,824.5,2306.1055,834.5,2310.1055,830.5,2306.1055" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="828.5" x2="1592" y1="2306.1055" y2="2306.1055"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="55" x="840.5" y="2301.376">resolved</text><polygon fill="#000000" points="1221.5,2331.9048,1231.5,2335.9048,1221.5,2339.9048,1225.5,2335.9048" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="823.5" x2="1227.5" y1="2335.9048" y2="2335.9048"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="315" x="830.5" y="2331.1753">sendResolutionNotification(disputeId, allParties)</text><line style="stroke:#000000;stroke-width:1.0;" x1="1243.5" x2="1285.5" y1="2365.7041" y2="2365.7041"/><line style="stroke:#000000;stroke-width:1.0;" x1="1285.5" x2="1285.5" y1="2365.7041" y2="2378.7041"/><line style="stroke:#000000;stroke-width:1.0;" x1="1244.5" x2="1285.5" y1="2378.7041" y2="2378.7041"/><polygon fill="#000000" points="1254.5,2374.7041,1244.5,2378.7041,1254.5,2382.7041,1250.5,2378.7041" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="1250.5" y="2360.9746">sendFinalNotification()</text><polygon fill="#000000" points="829.5,2404.5034,819.5,2408.5034,829.5,2412.5034,825.5,2408.5034" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="823.5" x2="1237.5" y1="2408.5034" y2="2408.5034"/><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="29" x="835.5" y="2403.7739">sent</text><path d="M2007,2421.5034 L2007,2525.5034 L2221,2525.5034 L2221,2431.5034 L2211,2421.5034 L2007,2421.5034 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M2211,2421.5034 L2211,2431.5034 L2221,2431.5034 L2211,2421.5034 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="189" x="2013" y="2439.5732">Key Database Operations:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="160" x="2013" y="2455.3726">- INSERT dispute record</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="164" x="2013" y="2471.1719">- UPDATE dispute status</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="148" x="2013" y="2486.9712">- INSERT audit entries</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="192" x="2013" y="2502.7705">- SELECT user/manager data</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="193" x="2013" y="2518.5698">- INSERT/SELECT documents</text><path d="M10,2536.2993 L10,2672.2993 L170,2672.2993 L170,2546.2993 L160,2536.2993 L10,2536.2993 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><path d="M160,2536.2993 L160,2546.2993 L170,2546.2993 L160,2536.2993 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="124" x="16" y="2554.3691">Response Codes:</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="105" x="16" y="2570.1685">- 201 - Created</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="71" x="16" y="2585.9678">- 200 - OK</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="135" x="16" y="2601.7671">- 400 - Bad Request</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="139" x="16" y="2617.5664">- 401 - Unauthorized</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="117" x="16" y="2633.3657">- 403 - Forbidden</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="121" x="16" y="2649.165">- 404 - Not Found</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="132" x="16" y="2664.9644">- 500 - Server Error</text><!--MD5=[92bb32fd8e29c37ff90be6582c37d543]
+@startuml
+!theme plain
+skinparam backgroundColor white
+
+title Dispute Service - Sequence Diagram: Create and Process Dispute
+
+actor "Sales Rep" as SalesRep
+participant "Dispute Controller" as Controller
+participant "Dispute Service" as Service
+participant "Document Service" as DocService
+participant "Notification Service" as NotificationService
+participant "Audit Service" as AuditService
+participant "Dispute Repository" as Repository
+participant "User Repository" as UserRepo
+database "Database" as DB
+actor "Sales Manager" as Manager
+
+== Dispute Creation ==
+
+SalesRep -> Controller: POST /disputes\n{title, description, calculationId}
+activate Controller
+
+Controller -> Controller: validateRequest()
+Controller -> Service: createDispute(disputeRequest)
+activate Service
+
+Service -> Service: validateBusinessRules()
+Service -> Repository: save(dispute)
+activate Repository
+Repository -> DB: INSERT INTO disputes
+Repository - -> Service: disputeId
+deactivate Repository
+
+Service -> AuditService: logAction("DISPUTE_CREATED", disputeId, userId)
+activate AuditService
+AuditService -> DB: INSERT INTO audit_entries
+deactivate AuditService
+
+Service -> UserRepo: findManagerByUserId(salesRepId)
+activate UserRepo
+UserRepo -> DB: SELECT manager_id FROM users
+UserRepo - -> Service: managerId
+deactivate UserRepo
+
+Service -> NotificationService: sendDisputeCreatedNotification(disputeId, managerId)
+activate NotificationService
+NotificationService -> NotificationService: createEmailTemplate()
+NotificationService -> NotificationService: sendEmail()
+NotificationService - -> Service: notificationSent
+deactivate NotificationService
+
+Service - -> Controller: createdDispute
+deactivate Service
+Controller - -> SalesRep: 201 Created\n{disputeId, status: "PENDING"}
+deactivate Controller
+
+== Document Upload ==
+
+SalesRep -> Controller: POST /disputes/{disputeId}/documents\n{file, documentType}
+activate Controller
+
+Controller -> DocService: uploadDocument(disputeId, file, documentType)
+activate DocService
+
+DocService -> DocService: validateFileType()
+DocService -> DocService: validateFileSize()
+DocService -> DocService: generateFileHash()
+DocService -> DocService: saveToFileSystem()
+
+DocService -> Repository: saveDisputeDocument(disputeId, documentId)
+activate Repository
+Repository -> DB: INSERT INTO dispute_documents
+Repository - -> DocService: success
+deactivate Repository
+
+DocService - -> Controller: documentUploaded
+deactivate DocService
+Controller - -> SalesRep: 200 OK\n{documentId, fileName}
+deactivate Controller
+
+== Manager Review ==
+
+Manager -> Controller: GET /disputes/{disputeId}
+activate Controller
+Controller -> Service: getDisputeById(disputeId)
+activate Service
+Service -> Repository: findById(disputeId)
+activate Repository
+Repository -> DB: SELECT * FROM disputes WHERE id = ?
+Repository - -> Service: disputeDetails
+deactivate Repository
+Service - -> Controller: disputeWithDetails
+deactivate Service
+Controller - -> Manager: 200 OK\n{dispute, comments, documents}
+deactivate Controller
+
+== Manager Decision - Approval ==
+
+Manager -> Controller: PUT /disputes/{disputeId}/approve\n{resolution, comments}
+activate Controller
+
+Controller -> Service: approveDispute(disputeId, resolution, managerId)
+activate Service
+
+Service -> Repository: updateDisputeStatus(disputeId, "APPROVED")
+activate Repository
+Repository -> DB: UPDATE disputes SET status = 'APPROVED'
+Repository - -> Service: updated
+deactivate Repository
+
+Service -> Service: calculateCorrectedCommission()
+
+Service -> AuditService: logAction("DISPUTE_APPROVED", disputeId, managerId)
+activate AuditService
+AuditService -> DB: INSERT INTO audit_entries
+deactivate AuditService
+
+Service -> NotificationService: sendApprovalNotification(disputeId, salesRepId)
+activate NotificationService
+NotificationService -> NotificationService: createApprovalTemplate()
+NotificationService -> NotificationService: sendEmail()
+NotificationService - -> Service: notificationSent
+deactivate NotificationService
+
+Service -> Service: updateCommissionRecord()
+
+Service - -> Controller: disputeApproved
+deactivate Service
+Controller - -> Manager: 200 OK\n{status: "APPROVED", updatedAt}
+deactivate Controller
+
+== Auto-Resolution ==
+
+Service -> Service: scheduleResolution(disputeId, 24h)
+activate Service
+
+note over Service: After 24 hours if no further action
+
+Service -> Repository: updateDisputeStatus(disputeId, "RESOLVED")
+activate Repository
+Repository -> DB: UPDATE disputes SET status = 'RESOLVED'
+Repository - -> Service: resolved
+deactivate Repository
+
+Service -> NotificationService: sendResolutionNotification(disputeId, allParties)
+activate NotificationService
+NotificationService -> NotificationService: sendFinalNotification()
+NotificationService - -> Service: sent
+deactivate NotificationService
+
+deactivate Service
+
+note right of DB
+**Key Database Operations:**
+- INSERT dispute record
+- UPDATE dispute status
+- INSERT audit entries
+- SELECT user/manager data
+- INSERT/SELECT documents
+end note
+
+note left of SalesRep
+**Response Codes:**
+- 201 - Created
+- 200 - OK
+- 400 - Bad Request
+- 401 - Unauthorized
+- 403 - Forbidden
+- 404 - Not Found
+- 500 - Server Error
+end note
+
+@enduml
+
+@startuml
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+skinparam backgroundColor white
+
+title Dispute Service - Sequence Diagram: Create and Process Dispute
+
+actor "Sales Rep" as SalesRep
+participant "Dispute Controller" as Controller
+participant "Dispute Service" as Service
+participant "Document Service" as DocService
+participant "Notification Service" as NotificationService
+participant "Audit Service" as AuditService
+participant "Dispute Repository" as Repository
+participant "User Repository" as UserRepo
+database "Database" as DB
+actor "Sales Manager" as Manager
+
+== Dispute Creation ==
+
+SalesRep -> Controller: POST /disputes\n{title, description, calculationId}
+activate Controller
+
+Controller -> Controller: validateRequest()
+Controller -> Service: createDispute(disputeRequest)
+activate Service
+
+Service -> Service: validateBusinessRules()
+Service -> Repository: save(dispute)
+activate Repository
+Repository -> DB: INSERT INTO disputes
+Repository - -> Service: disputeId
+deactivate Repository
+
+Service -> AuditService: logAction("DISPUTE_CREATED", disputeId, userId)
+activate AuditService
+AuditService -> DB: INSERT INTO audit_entries
+deactivate AuditService
+
+Service -> UserRepo: findManagerByUserId(salesRepId)
+activate UserRepo
+UserRepo -> DB: SELECT manager_id FROM users
+UserRepo - -> Service: managerId
+deactivate UserRepo
+
+Service -> NotificationService: sendDisputeCreatedNotification(disputeId, managerId)
+activate NotificationService
+NotificationService -> NotificationService: createEmailTemplate()
+NotificationService -> NotificationService: sendEmail()
+NotificationService - -> Service: notificationSent
+deactivate NotificationService
+
+Service - -> Controller: createdDispute
+deactivate Service
+Controller - -> SalesRep: 201 Created\n{disputeId, status: "PENDING"}
+deactivate Controller
+
+== Document Upload ==
+
+SalesRep -> Controller: POST /disputes/{disputeId}/documents\n{file, documentType}
+activate Controller
+
+Controller -> DocService: uploadDocument(disputeId, file, documentType)
+activate DocService
+
+DocService -> DocService: validateFileType()
+DocService -> DocService: validateFileSize()
+DocService -> DocService: generateFileHash()
+DocService -> DocService: saveToFileSystem()
+
+DocService -> Repository: saveDisputeDocument(disputeId, documentId)
+activate Repository
+Repository -> DB: INSERT INTO dispute_documents
+Repository - -> DocService: success
+deactivate Repository
+
+DocService - -> Controller: documentUploaded
+deactivate DocService
+Controller - -> SalesRep: 200 OK\n{documentId, fileName}
+deactivate Controller
+
+== Manager Review ==
+
+Manager -> Controller: GET /disputes/{disputeId}
+activate Controller
+Controller -> Service: getDisputeById(disputeId)
+activate Service
+Service -> Repository: findById(disputeId)
+activate Repository
+Repository -> DB: SELECT * FROM disputes WHERE id = ?
+Repository - -> Service: disputeDetails
+deactivate Repository
+Service - -> Controller: disputeWithDetails
+deactivate Service
+Controller - -> Manager: 200 OK\n{dispute, comments, documents}
+deactivate Controller
+
+== Manager Decision - Approval ==
+
+Manager -> Controller: PUT /disputes/{disputeId}/approve\n{resolution, comments}
+activate Controller
+
+Controller -> Service: approveDispute(disputeId, resolution, managerId)
+activate Service
+
+Service -> Repository: updateDisputeStatus(disputeId, "APPROVED")
+activate Repository
+Repository -> DB: UPDATE disputes SET status = 'APPROVED'
+Repository - -> Service: updated
+deactivate Repository
+
+Service -> Service: calculateCorrectedCommission()
+
+Service -> AuditService: logAction("DISPUTE_APPROVED", disputeId, managerId)
+activate AuditService
+AuditService -> DB: INSERT INTO audit_entries
+deactivate AuditService
+
+Service -> NotificationService: sendApprovalNotification(disputeId, salesRepId)
+activate NotificationService
+NotificationService -> NotificationService: createApprovalTemplate()
+NotificationService -> NotificationService: sendEmail()
+NotificationService - -> Service: notificationSent
+deactivate NotificationService
+
+Service -> Service: updateCommissionRecord()
+
+Service - -> Controller: disputeApproved
+deactivate Service
+Controller - -> Manager: 200 OK\n{status: "APPROVED", updatedAt}
+deactivate Controller
+
+== Auto-Resolution ==
+
+Service -> Service: scheduleResolution(disputeId, 24h)
+activate Service
+
+note over Service: After 24 hours if no further action
+
+Service -> Repository: updateDisputeStatus(disputeId, "RESOLVED")
+activate Repository
+Repository -> DB: UPDATE disputes SET status = 'RESOLVED'
+Repository - -> Service: resolved
+deactivate Repository
+
+Service -> NotificationService: sendResolutionNotification(disputeId, allParties)
+activate NotificationService
+NotificationService -> NotificationService: sendFinalNotification()
+NotificationService - -> Service: sent
+deactivate NotificationService
+
+deactivate Service
+
+note right of DB
+**Key Database Operations:**
+- INSERT dispute record
+- UPDATE dispute status
+- INSERT audit entries
+- SELECT user/manager data
+- INSERT/SELECT documents
+end note
+
+note left of SalesRep
+**Response Codes:**
+- 201 - Created
+- 200 - OK
+- 400 - Bad Request
+- 401 - Unauthorized
+- 403 - Forbidden
+- 404 - Not Found
+- 500 - Server Error
+end note
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 09:10:57 PDT 2022)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
