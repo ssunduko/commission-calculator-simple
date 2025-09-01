@@ -135,6 +135,41 @@
                 <configuration>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>run-c4builder-and-open-browser</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="Checking if port 3000 is in use and stopping any existing process..."/>
+                                <exec executable="powershell" failonerror="false">
+                                    <arg value="-Command"/>
+                                    <arg value="Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"/>
+                                </exec>
+                                <echo message="Starting c4builder server..."/>
+                                <exec executable="cmd" failonerror="true" dir="${project.basedir}\docs" inputstring="">
+                                    <arg value="/c"/>
+                                    <arg value="run-c4builder.bat"/>
+                                </exec>
+                                <sleep seconds="30"/>
+                                <echo message="Waiting 30 seconds for server to start..."/>
+                                <exec executable="cmd" failonerror="false">
+                                    <arg value="/c"/>
+                                    <arg value="start"/>
+                                    <arg value="http://localhost:3000"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

@@ -1,6 +1,6 @@
 # Use Cases
 
-![diagram](Commission%20Calculator%20Use%20Case%20Diagram.svg)
+![diagram](Commission%20Calculator%20Use%20Case%20Diagram.png)
 
 # Dispute Service System - Use Case Diagram Description
 

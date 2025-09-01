@@ -1,6 +1,6 @@
 # Sequence Diagrams
 
-![diagram](Commission%20Calculator%20Sequence%20Diagram.svg)
+![diagram](Commission%20Calculator%20Sequence%20Diagram.png)
 
 # Dispute Service - Sequence Diagram Description
 

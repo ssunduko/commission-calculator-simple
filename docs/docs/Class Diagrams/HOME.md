@@ -1,6 +1,6 @@
 # Class Diagrams
 
-![diagram](Commission%20Calculator%20Dispute%20Class%20Diagram.svg)
+![diagram](Commission%20Calculator%20Dispute%20Class%20Diagram.png)
 
 # Sales Commission Calculator - Model Class Diagram Description
 
