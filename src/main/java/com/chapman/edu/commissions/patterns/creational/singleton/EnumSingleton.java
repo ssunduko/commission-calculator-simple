@@ -27,7 +27,6 @@ public enum EnumSingleton {
      * a consistent and predefined default state.
      */
     EnumSingleton() {
-        // Initialize with default values
         this.commissionCalculation = new CommissionCalculation();
         this.commissionCalculation.setId("SINGLETON-ENUM");
         this.commissionCalculation.setCalculatedBy("EnumSingleton");

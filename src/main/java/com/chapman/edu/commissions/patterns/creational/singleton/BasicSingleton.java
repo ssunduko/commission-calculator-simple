@@ -32,7 +32,7 @@ public final class BasicSingleton {
      * Retrieves the single instance of the BasicSingleton class.
      * If the instance does not exist, it is created.
      *
-     * Note: This implementation is not thread-safe. In a multithreaded environment,
+     * This implementation is not thread-safe. In a multithreaded environment,
      * multiple threads could potentially create multiple instances simultaneously.
      *
      * @return the singleton instance of BasicSingleton

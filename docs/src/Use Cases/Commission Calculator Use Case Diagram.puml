@@ -1,0 +1,159 @@
+@startuml Dispute Service - Use Case Diagram
+!theme plain
+skinparam backgroundColor white
+
+top to bottom direction
+
+' Actors on the left
+actor "Sales\nRepresentative" as SalesRep
+actor "Sales\nManager" as Manager
+actor "Admin" as Admin
+actor "System" as System
+actor "External\nAuditor" as Auditor
+
+' System boundary - horizontal layout
+package "Dispute Service System" {
+    
+    ' Row 1 - Core dispute management
+    usecase "Create\nDispute" as UC1
+    usecase "View Dispute\nDetails" as UC2
+    usecase "Update\nDispute" as UC3
+    usecase "Add\nComment" as UC4
+    usecase "Upload\nDocument" as UC5
+    usecase "Download\nDocument" as UC6
+    
+    ' Row 2 - Search and workflow
+    usecase "Search\nDisputes" as UC7
+    usecase "Filter\nDisputes" as UC8
+    usecase "Submit for\nReview" as UC9
+    usecase "Review\nDispute" as UC10
+    usecase "Approve\nDispute" as UC11
+    usecase "Reject\nDispute" as UC12
+    
+    ' Row 3 - Advanced workflow
+    usecase "Escalate\nDispute" as UC13
+    usecase "Resolve\nDispute" as UC14
+    usecase "Close\nDispute" as UC15
+    usecase "Send\nNotification" as UC16
+    usecase "View\nNotifications" as UC17
+    usecase "Configure\nPreferences" as UC18
+    
+    ' Row 4 - Administrative
+    usecase "Manage Dispute\nTypes" as UC19
+    usecase "Configure\nWorkflow Rules" as UC20
+    usecase "Generate\nReports" as UC21
+    usecase "Export\nData" as UC22
+    usecase "View Audit\nTrail" as UC23
+    usecase "Authenticate\nUser" as UC28
+    
+    ' Row 5 - System automated
+    usecase "Auto-Escalate\nOverdue" as UC24
+    usecase "Send Reminder\nNotifications" as UC25
+    usecase "Archive Resolved\nDisputes" as UC26
+    usecase "Validate Business\nRules" as UC27
+    usecase "Authorize\nAction" as UC29
+}
+
+' External systems on the right
+package "External Systems" {
+    usecase "Commission\nCalculation" as ExtUC1
+    usecase "Email\nService" as ExtUC2
+    usecase "User\nManagement" as ExtUC3
+    usecase "Document\nStorage" as ExtUC4
+}
+
+' Sales Representative relationships
+SalesRep --> UC1
+SalesRep --> UC2
+SalesRep --> UC3
+SalesRep --> UC4
+SalesRep --> UC5
+SalesRep --> UC6
+SalesRep --> UC7
+SalesRep --> UC8
+SalesRep --> UC9
+SalesRep --> UC17
+SalesRep --> UC18
+
+' Sales Manager relationships
+Manager --> UC2
+Manager --> UC4
+Manager --> UC6
+Manager --> UC7
+Manager --> UC8
+Manager --> UC10
+Manager --> UC11
+Manager --> UC12
+Manager --> UC13
+Manager --> UC14
+Manager --> UC15
+Manager --> UC17
+Manager --> UC21
+Manager --> UC23
+
+' Admin relationships
+Admin --> UC2
+Admin --> UC7
+Admin --> UC8
+Admin --> UC19
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+Admin --> UC23
+Admin --> UC29
+
+' System relationships
+System --> UC16
+System --> UC24
+System --> UC25
+System --> UC26
+System --> UC27
+System --> UC28
+System --> UC29
+
+' Auditor relationships
+Auditor --> UC2
+Auditor --> UC7
+Auditor --> UC21
+Auditor --> UC22
+Auditor --> UC23
+
+' Include relationships
+UC1 ..> UC28 : <<include>>
+UC1 ..> UC29 : <<include>>
+UC1 ..> UC27 : <<include>>
+UC3 ..> UC29 : <<include>>
+UC3 ..> UC27 : <<include>>
+UC10 ..> UC29 : <<include>>
+UC11 ..> UC16 : <<include>>
+UC12 ..> UC16 : <<include>>
+UC13 ..> UC16 : <<include>>
+UC14 ..> UC16 : <<include>>
+UC5 ..> ExtUC4 : <<include>>
+UC6 ..> ExtUC4 : <<include>>
+
+' Extend relationships
+UC13 ..> UC10 : <<extend>>
+UC24 ..> UC13 : <<extend>>
+UC25 ..> UC16 : <<extend>>
+
+' External system relationships
+UC1 --> ExtUC1 : validates
+UC16 --> ExtUC2 : uses
+UC28 --> ExtUC3 : uses
+UC5 --> ExtUC4 : uses
+UC6 --> ExtUC4 : uses
+
+note right : **Use Case Relationships**\n\
+**<<include>>** - Required functionality\n\
+**<<extend>>** - Optional additional behavior\n\
+**Actor --> Use Case** - Actor initiates use case\n\
+\n\
+**Actor Permissions:**\n\
+- Sales Rep: Own disputes only\n\
+- Manager: Team disputes + approvals\n\
+- Admin: All disputes + configuration\n\
+- Auditor: Read-only access\n\
+- System: Automated processes
+
+@enduml

@@ -1,0 +1,97 @@
+@startuml Factory Method Pattern
+
+title "Factory Method Pattern - Commission System"
+
+package "Factory Method Pattern" {
+  ' Abstract Creator
+  abstract class CommissionCalculatorFactory {
+    # {abstract} createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+    + calculateCommission(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  }
+  
+  ' Concrete Creators
+  class StandardCommissionCalculatorFactory {
+    # createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  }
+  
+  class BonusCommissionCalculatorFactory {
+    # createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  }
+  
+  class AcceleratedCommissionCalculatorFactory {
+    # createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  }
+  
+  ' Abstract Creator for Deal
+  abstract class DealFactory {
+    # {abstract} createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    + createDealWithProducts(title: String, value: BigDecimal, salesRepId: String): Deal
+    # addDefaultProducts(deal: Deal): void
+  }
+  
+  ' Concrete Creators for Deal
+  class HardwareDealFactory {
+    # createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    # addDefaultProducts(deal: Deal): void
+  }
+  
+  class SoftwareDealFactory {
+    # createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    # addDefaultProducts(deal: Deal): void
+  }
+  
+  class ServiceDealFactory {
+    # createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    # addDefaultProducts(deal: Deal): void
+  }
+  
+  ' Products
+  class CommissionCalculation {
+    - id: String
+    - dealId: String
+    - salesRepId: String
+    - baseCommission: BigDecimal
+    - calculatedBy: String
+    + recalculate(): void
+  }
+  
+  class Deal {
+    - id: String
+    - title: String
+    - value: BigDecimal
+    - salesRepId: String
+    - products: List<DealProduct>
+    + addProduct(product: DealProduct): void
+    + calculateTotalValue(): BigDecimal
+  }
+  
+  ' Client
+  class Client {
+    + main(args: String[]): void
+  }
+  
+  ' Relationships
+  CommissionCalculatorFactory <|-- StandardCommissionCalculatorFactory
+  CommissionCalculatorFactory <|-- BonusCommissionCalculatorFactory
+  CommissionCalculatorFactory <|-- AcceleratedCommissionCalculatorFactory
+  
+  DealFactory <|-- HardwareDealFactory
+  DealFactory <|-- SoftwareDealFactory
+  DealFactory <|-- ServiceDealFactory
+  
+  CommissionCalculatorFactory ..> CommissionCalculation : creates
+  DealFactory ..> Deal : creates
+  
+  StandardCommissionCalculatorFactory ..> CommissionCalculation : creates
+  BonusCommissionCalculatorFactory ..> CommissionCalculation : creates
+  AcceleratedCommissionCalculatorFactory ..> CommissionCalculation : creates
+  
+  HardwareDealFactory ..> Deal : creates
+  SoftwareDealFactory ..> Deal : creates
+  ServiceDealFactory ..> Deal : creates
+  
+  Client ..> CommissionCalculatorFactory : uses
+  Client ..> DealFactory : uses
+}
+
+@enduml

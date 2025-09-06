@@ -1,0 +1,117 @@
+@startuml Abstract Factory Pattern
+
+title "Abstract Factory Pattern - Commission System"
+
+package "Abstract Factory Pattern" {
+  ' Abstract Products
+  interface CommissionCalculator {
+    +calculateCommission(deal: Deal, salesRep: User): CommissionCalculation
+  }
+  
+  interface DealValidator {
+    +validateDeal(deal: Deal): boolean
+    +getInvalidReason(deal: Deal): String
+  }
+  
+  interface CommissionPlanCreator {
+    +createCommissionPlan(name: String, description: String): CommissionPlan
+  }
+  
+  ' Abstract Factories
+  interface CommissionSystemFactory {
+    +createCommissionCalculator(): CommissionCalculator
+    +createDealValidator(): DealValidator
+  }
+  
+  interface CommissionFactory {
+    +createPlanCreator(): CommissionPlanCreator
+    +createCalculator(): CommissionCalculator
+  }
+  
+  ' Concrete Products
+  class StandardCommissionCalculator {
+    +calculateCommission(deal: Deal, salesRep: User): CommissionCalculation
+  }
+  
+  class PremiumCommissionCalculator {
+    +calculateCommission(deal: Deal, salesRep: User): CommissionCalculation
+  }
+  
+  class BasicDealValidator {
+    +validateDeal(deal: Deal): boolean
+    +getInvalidReason(deal: Deal): String
+  }
+  
+  class AdvancedDealValidator {
+    +validateDeal(deal: Deal): boolean
+    +getInvalidReason(deal: Deal): String
+  }
+  
+  class StandardCommissionPlanCreator {
+    +createCommissionPlan(name: String, description: String): CommissionPlan
+  }
+  
+  class PremiumCommissionPlanCreator {
+    +createCommissionPlan(name: String, description: String): CommissionPlan
+  }
+  
+  ' Concrete Factories
+  class StandardCommissionSystemFactory {
+    +createCommissionCalculator(): CommissionCalculator
+    +createDealValidator(): DealValidator
+  }
+  
+  class PremiumCommissionSystemFactory {
+    +createCommissionCalculator(): CommissionCalculator
+    +createDealValidator(): DealValidator
+  }
+  
+  class StandardCommissionFactory {
+    +createPlanCreator(): CommissionPlanCreator
+    +createCalculator(): CommissionCalculator
+  }
+  
+  class PremiumCommissionFactory {
+    +createPlanCreator(): CommissionPlanCreator
+    +createCalculator(): CommissionCalculator
+  }
+  
+  ' Client
+  class Client {
+    +processCommission(factory: CommissionSystemFactory, deal: Deal, salesRep: User)
+  }
+  
+  ' Relationships
+  CommissionCalculator <|.. StandardCommissionCalculator
+  CommissionCalculator <|.. PremiumCommissionCalculator
+  
+  DealValidator <|.. BasicDealValidator
+  DealValidator <|.. AdvancedDealValidator
+  
+  CommissionPlanCreator <|.. StandardCommissionPlanCreator
+  CommissionPlanCreator <|.. PremiumCommissionPlanCreator
+  
+  CommissionSystemFactory <|.. StandardCommissionSystemFactory
+  CommissionSystemFactory <|.. PremiumCommissionSystemFactory
+  
+  CommissionFactory <|.. StandardCommissionFactory
+  CommissionFactory <|.. PremiumCommissionFactory
+  
+  StandardCommissionSystemFactory ..> StandardCommissionCalculator : creates
+  StandardCommissionSystemFactory ..> BasicDealValidator : creates
+  
+  PremiumCommissionSystemFactory ..> PremiumCommissionCalculator : creates
+  PremiumCommissionSystemFactory ..> AdvancedDealValidator : creates
+  
+  StandardCommissionFactory ..> StandardCommissionPlanCreator : creates
+  StandardCommissionFactory ..> StandardCommissionCalculator : creates
+  
+  PremiumCommissionFactory ..> PremiumCommissionPlanCreator : creates
+  PremiumCommissionFactory ..> PremiumCommissionCalculator : creates
+  
+  Client ..> CommissionSystemFactory : uses
+  Client ..> CommissionCalculator : uses
+  Client ..> DealValidator : uses
+}
+
+@enduml

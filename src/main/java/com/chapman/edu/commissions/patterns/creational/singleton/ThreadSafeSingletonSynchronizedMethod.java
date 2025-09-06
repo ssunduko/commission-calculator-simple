@@ -25,7 +25,6 @@ public final class ThreadSafeSingletonSynchronizedMethod {
      * a single instance of the class.
      */
     private ThreadSafeSingletonSynchronizedMethod() {
-        // Initialize with default values
         this.commissionCalculation = new CommissionCalculation();
         this.commissionCalculation.setId("SINGLETON-THREAD-SAFE-SYNC-METHOD");
         this.commissionCalculation.setCalculatedBy("ThreadSafeSingletonSynchronizedMethod");

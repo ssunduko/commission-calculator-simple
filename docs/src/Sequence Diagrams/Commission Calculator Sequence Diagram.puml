@@ -1,0 +1,173 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+
+title Dispute Service - Sequence Diagram: Create and Process Dispute
+
+actor "Sales Rep" as SalesRep
+participant "Dispute Controller" as Controller
+participant "Dispute Service" as Service
+participant "Document Service" as DocService
+participant "Notification Service" as NotificationService
+participant "Audit Service" as AuditService
+participant "Dispute Repository" as Repository
+participant "User Repository" as UserRepo
+database "Database" as DB
+actor "Sales Manager" as Manager
+
+== Dispute Creation ==
+
+SalesRep -> Controller: POST /disputes\n{title, description, calculationId}
+activate Controller
+
+Controller -> Controller: validateRequest()
+Controller -> Service: createDispute(disputeRequest)
+activate Service
+
+Service -> Service: validateBusinessRules()
+Service -> Repository: save(dispute)
+activate Repository
+Repository -> DB: INSERT INTO disputes
+Repository --> Service: disputeId
+deactivate Repository
+
+Service -> AuditService: logAction("DISPUTE_CREATED", disputeId, userId)
+activate AuditService
+AuditService -> DB: INSERT INTO audit_entries
+deactivate AuditService
+
+Service -> UserRepo: findManagerByUserId(salesRepId)
+activate UserRepo
+UserRepo -> DB: SELECT manager_id FROM users
+UserRepo --> Service: managerId
+deactivate UserRepo
+
+Service -> NotificationService: sendDisputeCreatedNotification(disputeId, managerId)
+activate NotificationService
+NotificationService -> NotificationService: createEmailTemplate()
+NotificationService -> NotificationService: sendEmail()
+NotificationService --> Service: notificationSent
+deactivate NotificationService
+
+Service --> Controller: createdDispute
+deactivate Service
+Controller --> SalesRep: 201 Created\n{disputeId, status: "PENDING"}
+deactivate Controller
+
+== Document Upload ==
+
+SalesRep -> Controller: POST /disputes/{disputeId}/documents\n{file, documentType}
+activate Controller
+
+Controller -> DocService: uploadDocument(disputeId, file, documentType)
+activate DocService
+
+DocService -> DocService: validateFileType()
+DocService -> DocService: validateFileSize()
+DocService -> DocService: generateFileHash()
+DocService -> DocService: saveToFileSystem()
+
+DocService -> Repository: saveDisputeDocument(disputeId, documentId)
+activate Repository
+Repository -> DB: INSERT INTO dispute_documents
+Repository --> DocService: success
+deactivate Repository
+
+DocService --> Controller: documentUploaded
+deactivate DocService
+Controller --> SalesRep: 200 OK\n{documentId, fileName}
+deactivate Controller
+
+== Manager Review ==
+
+Manager -> Controller: GET /disputes/{disputeId}
+activate Controller
+Controller -> Service: getDisputeById(disputeId)
+activate Service
+Service -> Repository: findById(disputeId)
+activate Repository
+Repository -> DB: SELECT * FROM disputes WHERE id = ?
+Repository --> Service: disputeDetails
+deactivate Repository
+Service --> Controller: disputeWithDetails
+deactivate Service
+Controller --> Manager: 200 OK\n{dispute, comments, documents}
+deactivate Controller
+
+== Manager Decision - Approval ==
+
+Manager -> Controller: PUT /disputes/{disputeId}/approve\n{resolution, comments}
+activate Controller
+
+Controller -> Service: approveDispute(disputeId, resolution, managerId)
+activate Service
+
+Service -> Repository: updateDisputeStatus(disputeId, "APPROVED")
+activate Repository
+Repository -> DB: UPDATE disputes SET status = 'APPROVED'
+Repository --> Service: updated
+deactivate Repository
+
+Service -> Service: calculateCorrectedCommission()
+
+Service -> AuditService: logAction("DISPUTE_APPROVED", disputeId, managerId)
+activate AuditService
+AuditService -> DB: INSERT INTO audit_entries
+deactivate AuditService
+
+Service -> NotificationService: sendApprovalNotification(disputeId, salesRepId)
+activate NotificationService
+NotificationService -> NotificationService: createApprovalTemplate()
+NotificationService -> NotificationService: sendEmail()
+NotificationService --> Service: notificationSent
+deactivate NotificationService
+
+Service -> Service: updateCommissionRecord()
+
+Service --> Controller: disputeApproved
+deactivate Service
+Controller --> Manager: 200 OK\n{status: "APPROVED", updatedAt}
+deactivate Controller
+
+== Auto-Resolution ==
+
+Service -> Service: scheduleResolution(disputeId, 24h)
+activate Service
+
+note over Service: After 24 hours if no further action
+
+Service -> Repository: updateDisputeStatus(disputeId, "RESOLVED")
+activate Repository
+Repository -> DB: UPDATE disputes SET status = 'RESOLVED'
+Repository --> Service: resolved
+deactivate Repository
+
+Service -> NotificationService: sendResolutionNotification(disputeId, allParties)
+activate NotificationService
+NotificationService -> NotificationService: sendFinalNotification()
+NotificationService --> Service: sent
+deactivate NotificationService
+
+deactivate Service
+
+note right of DB
+**Key Database Operations:**
+- INSERT dispute record
+- UPDATE dispute status
+- INSERT audit entries
+- SELECT user/manager data
+- INSERT/SELECT documents
+end note
+
+note left of SalesRep
+**Response Codes:**
+- 201 - Created
+- 200 - OK
+- 400 - Bad Request
+- 401 - Unauthorized
+- 403 - Forbidden
+- 404 - Not Found
+- 500 - Server Error
+end note
+
+@enduml

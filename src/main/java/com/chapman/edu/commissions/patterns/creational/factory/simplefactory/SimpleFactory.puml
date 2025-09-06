@@ -1,0 +1,31 @@
+@startuml Simple Factory Pattern
+
+title "Simple Factory Pattern - Commission System"
+
+package "Simple Factory Pattern" {
+  ' Factory
+  class SimpleFactory {
+    + {static} createCommissionCalculation(type: String, dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  }
+  
+  ' Product
+  class CommissionCalculation {
+    - id: String
+    - dealId: String
+    - salesRepId: String
+    - baseCommission: BigDecimal
+    - calculatedBy: String
+    + recalculate(): void
+  }
+  
+  ' Client
+  class Client {
+    + main(args: String[]): void
+  }
+  
+  ' Relationships
+  SimpleFactory ..> CommissionCalculation : creates
+  Client ..> SimpleFactory : uses
+}
+
+@enduml

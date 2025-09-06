@@ -1,0 +1,145 @@
+@startuml Sales Commission Calculator - Model Class Diagram
+!theme plain
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+
+class User {
+    - id: String
+    - username: String
+    - email: String
+    - role: UserRole
+    + authenticate(): boolean
+    + getPermissions(): List<Permission>
+}
+
+class Deal {
+    - id: String
+    - amount: BigDecimal
+    - closeDate: LocalDateTime
+    - status: DealStatus
+    + calculateCommission(): BigDecimal
+    + validate(): boolean
+}
+
+class Commission {
+    - id: String
+    - amount: BigDecimal
+    - status: CommissionStatus
+    - calculationDate: LocalDateTime
+    + calculate(): BigDecimal
+    + approve(): void
+}
+
+class CommissionPlan {
+    - id: String
+    - name: String
+    - isActive: boolean
+    + getTiers(): List<CommissionTier>
+    + calculateCommission(deal: Deal): BigDecimal
+}
+
+class CommissionRule {
+    - id: String
+    - ruleType: String
+    - threshold: BigDecimal
+    + apply(deal: Deal): BigDecimal
+    + validate(): boolean
+}
+
+class CommissionTier {
+    - id: String
+    - minAmount: BigDecimal
+    - maxAmount: BigDecimal
+    - rate: BigDecimal
+    + calculateTierCommission(amount: BigDecimal): BigDecimal
+}
+
+class Dispute {
+    - id: String
+    - title: String
+    - description: String
+    - status: DisputeStatus
+    - createdDate: LocalDateTime
+    + escalate(): void
+    + resolve(): void
+}
+
+class DisputeComment {
+    - id: String
+    - comment: String
+    - createdDate: LocalDateTime
+    + addComment(): void
+}
+
+class AuditEntry {
+    - id: String
+    - action: String
+    - timestamp: LocalDateTime
+    - details: String
+    + log(): void
+}
+
+interface Calculable {
+    + calculate(): BigDecimal
+    + validate(): boolean
+}
+
+abstract class BaseEntity {
+    # id: String
+    # createdDate: LocalDateTime
+    # lastModifiedDate: LocalDateTime
+    + getId(): String
+    + updateTimestamp(): void
+}
+
+class DealProduct {
+    - productId: String
+    - quantity: int
+    - unitPrice: BigDecimal
+    + getTotalValue(): BigDecimal
+}
+
+' Inheritance (Generalization)
+BaseEntity <|-- User : extends
+BaseEntity <|-- Deal : extends
+BaseEntity <|-- Commission : extends
+
+' Realization (Interface Implementation)
+Calculable <|.. Commission : implements
+Calculable <|.. CommissionPlan : implements
+
+' Composition (Strong ownership - parts cannot exist without whole)
+CommissionPlan *-- CommissionTier : contains
+Dispute *-- DisputeComment : owns
+
+' Aggregation (Weak ownership - parts can exist independently)
+CommissionPlan o-- CommissionRule : has
+User o-- CommissionPlan : assigned
+
+' Association with multiplicity
+User ||--o{ Deal : creates
+Deal ||--|| Commission : generates
+Commission }o--|| User : belongs to
+
+' Bidirectional Association
+Deal "1" <--> "*" DealProduct : contains/belongs to
+
+' Undirected Association
+Dispute -- Commission : relates to
+
+' Dependency (uses relationship)
+Commission ..> AuditEntry : logs to
+Deal ..> CommissionRule : uses
+CommissionPlan ..> Deal : processes
+
+note bottom : **Relationship Types**\n\
+**Inheritance:** <|-- (is-a)\n\
+**Realization:** <|.. (implements)\n\
+**Composition:** *-- (strong ownership)\n\
+**Aggregation:** o-- (weak ownership)\n\
+**Association:** --> (knows about)\n\
+**Bidirectional:** <--> (mutual knowledge)\n\
+**Undirected:** -- (basic relationship)\n\
+**Dependency:** ..> (uses temporarily)
+
+@enduml
