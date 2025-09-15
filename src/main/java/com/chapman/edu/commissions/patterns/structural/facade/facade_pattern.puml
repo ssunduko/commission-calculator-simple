@@ -1,0 +1,189 @@
+@startuml Facade Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Facade Pattern - Commission Calculator
+
+' Classes from model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+  +calculateTotalValue(): BigDecimal
+}
+
+class DealProduct {
+  -id: String
+  -productId: String
+  -productName: String
+  -quantity: int
+  -price: BigDecimal
+  -discount: BigDecimal
+  -dealId: String
+  +getProductName(): String
+  +getQuantity(): int
+  +getPrice(): BigDecimal
+  +calculateTotalPrice(): BigDecimal
+}
+
+class User {
+  -id: String
+  -username: String
+  -email: String
+  -firstName: String
+  -lastName: String
+  -roles: Set<UserRole>
+  +getFullName(): String
+  +isSalesRep(): boolean
+  +isSalesManager(): boolean
+}
+
+class CommissionPlan {
+  -id: String
+  -name: String
+  -rules: List<CommissionRule>
+  -tiers: List<CommissionTier>
+  -bonuses: List<BonusRule>
+  -status: PlanStatus
+  +isActiveOn(date: LocalDate): boolean
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+enum UserRole {
+  SALES_REP
+  SALES_MANAGER
+  FINANCE_ADMIN
+  SYSTEM_ADMIN
+}
+
+' Relationships for model classes
+Deal --> DealStatus
+Deal o--> "0..*" DealProduct
+User --> "0..*" UserRole
+
+' Facade Pattern Classes
+class CommissionFacade {
+  -dealService: DealService
+  -userService: UserService
+  -commissionService: CommissionService
+  -reportService: ReportService
+  +createDeal(title: String, value: BigDecimal, salesRepId: String, products: List<DealProduct>): Deal
+  +closeDealAsWon(dealId: String): BigDecimal
+  +getDealsBySalesRep(salesRepId: String): List<Deal>
+  +getTotalCommission(salesRepId: String, startDate: LocalDate, endDate: LocalDate): BigDecimal
+}
+
+class DealService {
+  -deals: List<Deal>
+  +createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+  +getDealById(dealId: String): Deal
+  +updateDealStatus(deal: Deal, status: DealStatus): void
+  +addProductToDeal(deal: Deal, product: DealProduct): void
+  +getDealsBySalesRep(salesRepId: String): List<Deal>
+  +getDealsBySalesRepAndDateRange(salesRepId: String, startDate: LocalDate, endDate: LocalDate): List<Deal>
+}
+
+class UserService {
+  -users: List<User>
+  -plans: List<CommissionPlan>
+  +getUserById(userId: String): User
+  +getCommissionPlan(userId: String): CommissionPlan
+}
+
+class CommissionService {
+  +calculateCommission(deal: Deal, salesRep: User, plan: CommissionPlan): BigDecimal
+}
+
+class ReportService {
+  +generateCommissionReport(deal: Deal, salesRep: User, commission: BigDecimal): void
+}
+
+class Client {
+  -facade: CommissionFacade
+  +processDealCommission(dealId: String, userId: String): void
+  +createNewDeal(title: String, value: BigDecimal, salesRepId: String, products: List<DealProduct>): void
+}
+
+' Relationships for Facade Pattern
+CommissionFacade o--> DealService
+CommissionFacade o--> UserService
+CommissionFacade o--> CommissionService
+CommissionFacade o--> ReportService
+
+DealService --> Deal
+DealService --> DealProduct
+DealService --> DealStatus
+
+UserService --> User
+UserService --> CommissionPlan
+
+CommissionService --> Deal
+CommissionService --> User
+CommissionService --> CommissionPlan
+
+ReportService --> Deal
+ReportService --> User
+
+Client --> CommissionFacade
+
+' Notes for pattern components
+note right of CommissionFacade
+  <b>Facade</b>
+  Provides a simplified interface
+  to the complex subsystem
+end note
+
+note right of DealService
+  <b>Subsystem Component</b>
+  Part of the complex subsystem
+  that the facade simplifies
+end note
+
+note right of UserService
+  <b>Subsystem Component</b>
+  Part of the complex subsystem
+  that the facade simplifies
+end note
+
+note right of CommissionService
+  <b>Subsystem Component</b>
+  Part of the complex subsystem
+  that the facade simplifies
+end note
+
+note right of ReportService
+  <b>Subsystem Component</b>
+  Part of the complex subsystem
+  that the facade simplifies
+end note
+
+note right of Client
+  <b>Client</b>
+  Uses the facade instead of
+  working directly with the subsystem
+end note
+
+@enduml

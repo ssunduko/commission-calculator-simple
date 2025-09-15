@@ -1,0 +1,120 @@
+@startuml Bridge Pattern
+
+' Define the components of the Bridge Pattern
+' Abstraction
+abstract class CommissionProcessor {
+    # CommissionCalculationStrategy strategy
+    # DealService dealService
+    # UserService userService
+    + CommissionProcessor(strategy, dealService, userService)
+    + setStrategy(strategy)
+    + {abstract} processCommission(dealId): CommissionCalculation
+}
+
+' Refined Abstractions
+class SalesRepCommissionProcessor {
+    + SalesRepCommissionProcessor(strategy, dealService, userService)
+    + processCommission(dealId): CommissionCalculation
+}
+
+class ManagerCommissionProcessor {
+    - BigDecimal overrideRate
+    + ManagerCommissionProcessor(strategy, dealService, userService, overrideRate)
+    + processCommission(dealId): CommissionCalculation
+}
+
+' Implementor
+interface CommissionCalculationStrategy {
+    + calculateCommission(deal, user, plan): BigDecimal
+}
+
+' Concrete Implementors
+class FlatRateStrategy {
+    - BigDecimal rate
+    + FlatRateStrategy(rate)
+    + calculateCommission(deal, user, plan): BigDecimal
+}
+
+class TieredValueStrategy {
+    - Map<BigDecimal, BigDecimal> tiers
+    + TieredValueStrategy()
+    + calculateCommission(deal, user, plan): BigDecimal
+}
+
+class ProductBasedStrategy {
+    - Map<String, BigDecimal> productRates
+    + ProductBasedStrategy()
+    + calculateCommission(deal, user, plan): BigDecimal
+    - getProductType(productName): String
+}
+
+' Supporting Services
+interface DealService {
+    + getDealById(dealId): Deal
+    + getDealsBySalesRep(salesRepId): List<Deal>
+}
+
+interface UserService {
+    + getUserById(userId): User
+    + getCommissionPlan(userId): CommissionPlan
+    + getManagerForUser(userId): User
+}
+
+' Domain Model Classes
+class Deal {
+    - id: String
+    - title: String
+    - value: BigDecimal
+    - status: DealStatus
+    - salesRepId: String
+    - products: List<DealProduct>
+    + calculateTotalValue(): BigDecimal
+}
+
+class User {
+    - id: String
+    - username: String
+    - firstName: String
+    - lastName: String
+    - roles: Set<UserRole>
+    + getFullName(): String
+}
+
+class CommissionPlan {
+    - id: String
+    - name: String
+    - rules: List<CommissionRule>
+    - tiers: List<CommissionTier>
+}
+
+class CommissionCalculation {
+    - id: String
+    - dealId: String
+    - salesRepId: String
+    - baseCommission: BigDecimal
+    - calculatedBy: String
+}
+
+' Define the relationships
+CommissionProcessor o-right-> CommissionCalculationStrategy : uses >
+SalesRepCommissionProcessor -up-|> CommissionProcessor
+ManagerCommissionProcessor -up-|> CommissionProcessor
+FlatRateStrategy .up.|> CommissionCalculationStrategy
+TieredValueStrategy .up.|> CommissionCalculationStrategy
+ProductBasedStrategy .up.|> CommissionCalculationStrategy
+
+CommissionProcessor o--> DealService : uses >
+CommissionProcessor o--> UserService : uses >
+
+DealService ..> Deal : returns >
+UserService ..> User : returns >
+UserService ..> CommissionPlan : returns >
+CommissionProcessor ..> CommissionCalculation : creates >
+
+' Add notes to explain the pattern components
+note right of CommissionProcessor : "Abstraction\nDefines the abstract interface and\nmaintains a reference to the implementor"
+note right of SalesRepCommissionProcessor : "Refined Abstraction\nExtends the abstraction and provides\nmore specialized operations"
+note right of CommissionCalculationStrategy : "Implementor\nDefines the interface for implementation classes"
+note right of FlatRateStrategy : "Concrete Implementor\nImplements the Implementor interface"
+
+@enduml

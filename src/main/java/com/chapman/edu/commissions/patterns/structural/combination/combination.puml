@@ -1,0 +1,480 @@
+@startuml Structural Pattern Combinations
+
+' Title
+title Structural Design Pattern Combinations - Actual Implementation
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor LightBlue
+skinparam classBorderColor DarkBlue
+skinparam stereotypeCBackgroundColor LightGreen
+skinparam stereotypeCBorderColor DarkGreen
+skinparam noteBackgroundColor LightYellow
+skinparam noteBorderColor DarkOrange
+
+' ===== ADAPTER + FACADE PATTERN =====
+package "AdapterFacade" {
+  interface "PaymentTransaction" as PaymentTransaction {
+    +getTransactionId(): String
+    +getCustomerId(): String
+    +getAmount(): double
+    +getCurrency(): String
+    +getTransactionDate(): String
+    +getItems(): List<PaymentItem>
+    +getStatus(): String
+  }
+
+  interface "PaymentItem" as PaymentItem {
+    +getItemId(): String
+    +getDescription(): String
+    +getQuantity(): int
+    +getUnitPrice(): double
+    +getTotalPrice(): double
+  }
+
+  class "PaymentFacade" as PaymentFacade {
+    -dealService: DealService
+    -userService: UserService
+    -paymentProcessor: PaymentProcessor
+    +processPaymentForDeal(dealId: String): void
+    +getPaymentsForSalesRep(salesRepId: String): List<PaymentTransaction>
+    +generatePaymentReport(salesRepId: String): void
+  }
+
+  class "DealPaymentAdapter" as DealPaymentAdapter {
+    -deal: Deal
+    +getTransactionId(): String
+    +getCustomerId(): String
+    +getAmount(): double
+    +getCurrency(): String
+    +getTransactionDate(): String
+    +getItems(): List<PaymentItem>
+    +getStatus(): String
+  }
+
+  class "DealService" as AF_DealService {
+    -deals: List<Deal>
+    +getDealById(dealId: String): Deal
+    +getDealsBySalesRep(salesRepId: String): List<Deal>
+    +updateDealStatus(deal: Deal, status: DealStatus): void
+  }
+
+  class "UserService" as AF_UserService {
+    -users: List<User>
+    +getUserById(userId: String): User
+  }
+
+  PaymentTransaction <|.. DealPaymentAdapter
+  PaymentFacade o--> AF_DealService
+  PaymentFacade o--> AF_UserService
+  PaymentFacade ..> DealPaymentAdapter : creates
+}
+
+' ===== COMPOSITE + DECORATOR PATTERN =====
+package "CompositeDecorator" {
+  interface "SalesComponent" as SalesComponent {
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  class "ProductItem" as ProductItem {
+    -productId: String
+    -productName: String
+    -quantity: int
+    -price: BigDecimal
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  class "SalesDeal" as SalesDeal {
+    -id: String
+    -title: String
+    -components: List<SalesComponent>
+    -salesRepId: String
+    +addComponent(component: SalesComponent): void
+    +removeComponent(component: SalesComponent): void
+    +getComponents(): List<SalesComponent>
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  abstract class "SalesComponentDecorator" as SalesComponentDecorator {
+    #decoratedComponent: SalesComponent
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  class "DiscountDecorator" as DiscountDecorator {
+    -discountRate: BigDecimal
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  class "UrgencyDecorator" as UrgencyDecorator {
+    -deadline: LocalDate
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  class "LoggingDecorator" as LoggingDecorator {
+    +calculateValue(): BigDecimal
+    +getName(): String
+  }
+
+  SalesComponent <|.. ProductItem
+  SalesComponent <|.. SalesDeal
+  SalesComponent <|.. SalesComponentDecorator
+  SalesComponentDecorator <|-- DiscountDecorator
+  SalesComponentDecorator <|-- UrgencyDecorator
+  SalesComponentDecorator <|-- LoggingDecorator
+  SalesComponentDecorator o--> SalesComponent
+  SalesDeal o--> "0..*" SalesComponent
+}
+
+' ===== PROXY + DECORATOR PATTERN =====
+package "ProxyDecorator" {
+  interface "DealValuationService" as DealValuationService {
+    +calculateDealValue(deal: Deal): BigDecimal
+    +getServiceName(): String
+  }
+
+  class "StandardDealValuationService" as StandardDealValuationService {
+    +calculateDealValue(deal: Deal): BigDecimal
+    +getServiceName(): String
+  }
+
+  abstract class "DealValuationDecorator" as DealValuationDecorator {
+    #decoratedService: DealValuationService
+    +calculateDealValue(deal: Deal): BigDecimal
+    +getServiceName(): String
+  }
+
+  class "PremiumProductDecorator" as PremiumProductDecorator {
+    -premiumThreshold: BigDecimal
+    -premiumRate: BigDecimal
+    +calculateDealValue(deal: Deal): BigDecimal
+    +getServiceName(): String
+  }
+
+  class "SeasonalDiscountDecorator" as SeasonalDiscountDecorator {
+    -seasonalDiscounts: Map<String, BigDecimal>
+    +calculateDealValue(deal: Deal): BigDecimal
+    -getCurrentSeason(): String
+    +getServiceName(): String
+  }
+
+  class "CachingDealValuationProxy" as CachingDealValuationProxy {
+    -realService: DealValuationService
+    -cache: Map<String, BigDecimal>
+    +calculateDealValue(deal: Deal): BigDecimal
+    +getServiceName(): String
+    +clearCache(): void
+  }
+
+  class "ProtectionDealValuationProxy" as ProtectionDealValuationProxy {
+    -realService: DealValuationService
+    -currentUser: User
+    +calculateDealValue(deal: Deal): BigDecimal
+    -hasPermission(deal: Deal): boolean
+    +getServiceName(): String
+  }
+
+  DealValuationService <|.. StandardDealValuationService
+  DealValuationService <|.. DealValuationDecorator
+  DealValuationService <|.. CachingDealValuationProxy
+  DealValuationService <|.. ProtectionDealValuationProxy
+  DealValuationDecorator <|-- PremiumProductDecorator
+  DealValuationDecorator <|-- SeasonalDiscountDecorator
+  DealValuationDecorator o--> DealValuationService
+  CachingDealValuationProxy o--> DealValuationService
+  ProtectionDealValuationProxy o--> DealValuationService
+}
+
+' ===== BRIDGE + ABSTRACT FACTORY PATTERN =====
+package "BridgeAbstractFactory" {
+  interface "CommissionCalculationStrategy" as CommissionCalculationStrategy {
+    +calculateCommission(deal: Deal, user: User, plan: CommissionPlan): BigDecimal
+  }
+
+  class "FlatRateStrategy" as FlatRateStrategy {
+    -rate: BigDecimal
+    +calculateCommission(deal: Deal, user: User, plan: CommissionPlan): BigDecimal
+  }
+
+  class "TieredStrategy" as TieredStrategy {
+    -tiers: Map<BigDecimal, BigDecimal>
+    +calculateCommission(deal: Deal, user: User, plan: CommissionPlan): BigDecimal
+  }
+
+  class "ProductBasedStrategy" as ProductBasedStrategy {
+    -productRates: Map<String, BigDecimal>
+    +calculateCommission(deal: Deal, user: User, plan: CommissionPlan): BigDecimal
+    -getProductType(productName: String): String
+  }
+
+  abstract class "CommissionProcessor" as CommissionProcessor {
+    #strategy: CommissionCalculationStrategy
+    #dealService: DealService
+    #userService: UserService
+    +setStrategy(strategy: CommissionCalculationStrategy): void
+    +{abstract} processCommission(dealId: String): CommissionCalculation
+  }
+
+  class "SalesRepCommissionProcessor" as SalesRepCommissionProcessor {
+    +processCommission(dealId: String): CommissionCalculation
+  }
+
+  class "ManagerCommissionProcessor" as ManagerCommissionProcessor {
+    -overrideRate: BigDecimal
+    +processCommission(dealId: String): CommissionCalculation
+  }
+
+  interface "CommissionProcessorFactory" as CommissionProcessorFactory {
+    +createSalesRepProcessor(): CommissionProcessor
+    +createManagerProcessor(): CommissionProcessor
+    +createCalculationStrategy(): CommissionCalculationStrategy
+  }
+
+  class "StandardCommissionProcessorFactory" as StandardCommissionProcessorFactory {
+    -dealService: DealService
+    -userService: UserService
+    +createSalesRepProcessor(): CommissionProcessor
+    +createManagerProcessor(): CommissionProcessor
+    +createCalculationStrategy(): CommissionCalculationStrategy
+  }
+
+  class "TieredCommissionProcessorFactory" as TieredCommissionProcessorFactory {
+    -dealService: DealService
+    -userService: UserService
+    +createSalesRepProcessor(): CommissionProcessor
+    +createManagerProcessor(): CommissionProcessor
+    +createCalculationStrategy(): CommissionCalculationStrategy
+  }
+
+  class "ProductBasedCommissionProcessorFactory" as ProductBasedCommissionProcessorFactory {
+    -dealService: DealService
+    -userService: UserService
+    +createSalesRepProcessor(): CommissionProcessor
+    +createManagerProcessor(): CommissionProcessor
+    +createCalculationStrategy(): CommissionCalculationStrategy
+  }
+
+  interface "DealService" as BAF_DealService {
+    +getDealById(dealId: String): Deal
+  }
+
+  interface "UserService" as BAF_UserService {
+    +getUserById(userId: String): User
+    +getCommissionPlan(userId: String): CommissionPlan
+    +getManagerForUser(userId: String): User
+  }
+
+  CommissionCalculationStrategy <|.. FlatRateStrategy
+  CommissionCalculationStrategy <|.. TieredStrategy
+  CommissionCalculationStrategy <|.. ProductBasedStrategy
+  CommissionProcessor <|-- SalesRepCommissionProcessor
+  CommissionProcessor <|-- ManagerCommissionProcessor
+  CommissionProcessor o--> CommissionCalculationStrategy
+  CommissionProcessor o--> BAF_DealService
+  CommissionProcessor o--> BAF_UserService
+  CommissionProcessorFactory <|.. StandardCommissionProcessorFactory
+  CommissionProcessorFactory <|.. TieredCommissionProcessorFactory
+  CommissionProcessorFactory <|.. ProductBasedCommissionProcessorFactory
+  StandardCommissionProcessorFactory ..> SalesRepCommissionProcessor : creates
+  StandardCommissionProcessorFactory ..> ManagerCommissionProcessor : creates
+  StandardCommissionProcessorFactory ..> FlatRateStrategy : creates
+  TieredCommissionProcessorFactory ..> SalesRepCommissionProcessor : creates
+  TieredCommissionProcessorFactory ..> ManagerCommissionProcessor : creates
+  TieredCommissionProcessorFactory ..> TieredStrategy : creates
+  ProductBasedCommissionProcessorFactory ..> SalesRepCommissionProcessor : creates
+  ProductBasedCommissionProcessorFactory ..> ManagerCommissionProcessor : creates
+  ProductBasedCommissionProcessorFactory ..> ProductBasedStrategy : creates
+}
+
+' ===== FACADE + PROXY PATTERN =====
+package "FacadeProxy" {
+  class "CommissionFacade" as CommissionFacade {
+    -dealService: DealService
+    -userService: UserService
+    -commissionService: CommissionService
+    -reportService: ReportService
+    +createDeal(title: String, value: BigDecimal, salesRepId: String, products: List<DealProduct>): Deal
+    +closeDealAsWon(dealId: String): BigDecimal
+    +getDealsBySalesRep(salesRepId: String): List<Deal>
+    +getTotalCommission(salesRepId: String, startDate: LocalDate, endDate: LocalDate): BigDecimal
+  }
+
+  class "CommissionFacadeProxy" as CommissionFacadeProxy {
+    -realFacade: CommissionFacade
+    -currentUser: User
+    -cache: Map<String, Object>
+    -loggingEnabled: boolean
+    +setLoggingEnabled(loggingEnabled: boolean): void
+    +clearCache(): void
+    +createDeal(title: String, value: BigDecimal, salesRepId: String, products: List<DealProduct>): Deal
+    +closeDealAsWon(dealId: String): BigDecimal
+    +getDealsBySalesRep(salesRepId: String): List<Deal>
+    +getTotalCommission(salesRepId: String, startDate: LocalDate, endDate: LocalDate): BigDecimal
+    -canCreateDeal(salesRepId: String): boolean
+    -canManageDeal(deal: Deal): boolean
+    -canViewDealsForSalesRep(salesRepId: String): boolean
+    -canViewCommissionForSalesRep(salesRepId: String): boolean
+  }
+
+  class "DealService" as FP_DealService {
+    -deals: List<Deal>
+    +createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    +getDealById(dealId: String): Deal
+    +updateDealStatus(deal: Deal, status: DealStatus): void
+    +addProductToDeal(deal: Deal, product: DealProduct): void
+    +getDealsBySalesRep(salesRepId: String): List<Deal>
+    +getDealsBySalesRepAndDateRange(salesRepId: String, startDate: LocalDate, endDate: LocalDate): List<Deal>
+  }
+
+  class "UserService" as FP_UserService {
+    -users: Map<String, User>
+    -plans: Map<String, CommissionPlan>
+    +getUserById(userId: String): User
+    +getCommissionPlan(userId: String): CommissionPlan
+  }
+
+  class "CommissionService" as CommissionService {
+    +calculateCommission(deal: Deal, salesRep: User, plan: CommissionPlan): BigDecimal
+  }
+
+  class "ReportService" as ReportService {
+    +generateCommissionReport(deal: Deal, salesRep: User, commission: BigDecimal): void
+  }
+
+  CommissionFacadeProxy o--> CommissionFacade
+  CommissionFacade o--> FP_DealService
+  CommissionFacade o--> FP_UserService
+  CommissionFacade o--> CommissionService
+  CommissionFacade o--> ReportService
+}
+
+' Notes
+note right of DealPaymentAdapter
+  Adapter Pattern:
+  Adapts Deal objects to the PaymentTransaction interface
+  expected by the payment processor
+end note
+
+note right of PaymentFacade
+  Facade Pattern:
+  Provides a simplified interface to the complex subsystem
+  of deal management, user management, and payment processing
+end note
+
+note right of SalesComponent
+  Composite Pattern:
+  Allows treating individual products and compositions
+  of products uniformly
+end note
+
+note right of SalesComponentDecorator
+  Decorator Pattern:
+  Base decorator that wraps SalesComponent objects
+  and adds additional behaviors
+end note
+
+note right of DealValuationService
+  Common interface for both Proxy and Decorator patterns
+end note
+
+note right of StandardDealValuationService
+  Real Subject in Proxy pattern and
+  Concrete Component in Decorator pattern
+end note
+
+note right of DealValuationDecorator
+  Decorator Pattern:
+  Base decorator that adds behaviors to
+  DealValuationService implementations
+end note
+
+note right of CachingDealValuationProxy
+  Proxy Pattern:
+  Controls access to the real service by
+  caching calculation results
+end note
+
+note right of ProtectionDealValuationProxy
+  Proxy Pattern:
+  Controls access to the real service based
+  on user permissions
+end note
+
+note right of CommissionCalculationStrategy
+  Bridge Pattern:
+  Implementor interface that defines
+  calculation strategies
+end note
+
+note right of CommissionProcessor
+  Bridge Pattern:
+  Abstraction that uses strategies to
+  process commissions
+end note
+
+note right of CommissionProcessorFactory
+  Abstract Factory Pattern:
+  Creates families of related objects
+  (processors and strategies)
+end note
+
+note right of CommissionFacade
+  Facade Pattern:
+  Provides a simplified interface to the
+  complex commission subsystem
+end note
+
+note right of CommissionFacadeProxy
+  Proxy Pattern:
+  Controls access to the facade and adds
+  cross-cutting concerns like caching and logging
+end note
+
+note bottom of AdapterFacade
+  Adapter + Facade:
+  - PaymentFacade simplifies the complex subsystem
+  - DealPaymentAdapter adapts Deal to PaymentTransaction
+  - Enables integration with external payment systems
+end note
+
+note bottom of CompositeDecorator
+  Composite + Decorator:
+  - SalesDeal creates tree structures of components
+  - Decorators add behaviors like discounts and logging
+  - Decorations can be applied to both individual
+    products and entire deals
+end note
+
+note bottom of ProxyDecorator
+  Proxy + Decorator:
+  - Proxies control access to valuation services
+  - Decorators add behaviors like premium products
+    and seasonal discounts
+  - Can be combined in different ways for
+    flexible access control and behavior
+end note
+
+note bottom of BridgeAbstractFactory
+  Bridge + Abstract Factory:
+  - Bridge separates processors from strategies
+  - Abstract Factory creates families of processors
+    and strategies that work together
+  - Enables switching implementations at runtime
+end note
+
+note bottom of FacadeProxy
+  Facade + Proxy:
+  - CommissionFacade simplifies the complex subsystem
+  - CommissionFacadeProxy controls access and adds
+    cross-cutting concerns like caching and logging
+  - Maintains separation of business logic and
+    access control
+end note
+
+@enduml

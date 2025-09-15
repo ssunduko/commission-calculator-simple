@@ -1,0 +1,167 @@
+@startuml Adapter Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Adapter Pattern - Commission Calculator
+
+' Classes from model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+  +calculateTotalValue(): BigDecimal
+}
+
+class DealProduct {
+  -id: String
+  -productId: String
+  -productName: String
+  -quantity: int
+  -price: BigDecimal
+  -discount: BigDecimal
+  -dealId: String
+  +getProductName(): String
+  +getQuantity(): int
+  +getPrice(): BigDecimal
+  +calculateTotalPrice(): BigDecimal
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+Deal --> DealStatus
+Deal o--> "0..*" DealProduct
+
+' Add notes for model classes
+note right of Deal : "Adaptee\nExisting class with incompatible interface\nthat needs to be adapted"
+
+' First Adapter Example (Report)
+interface ReportData {
+  +getReportTitle(): String
+  +getReportValue(): BigDecimal
+  +getOwnerName(): String
+  +getItemDescriptions(): List<String>
+  +getTotalAmount(): BigDecimal
+}
+
+note left of ReportData : "Target\nInterface that client expects\nto work with"
+
+class DealReportAdapter {
+  -deal: Deal
+  +getReportTitle(): String
+  +getReportValue(): BigDecimal
+  +getOwnerName(): String
+  +getItemDescriptions(): List<String>
+  +getTotalAmount(): BigDecimal
+}
+
+note right of DealReportAdapter : "Adapter\nImplements Target interface and\ntranslates calls to the Adaptee"
+
+class ReportGenerator {
+  +generateReport(data: ReportData): void
+}
+
+note right of ReportGenerator : "Client\nInteracts with the Target interface\nwithout knowing about the Adaptee"
+
+' Second Adapter Example (Payment)
+interface PaymentTransaction {
+  +getTransactionId(): String
+  +getCustomerId(): String
+  +getAmount(): double
+  +getCurrency(): String
+  +getTransactionDate(): String
+  +getItems(): List<PaymentItem>
+  +getStatus(): String
+}
+
+note left of PaymentTransaction : "Target\nAnother interface that client expects\nto work with in a different context"
+
+interface PaymentItem {
+  +getItemId(): String
+  +getDescription(): String
+  +getQuantity(): int
+  +getUnitPrice(): double
+  +getTotalPrice(): double
+}
+
+class PaymentItemImpl {
+  -itemId: String
+  -description: String
+  -quantity: int
+  -unitPrice: double
+  +getItemId(): String
+  +getDescription(): String
+  +getQuantity(): int
+  +getUnitPrice(): double
+  +getTotalPrice(): double
+}
+
+class DealPaymentAdapter {
+  -deal: Deal
+  -DEFAULT_CURRENCY: String
+  -DATE_FORMATTER: DateTimeFormatter
+  +getTransactionId(): String
+  +getCustomerId(): String
+  +getAmount(): double
+  +getCurrency(): String
+  +getTransactionDate(): String
+  +getItems(): List<PaymentItem>
+  +getStatus(): String
+}
+
+note right of DealPaymentAdapter : "Adapter\nAnother adapter that implements a different\nTarget interface for the same Adaptee"
+
+class PaymentProcessor {
+  +processPayment(transaction: PaymentTransaction): void
+}
+
+note right of PaymentProcessor : "Client\nAnother client that interacts with a different\nTarget interface without knowing about the Adaptee"
+
+' Relationships
+DealReportAdapter ..|> ReportData
+DealReportAdapter --> Deal
+ReportGenerator --> ReportData
+
+DealPaymentAdapter ..|> PaymentTransaction
+DealPaymentAdapter --> Deal
+PaymentItemImpl ..|> PaymentItem
+PaymentTransaction --> PaymentItem
+PaymentProcessor --> PaymentTransaction
+
+' Client usage
+class AdapterPatternUsage {
+  +main(args: String[]): void
+  -createSampleDeal(): Deal
+  -printDealInfo(deal: Deal): void
+}
+
+note bottom of AdapterPatternUsage : "Demo Client\nDemonstrates how to use the Adapter pattern\nby creating and using both adapters"
+
+AdapterPatternUsage --> Deal
+AdapterPatternUsage --> DealReportAdapter
+AdapterPatternUsage --> ReportGenerator
+AdapterPatternUsage --> DealPaymentAdapter
+AdapterPatternUsage --> PaymentProcessor
+
+@enduml

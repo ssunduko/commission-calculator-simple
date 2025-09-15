@@ -1,0 +1,109 @@
+@startuml Proxy Pattern
+
+' Define the components of the Proxy Pattern
+' Subject
+interface CommissionCalculationService {
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+}
+
+' RealSubject
+class RealCommissionCalculationService {
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+}
+
+' Proxy implementations
+class VirtualProxyCommissionService {
+    - realService: CommissionCalculationService
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+}
+
+class ProtectionProxyCommissionService {
+    - realService: CommissionCalculationService
+    - currentUser: User
+    + ProtectionProxyCommissionService(currentUser: User)
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+}
+
+class CachingProxyCommissionService {
+    - realService: CommissionCalculationService
+    - cache: Map<String, CommissionCalculation>
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+    + clearCache(): void
+}
+
+class SmartProxyCommissionService {
+    - realService: CommissionCalculationService
+    - referenceCount: AtomicInteger
+    - accessCount: Map<String, Integer>
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+    + getReferenceCount(): int
+    + getAccessStatistics(): Map<String, Integer>
+}
+
+class RemoteProxyCommissionService {
+    - remoteServiceUrl: String
+    + RemoteProxyCommissionService(remoteServiceUrl: String)
+    + calculateCommission(dealId: String, userId: String): CommissionCalculation
+    + saveCalculation(calculation: CommissionCalculation): void
+}
+
+' Domain model classes
+class CommissionCalculation {
+    - id: String
+    - dealId: String
+    - salesRepId: String
+    - baseCommission: BigDecimal
+    - calculatedBy: String
+    + calculateTotalCommission(): BigDecimal
+    + recalculate(): void
+}
+
+class User {
+    - id: String
+    - username: String
+    - roles: Set<UserRole>
+    + hasRole(role: UserRole): boolean
+}
+
+' Define the relationships
+RealCommissionCalculationService ..|> CommissionCalculationService
+VirtualProxyCommissionService ..|> CommissionCalculationService
+ProtectionProxyCommissionService ..|> CommissionCalculationService
+CachingProxyCommissionService ..|> CommissionCalculationService
+SmartProxyCommissionService ..|> CommissionCalculationService
+RemoteProxyCommissionService ..|> CommissionCalculationService
+
+VirtualProxyCommissionService o--> RealCommissionCalculationService : "creates on demand >"
+ProtectionProxyCommissionService o--> RealCommissionCalculationService : "delegates to >"
+ProtectionProxyCommissionService o--> User : "checks permissions >"
+CachingProxyCommissionService o--> RealCommissionCalculationService : "delegates to >"
+SmartProxyCommissionService o--> RealCommissionCalculationService : "delegates to >"
+RemoteProxyCommissionService ..> RealCommissionCalculationService : "represents >"
+
+CommissionCalculationService ..> CommissionCalculation : "< creates"
+
+' Add notes to explain the pattern components
+note right of CommissionCalculationService : "Subject\nDefines the common interface for\nRealSubject and Proxy"
+note right of RealCommissionCalculationService : "RealSubject\nImplements the actual functionality"
+note right of VirtualProxyCommissionService : "Virtual Proxy\nDelays creation of expensive objects\nuntil they are needed"
+note right of ProtectionProxyCommissionService : "Protection Proxy\nControls access based on permissions"
+note right of CachingProxyCommissionService : "Caching Proxy\nStores results to improve performance"
+note right of SmartProxyCommissionService : "Smart Proxy\nAdds housekeeping like reference counting"
+note right of RemoteProxyCommissionService : "Remote Proxy\nRepresents an object in a different address space"
+
+' Client code
+class Client {
+    + main()
+}
+
+Client --> CommissionCalculationService : "uses >"
+
+note bottom of Client : "Client\nWorks with Subject interface without\nknowing if it's a RealSubject or Proxy"
+
+@enduml

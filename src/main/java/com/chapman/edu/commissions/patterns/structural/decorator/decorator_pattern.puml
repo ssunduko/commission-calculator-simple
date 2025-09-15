@@ -1,0 +1,201 @@
+@startuml Decorator Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Decorator Pattern - Commission Calculator
+
+' Classes from model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+  +calculateTotalValue(): BigDecimal
+}
+
+class DealProduct {
+  -id: String
+  -productId: String
+  -productName: String
+  -quantity: int
+  -price: BigDecimal
+  -discount: BigDecimal
+  -dealId: String
+  +getProductName(): String
+  +getQuantity(): int
+  +getPrice(): BigDecimal
+  +calculateTotalPrice(): BigDecimal
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+Deal --> DealStatus
+Deal o--> "0..*" DealProduct
+
+note right of Deal : "Original class that will be adapted\nand decorated in our examples"
+
+' Simple Commission Decorator Pattern
+interface Commission {
+  +calculate(): BigDecimal
+  +getDescription(): String
+}
+
+note left of Commission : "Component Interface\nDefines the interface for objects\nthat can have responsibilities added to them"
+
+class BaseCommission {
+  -amount: BigDecimal
+  +calculate(): BigDecimal
+  +getDescription(): String
+}
+
+note right of BaseCommission : "Concrete Component\nDefines an object to which\nadditional responsibilities can be attached"
+
+abstract class CommissionDecorator {
+  #decoratedCommission: Commission
+  +calculate(): BigDecimal
+  +getDescription(): String
+}
+
+note right of CommissionDecorator : "Decorator\nMaintains a reference to a Component object\nand defines an interface that conforms to\nComponent's interface"
+
+class BonusDecorator {
+  -bonusAmount: BigDecimal
+  +calculate(): BigDecimal
+  +getDescription(): String
+}
+
+note right of BonusDecorator : "Concrete Decorator\nAdds responsibilities to the component\nby adding a bonus amount"
+
+class AcceleratorDecorator {
+  -multiplier: BigDecimal
+  +calculate(): BigDecimal
+  +getDescription(): String
+}
+
+class TaxDecorator {
+  -taxRate: BigDecimal
+  +calculate(): BigDecimal
+  +getDescription(): String
+}
+
+' Deal Decorator Pattern
+interface DealComponent {
+  +getTitle(): String
+  +calculateValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+}
+
+note left of DealComponent : "Component Interface\nDefines the interface for Deal objects\nthat can have responsibilities added to them"
+
+class BasicDeal {
+  -deal: Deal
+  +getTitle(): String
+  +calculateValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+}
+
+note right of BasicDeal : "Concrete Component\nAdapts the Deal class to the DealComponent interface\nand provides the basic implementation"
+
+abstract class DealDecorator {
+  #decoratedDeal: DealComponent
+  +getTitle(): String
+  +calculateValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+}
+
+note right of DealDecorator : "Decorator\nMaintains a reference to a DealComponent object\nand forwards requests to this component"
+
+class DiscountDecorator {
+  -discountRate: BigDecimal
+  +calculateValue(): BigDecimal
+  +getTitle(): String
+}
+
+note right of DiscountDecorator : "Concrete Decorator\nAdds responsibility to apply a discount\nto the deal value"
+
+class PremiumDecorator {
+  -premiumRate: BigDecimal
+  +calculateValue(): BigDecimal
+  +getTitle(): String
+}
+
+class UrgencyDecorator {
+  -deadline: LocalDate
+  +calculateValue(): BigDecimal
+  +getTitle(): String
+}
+
+class LoggingDecorator {
+  +getTitle(): String
+  +calculateValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+}
+
+' Relationships for Simple Commission Decorator
+BaseCommission ..|> Commission
+CommissionDecorator ..|> Commission
+CommissionDecorator o--> Commission
+BonusDecorator --|> CommissionDecorator
+AcceleratorDecorator --|> CommissionDecorator
+TaxDecorator --|> CommissionDecorator
+
+' Relationships for Deal Decorator
+BasicDeal ..|> DealComponent
+BasicDeal --> Deal
+DealDecorator ..|> DealComponent
+DealDecorator o--> DealComponent
+DiscountDecorator --|> DealDecorator
+PremiumDecorator --|> DealDecorator
+UrgencyDecorator --|> DealDecorator
+LoggingDecorator --|> DealDecorator
+
+' Client usage
+class DecoratorPatternUsage {
+  +main(args: String[]): void
+  -demonstrateSimpleCommissionDecorators(): void
+  -demonstrateDealDecorators(): void
+  -demonstrateCombiningDecorators(): void
+  -createSampleDeal(): Deal
+}
+
+note bottom of DecoratorPatternUsage : "Client\nUses the decorated components\nand demonstrates how to combine\nmultiple decorators"
+
+DecoratorPatternUsage --> Deal
+DecoratorPatternUsage --> Commission
+DecoratorPatternUsage --> BaseCommission
+DecoratorPatternUsage --> BonusDecorator
+DecoratorPatternUsage --> AcceleratorDecorator
+DecoratorPatternUsage --> TaxDecorator
+DecoratorPatternUsage --> DealComponent
+DecoratorPatternUsage --> BasicDeal
+DecoratorPatternUsage --> DiscountDecorator
+DecoratorPatternUsage --> PremiumDecorator
+DecoratorPatternUsage --> UrgencyDecorator
+DecoratorPatternUsage --> LoggingDecorator
+
+@enduml

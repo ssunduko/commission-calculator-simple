@@ -1,0 +1,122 @@
+@startuml Composite Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Composite Pattern - Commission Calculator
+
+' Classes from model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +getSalesRepId(): String
+  +getProducts(): List<DealProduct>
+  +calculateTotalValue(): BigDecimal
+}
+
+class DealProduct {
+  -id: String
+  -productId: String
+  -productName: String
+  -quantity: int
+  -price: BigDecimal
+  -discount: BigDecimal
+  -dealId: String
+  +getProductName(): String
+  +getQuantity(): int
+  +getPrice(): BigDecimal
+  +calculateTotalPrice(): BigDecimal
+}
+
+' Composite Pattern Classes
+interface SalesComponent {
+  +calculateValue(): BigDecimal
+  +getName(): String
+}
+
+class ProductItem {
+  -productId: String
+  -productName: String
+  -quantity: int
+  -price: BigDecimal
+  -discount: BigDecimal
+  +ProductItem(productId: String, productName: String, quantity: int, price: BigDecimal)
+  +ProductItem(productId: String, productName: String, quantity: int, price: BigDecimal, discount: BigDecimal)
+  +calculateValue(): BigDecimal
+  +getName(): String
+  +getProductId(): String
+  +getQuantity(): int
+  +getPrice(): BigDecimal
+  +getDiscount(): BigDecimal
+}
+
+class SalesDeal {
+  -id: String
+  -title: String
+  -components: List<SalesComponent>
+  -salesRepId: String
+  +SalesDeal(title: String, salesRepId: String)
+  +addComponent(component: SalesComponent): void
+  +removeComponent(component: SalesComponent): void
+  +getComponents(): List<SalesComponent>
+  +calculateValue(): BigDecimal
+  +getName(): String
+  +getId(): String
+  +getSalesRepId(): String
+}
+
+class SalesReport {
+  +generateReport(component: SalesComponent): void
+}
+
+' Relationships
+SalesComponent <|.. ProductItem
+SalesComponent <|.. SalesDeal
+SalesDeal o--> "0..*" SalesComponent
+SalesReport --> SalesComponent
+
+' Model to Pattern mapping
+Deal ..> SalesDeal : "maps to"
+DealProduct ..> ProductItem : "maps to"
+
+' Notes for pattern components
+note right of SalesComponent
+  <b>Component</b>
+  Defines operations common to both
+  simple and complex elements
+end note
+
+note right of ProductItem
+  <b>Leaf</b>
+  Represents individual objects
+  in the composition that have no children
+end note
+
+note right of SalesDeal
+  <b>Composite</b>
+  Represents complex objects that may have children
+  Stores child components and delegates operations to them
+end note
+
+note right of SalesReport
+  <b>Client</b>
+  Uses the component interface to interact
+  with objects in the composition
+end note
+
+@enduml
