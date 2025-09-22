@@ -1,0 +1,251 @@
+@startuml Cohesion Examples
+
+' Title
+title Cohesion Examples - From Weakest to Strongest
+
+' Hide package names to focus on classes
+hide circle
+hide empty members
+
+' Style settings
+skinparam class {
+  BackgroundColor<<Coincidental>> LightGray
+  BackgroundColor<<Logical>> LightBlue
+  BackgroundColor<<Temporal>> LightGreen
+  BackgroundColor<<Procedural>> LightYellow
+  BackgroundColor<<Communicational>> LightPink
+  BackgroundColor<<Sequential>> LightSalmon
+  BackgroundColor<<Functional>> LightCyan
+  BorderColor Black
+  ArrowColor Black
+}
+
+' Coincidental Cohesion (Weakest)
+class CoincidentalCohesion <<Coincidental>> {
+  + generateRandomId()
+  + convertToUpperCase()
+  + factorial()
+  + isLeapYear()
+  + formatDeal()
+  + validateEmail()
+  + calculateCircleArea()
+  + reverseString()
+}
+note bottom of CoincidentalCohesion
+  <b>Coincidental Cohesion</b>
+  Weakest form of cohesion.
+  Methods are grouped arbitrarily
+  with no meaningful relationship.
+end note
+
+' Logical Cohesion
+class LogicalCohesion <<Logical>> {
+  + validateUser()
+  + validateDeal()
+  + validateDealProduct()
+  + validateCommissionRate()
+  + validateDealProducts()
+  + validateDealStatusTransition()
+}
+note bottom of LogicalCohesion
+  <b>Logical Cohesion</b>
+  Methods perform similar functions
+  (validation) but on different
+  types of data.
+end note
+
+' Temporal Cohesion
+class TemporalCohesion <<Temporal>> {
+  - users
+  - deals
+  - commissionCalculations
+  + processDealClosed()
+  - updateDealStatus()
+  - setDealCloseDate()
+  - calculateCommission()
+  - notifySalesRep()
+  - notifySalesManager()
+  - notifyFinanceTeam()
+  - updateSalesReport()
+  - updateCommissionReport()
+  - updateRevenueForecasts()
+  - logDealClosedActivity()
+}
+note bottom of TemporalCohesion
+  <b>Temporal Cohesion</b>
+  Methods are executed at the
+  same time (when a deal is closed)
+  but perform different functions.
+end note
+
+' Procedural Cohesion
+class ProceduralCohesion <<Procedural>> {
+  + createDeal()
+  - validateInputs()
+  - createBasicDeal()
+  - addProductsToDeal()
+  - calculateDealValue()
+  - setDefaultDates()
+  - assignUniqueId()
+  - logDealCreation()
+}
+note bottom of ProceduralCohesion
+  <b>Procedural Cohesion</b>
+  Methods follow a specified
+  sequence of execution in
+  the deal creation process.
+end note
+
+' Communicational Cohesion
+class CommunicationalCohesion <<Communicational>> {
+  + analyzeDeal()
+  - calculateDealMetrics()
+  - isDealProfitable()
+  - isDealAtRisk()
+  - generateDealSummary()
+  - isEligibleForSpecialDiscount()
+  - calculateExpectedCloseDate()
+}
+note bottom of CommunicationalCohesion
+  <b>Communicational Cohesion</b>
+  Methods operate on the same
+  data (Deal object) but perform
+  different operations.
+end note
+
+' Sequential Cohesion
+class SequentialCohesion <<Sequential>> {
+  + calculateCommission()
+  - extractEligibleProducts()
+  - calculateBaseCommissionAmount()
+  - determineCommissionRate()
+  - applyCommissionRate()
+  - calculateBonusAmount()
+  - calculateFinalCommissionAmount()
+  - createCommissionCalculation()
+}
+note bottom of SequentialCohesion
+  <b>Sequential Cohesion</b>
+  Output from one method becomes
+  input to another, forming a
+  data processing chain.
+end note
+
+' Functional Cohesion (Strongest)
+class FunctionalCohesion <<Functional>> {
+  + calculateDealValueWithDiscounts()
+  - calculateBaseValue()
+  - calculateVolumeDiscount()
+  - calculateMultiProductDiscount()
+  - calculateEarlyPaymentDiscount()
+  - calculateTotalDiscount()
+  - applyDiscount()
+  + calculateDiscountPercentage()
+  + isDealEligibleForDiscounts()
+}
+note bottom of FunctionalCohesion
+  <b>Functional Cohesion</b>
+  Strongest form of cohesion.
+  All methods contribute to a
+  single, well-defined task.
+end note
+
+' Model classes used by the cohesion examples
+class Deal {
+  - id
+  - title
+  - value
+  - status
+  - salesRepId
+  - products
+  - closeDate
+  - createdDate
+  - lastModifiedDate
+  + calculateTotalValue()
+}
+
+class DealProduct {
+  - id
+  - productId
+  - productName
+  - quantity
+  - price
+  - discount
+  - dealId
+  + calculateTotalPrice()
+}
+
+class User {
+  - id
+  - username
+  - email
+  - firstName
+  - lastName
+  - roles
+  + getFullName()
+  + isSalesRep()
+}
+
+class CommissionCalculation {
+  - id
+  - dealId
+  - salesRepId
+  - baseCommission
+  - bonuses
+  - accelerators
+  - grossCommission
+  - netCommission
+  - status
+  + calculateTotalCommission()
+  + recalculate()
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+' Relationships
+CoincidentalCohesion ..> Deal : uses
+LogicalCohesion ..> User : validates
+LogicalCohesion ..> Deal : validates
+LogicalCohesion ..> DealProduct : validates
+LogicalCohesion ..> DealStatus : validates
+TemporalCohesion --> Deal : processes
+TemporalCohesion --> User : uses
+TemporalCohesion --> CommissionCalculation : creates
+ProceduralCohesion --> Deal : creates
+ProceduralCohesion ..> User : uses
+ProceduralCohesion ..> DealProduct : adds to deal
+CommunicationalCohesion ..> Deal : analyzes
+CommunicationalCohesion ..> DealProduct : uses
+CommunicationalCohesion ..> DealStatus : checks
+SequentialCohesion ..> Deal : processes
+SequentialCohesion ..> User : uses
+SequentialCohesion ..> DealProduct : processes
+SequentialCohesion --> CommissionCalculation : creates
+FunctionalCohesion ..> Deal : calculates value
+FunctionalCohesion ..> DealProduct : uses
+FunctionalCohesion ..> DealStatus : checks
+
+' Cohesion strength scale
+note "Cohesion Strength Scale (Weakest to Strongest)" as N1
+note "1. Coincidental Cohesion" as N2
+note "2. Logical Cohesion" as N3
+note "3. Temporal Cohesion" as N4
+note "4. Procedural Cohesion" as N5
+note "5. Communicational Cohesion" as N6
+note "6. Sequential Cohesion" as N7
+note "7. Functional Cohesion" as N8
+
+N1 .. N2
+N2 .. N3
+N3 .. N4
+N4 .. N5
+N5 .. N6
+N6 .. N7
+N7 .. N8
+
+@enduml

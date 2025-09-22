@@ -15,7 +15,7 @@ public class DealProduct {
     private BigDecimal price;
     private BigDecimal discount;
     private String dealId;
-    
+
     /**
      * Default constructor
      */
@@ -23,7 +23,7 @@ public class DealProduct {
         this.quantity = 1;
         this.discount = BigDecimal.ZERO;
     }
-    
+
     /**
      * Constructor with essential fields
      */
@@ -34,86 +34,99 @@ public class DealProduct {
         this.quantity = quantity;
         this.price = price;
     }
-    
+
     // Getters and Setters
-    
+
     public String getId() {
         return id;
     }
-    
+
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getProductId() {
         return productId;
     }
-    
+
     public void setProductId(String productId) {
         this.productId = productId;
     }
-    
+
     public String getProductName() {
         return productName;
     }
-    
+
     public void setProductName(String productName) {
         this.productName = productName;
     }
-    
+
     public int getQuantity() {
         return quantity;
     }
-    
+
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    
+
     public BigDecimal getPrice() {
         return price;
     }
-    
+
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-    
+
     public BigDecimal getDiscount() {
         return discount;
     }
-    
+
     public void setDiscount(BigDecimal discount) {
         this.discount = discount;
     }
-    
+
     public String getDealId() {
         return dealId;
     }
-    
+
     public void setDealId(String dealId) {
         this.dealId = dealId;
     }
-    
+
     /**
      * Calculate the total price for this product (price * quantity - discount)
      * @return the total price
      */
     public BigDecimal calculateTotalPrice() {
+
         return price.multiply(new BigDecimal(quantity)).subtract(discount);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DealProduct that = (DealProduct) o;
+
+        // If both IDs are null, compare other fields
+        if (id == null && that.id == null) {
+            return Objects.equals(productId, that.productId) &&
+                   Objects.equals(productName, that.productName) &&
+                   quantity == that.quantity &&
+                   Objects.equals(price, that.price);
+        }
+
         return Objects.equals(id, that.id);
     }
-    
+
     @Override
     public int hashCode() {
+        if (id == null) {
+            return Objects.hash(productId, productName, quantity, price);
+        }
         return Objects.hash(id);
     }
-    
+
     @Override
     public String toString() {
         return "DealProduct{" +

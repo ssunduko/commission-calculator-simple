@@ -1,0 +1,323 @@
+@startuml Leaky Abstractions Examples
+
+' Title
+title Leaky Abstractions Examples
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor LightBlue
+skinparam classBorderColor DarkBlue
+skinparam noteBackgroundColor LightYellow
+skinparam noteBorderColor DarkGoldenRod
+
+' Design For Change
+package "Design For Change" {
+  class RigidCommissionCalculator {
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+  }
+  
+  interface CommissionStrategy {
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+  }
+  
+  class StandardDealCommissionStrategy {
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+  }
+  
+  class PremiumDealCommissionStrategy {
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+  }
+  
+  class EnterpriseDealCommissionStrategy {
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+  }
+  
+  class FlexibleCommissionCalculator {
+    - strategySelectors: List<CommissionStrategySelector>
+    - defaultStrategy: CommissionStrategy
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+    + addStrategySelector(CommissionStrategySelector): void
+  }
+  
+  interface CommissionStrategySelector {
+    + selectStrategy(Deal): CommissionStrategy
+  }
+  
+  CommissionStrategy <|.. StandardDealCommissionStrategy
+  CommissionStrategy <|.. PremiumDealCommissionStrategy
+  CommissionStrategy <|.. EnterpriseDealCommissionStrategy
+  FlexibleCommissionCalculator --> CommissionStrategy
+  FlexibleCommissionCalculator --> CommissionStrategySelector
+}
+
+note right of RigidCommissionCalculator
+  Leaky Abstraction:
+  - Hardcoded logic for specific deal types
+  - Difficult to extend or modify
+end note
+
+note right of FlexibleCommissionCalculator
+  Improved Design:
+  - Uses Strategy pattern
+  - Easy to extend with new strategies
+  - Follows Open/Closed Principle
+end note
+
+' Layered Architecture
+package "Layered Architecture" {
+  class LeakyDealUI {
+    - database: DealDatabase
+    + createDeal(String, BigDecimal, String): void
+    + calculateCommission(String): void
+  }
+  
+  class DealDatabase {
+    - deals: List<Deal>
+    + saveDeal(Deal): void
+    + getDealById(String): Deal
+    + getAllDeals(): List<Deal>
+  }
+  
+  class ProperDealUI {
+    - dealService: DealService
+    + createDeal(String, BigDecimal, String): void
+    + calculateCommission(String): void
+  }
+  
+  class DealService {
+    - dealRepository: DealRepository
+    - commissionCalculator: CommissionCalculator
+    + createDeal(String, BigDecimal, String): Deal
+    + calculateCommission(String): BigDecimal
+  }
+  
+  interface DealRepository {
+    + save(Deal): Deal
+    + findById(String): Optional<Deal>
+    + findAll(): List<Deal>
+  }
+  
+  class DealDatabaseRepository {
+    - deals: List<Deal>
+    + save(Deal): Deal
+    + findById(String): Optional<Deal>
+    + findAll(): List<Deal>
+  }
+  
+  class CommissionCalculator {
+    + calculateCommission(Deal): BigDecimal
+  }
+  
+  LeakyDealUI --> DealDatabase
+  ProperDealUI --> DealService
+  DealService --> DealRepository
+  DealService --> CommissionCalculator
+  DealRepository <|.. DealDatabaseRepository
+}
+
+note right of LeakyDealUI
+  Leaky Abstraction:
+  - UI directly accesses database
+  - UI contains business logic
+  - No separation of concerns
+end note
+
+note right of ProperDealUI
+  Improved Design:
+  - Clear separation of layers
+  - UI only interacts with service layer
+  - Each layer has a specific responsibility
+end note
+
+' Standard Interfaces
+package "Standard Interfaces" {
+  class StandardDealCalculator {
+    + calculateStandardDealCommission(Deal, BigDecimal): BigDecimal
+  }
+  
+  class PremiumDealCalculator {
+    + computePremiumCommission(BigDecimal, Deal, boolean): BigDecimal
+  }
+  
+  class EnterpriseDealCalculator {
+    - enterpriseRate: BigDecimal
+    + getEnterpriseCommissionAsString(Deal): String
+  }
+  
+  class NonStandardCommissionService {
+    - standardCalculator: StandardDealCalculator
+    - premiumCalculator: PremiumDealCalculator
+    - enterpriseCalculator: EnterpriseDealCalculator
+    + calculateCommission(Deal): String
+  }
+  
+  interface StandardCommissionCalculator {
+    + calculateCommission(Deal): BigDecimal
+  }
+  
+  class StandardDealCalculatorImpl {
+    - rate: BigDecimal
+    + calculateCommission(Deal): BigDecimal
+  }
+  
+  class PremiumDealCalculatorImpl {
+    - rate: BigDecimal
+    - applyBonus: boolean
+    + calculateCommission(Deal): BigDecimal
+  }
+  
+  class EnterpriseDealCalculatorImpl {
+    - rate: BigDecimal
+    + calculateCommission(Deal): BigDecimal
+  }
+  
+  class CommissionCalculatorFactory {
+    + {static} createCalculator(Deal): StandardCommissionCalculator
+  }
+  
+  class StandardCommissionService {
+    + calculateCommission(Deal): String
+  }
+  
+  NonStandardCommissionService --> StandardDealCalculator
+  NonStandardCommissionService --> PremiumDealCalculator
+  NonStandardCommissionService --> EnterpriseDealCalculator
+  
+  StandardCommissionCalculator <|.. StandardDealCalculatorImpl
+  StandardCommissionCalculator <|.. PremiumDealCalculatorImpl
+  StandardCommissionCalculator <|.. EnterpriseDealCalculatorImpl
+  CommissionCalculatorFactory --> StandardCommissionCalculator
+  StandardCommissionService --> CommissionCalculatorFactory
+}
+
+note right of NonStandardCommissionService
+  Leaky Abstraction:
+  - Inconsistent interfaces
+  - Different method names and parameters
+  - Different return types
+  - Client needs to know implementation details
+end note
+
+note right of StandardCommissionService
+  Improved Design:
+  - Consistent interface
+  - Factory pattern hides implementation details
+  - Client works with abstraction, not concrete types
+end note
+
+' Defensive Programming
+package "Defensive Programming" {
+  class NonDefensiveDealManager {
+    - deals: List<Deal>
+    + addDeal(Deal): void
+    + getDeals(): List<Deal>
+    + calculateTotalValue(): BigDecimal
+    + updateDeal(Deal): void
+  }
+  
+  class DefensiveDealManager {
+    - deals: List<Deal>
+    + addDeal(Deal): void
+    + getDeals(): List<Deal>
+    + calculateTotalValue(): BigDecimal
+    + updateDeal(Deal): void
+  }
+}
+
+note right of NonDefensiveDealManager
+  Leaky Abstraction:
+  - No input validation
+  - Returns internal list
+  - No error handling
+  - Exposes implementation details
+end note
+
+note right of DefensiveDealManager
+  Improved Design:
+  - Validates inputs
+  - Returns unmodifiable copy of list
+  - Handles errors and edge cases
+  - Protects internal state
+end note
+
+' Documented Expectations
+package "Documented Expectations" {
+  class PoorlyDocumentedCalculator {
+    - deals: List<Deal>
+    - plan: CommissionPlan
+    + calculate(): BigDecimal
+    + getCommissionForDeal(String): BigDecimal
+  }
+  
+  class WellDocumentedCalculator {
+    - deals: List<Deal>
+    - plan: CommissionPlan
+    + calculate(): BigDecimal
+    + getCommissionForDeal(String): BigDecimal
+    - calculateCommissionForDeal(Deal): BigDecimal
+  }
+}
+
+note right of PoorlyDocumentedCalculator
+  Leaky Abstraction:
+  - Minimal documentation
+  - Implementation details exposed
+  - Unclear expectations
+  - Duplicated code
+end note
+
+note right of WellDocumentedCalculator
+  Improved Design:
+  - Comprehensive documentation
+  - Clear contract
+  - Documented preconditions and postconditions
+  - Implementation details hidden
+end note
+
+' Model Classes
+package "Model" {
+  class Deal {
+    - id: String
+    - title: String
+    - value: BigDecimal
+    - status: DealStatus
+    - salesRepId: String
+    - products: List<DealProduct>
+    - closeDate: LocalDate
+    - createdDate: LocalDate
+    - lastModifiedDate: LocalDate
+    + calculateTotalValue(): BigDecimal
+  }
+  
+  class DealProduct {
+    - id: String
+    - productId: String
+    - productName: String
+    - quantity: int
+    - price: BigDecimal
+    - discount: BigDecimal
+    - dealId: String
+    + calculateTotalPrice(): BigDecimal
+  }
+  
+  class CommissionPlan {
+    - id: String
+    - name: String
+    - rules: List<CommissionRule>
+    - tiers: List<CommissionTier>
+    - bonuses: List<BonusRule>
+    - currency: Currency
+    - status: PlanStatus
+    - effectiveStartDate: LocalDate
+    - effectiveEndDate: LocalDate
+    - createdDate: LocalDate
+    - lastModifiedDate: LocalDate
+    - createdBy: String
+    + isActiveOn(LocalDate): boolean
+  }
+  
+  Deal --> "0..*" DealProduct
+}
+
+@enduml

@@ -1,0 +1,260 @@
+@startuml Orthogonality Examples
+
+' Title
+title Orthogonality Examples
+
+' Hide package names to focus on classes
+hide circle
+hide empty members
+
+' Style settings
+skinparam class {
+  BackgroundColor<<High>> LightGreen
+  BackgroundColor<<Low>> LightCoral
+  BackgroundColor<<Principles>> LightBlue
+  BackgroundColor<<Model>> LightGray
+  BorderColor Black
+  ArrowColor Black
+}
+
+' High Orthogonality
+class HighOrthogonality <<High>> {
+  + demonstrateOrthogonality()
+}
+
+class "HighOrthogonality.DealProcessor" as HighDealProcessor <<High>> {
+  + calculateDealValue(Deal)
+  + applyDiscount(Deal, BigDecimal)
+}
+
+class "HighOrthogonality.UserProcessor" as HighUserProcessor <<High>> {
+  + getFullName(User)
+  + isSalesRep(User)
+}
+
+class "HighOrthogonality.ReportGenerator" as HighReportGenerator <<High>> {
+  - dealProcessor
+  - userProcessor
+  + ReportGenerator(DealProcessor, UserProcessor)
+  + generateDealSummary(Deal, User)
+}
+
+' Low Orthogonality
+class LowOrthogonality <<Low>> {
+  - currentDeal
+  - currentUser
+  - dealValue
+  - reportFormat
+  + setCurrentDeal(Deal)
+  + setCurrentUser(User)
+  + setReportFormat(String)
+  - calculateDealValue()
+  + applyDiscount(BigDecimal)
+  + getUserFullName()
+  + isCurrentUserSalesRep()
+  + generateDealSummary()
+  + demonstrateLowOrthogonality()
+}
+
+' Orthogonality Principles
+class OrthogonalityPrinciples <<Principles>> {
+  + demonstrateOrthogonalityPrinciples()
+}
+
+' Separation of Concerns
+class "OrthogonalityPrinciples.SeparationOfConcerns" as SeparationOfConcerns <<Principles>> {
+}
+
+class "SeparationOfConcerns.DealService" as SOCDealService <<Principles>> {
+  + calculateDealValue(Deal)
+}
+
+class "SeparationOfConcerns.UserService" as SOCUserService <<Principles>> {
+  + isUserAuthorizedForDeal(User, Deal)
+}
+
+class "SeparationOfConcerns.CommissionService" as SOCCommissionService <<Principles>> {
+  + calculateCommission(Deal, User)
+}
+
+' Single Responsibility Principle
+class "OrthogonalityPrinciples.SingleResponsibilityPrinciple" as SRP <<Principles>> {
+}
+
+class "SRP.DealValidator" as SRPDealValidator <<Principles>> {
+  + isValid(Deal)
+}
+
+class "SRP.DealFormatter" as SRPDealFormatter <<Principles>> {
+  + format(Deal)
+}
+
+' Dependency Injection
+class "OrthogonalityPrinciples.DependencyInjection" as DI <<Principles>> {
+}
+
+interface "DI.DealRepository" as DIDealRepository <<Principles>> {
+  + findById(String)
+  + save(Deal)
+}
+
+class "DI.DealService" as DIDealService <<Principles>> {
+  - repository
+  + DealService(DealRepository)
+  + getDeal(String)
+  + saveDeal(Deal)
+}
+
+' Interface Segregation
+class "OrthogonalityPrinciples.InterfaceSegregation" as IS <<Principles>> {
+}
+
+interface "IS.DealValueCalculator" as ISDealValueCalculator <<Principles>> {
+  + calculateValue(Deal)
+}
+
+interface "IS.DealValidator" as ISDealValidator <<Principles>> {
+  + isValid(Deal)
+}
+
+class "IS.DealProcessor" as ISDealProcessor <<Principles>> {
+  + calculateValue(Deal)
+  + isValid(Deal)
+}
+
+' Pure Functions
+class "OrthogonalityPrinciples.PureFunctions" as PF <<Principles>> {
+  + {static} calculateDiscountedValue(BigDecimal, BigDecimal)
+  + {static} map(List, Function)
+}
+
+' Immutability
+class "OrthogonalityPrinciples.Immutability" as IM <<Principles>> {
+}
+
+class "IM.ImmutableDealSummary" as IMDealSummary <<Principles>> {
+  - id
+  - title
+  - value
+  - salesRepName
+  + getId()
+  + getTitle()
+  + getValue()
+  + getSalesRepName()
+  + withValue(BigDecimal)
+}
+
+' Command-Query Separation
+class "OrthogonalityPrinciples.CommandQuerySeparation" as CQS <<Principles>> {
+}
+
+class "CQS.DealManager" as CQSDealManager <<Principles>> {
+  - currentDeal
+  + setCurrentDeal(Deal)
+  + getCurrentDeal()
+  + getCurrentDealValue()
+}
+
+' Model classes
+class Deal <<Model>> {
+  - id
+  - title
+  - value
+  - status
+  - salesRepId
+  - products
+  + calculateTotalValue()
+}
+
+class User <<Model>> {
+  - id
+  - username
+  - email
+  - firstName
+  - lastName
+  + getFullName()
+  + isSalesRep()
+}
+
+class DealProduct <<Model>> {
+  - id
+  - productId
+  - productName
+  - quantity
+  - price
+  + calculateTotalPrice()
+}
+
+' Relationships for High Orthogonality
+HighOrthogonality ..> HighDealProcessor : creates
+HighOrthogonality ..> HighUserProcessor : creates
+HighOrthogonality ..> HighReportGenerator : creates
+HighDealProcessor ..> Deal : processes
+HighUserProcessor ..> User : processes
+HighReportGenerator --> HighDealProcessor : depends on
+HighReportGenerator --> HighUserProcessor : depends on
+HighReportGenerator ..> Deal : processes
+HighReportGenerator ..> User : processes
+
+' Relationships for Low Orthogonality
+LowOrthogonality --> Deal : tightly coupled
+LowOrthogonality --> User : tightly coupled
+LowOrthogonality ..> DealProduct : uses
+
+' Relationships for Orthogonality Principles
+OrthogonalityPrinciples ..> SeparationOfConcerns : demonstrates
+OrthogonalityPrinciples ..> SRP : demonstrates
+OrthogonalityPrinciples ..> DI : demonstrates
+OrthogonalityPrinciples ..> IS : demonstrates
+OrthogonalityPrinciples ..> PF : demonstrates
+OrthogonalityPrinciples ..> IM : demonstrates
+OrthogonalityPrinciples ..> CQS : demonstrates
+
+' Relationships for Separation of Concerns
+SeparationOfConcerns ..> SOCDealService : contains
+SeparationOfConcerns ..> SOCUserService : contains
+SeparationOfConcerns ..> SOCCommissionService : contains
+SOCDealService ..> Deal : processes
+SOCUserService ..> User : processes
+SOCUserService ..> Deal : uses
+SOCCommissionService ..> Deal : uses
+SOCCommissionService ..> User : uses
+
+' Relationships for Single Responsibility Principle
+SRP ..> SRPDealValidator : contains
+SRP ..> SRPDealFormatter : contains
+SRPDealValidator ..> Deal : validates
+SRPDealFormatter ..> Deal : formats
+
+' Relationships for Dependency Injection
+DI ..> DIDealRepository : contains
+DI ..> DIDealService : contains
+DIDealService --> DIDealRepository : depends on
+DIDealRepository ..> Deal : processes
+
+' Relationships for Interface Segregation
+IS ..> ISDealValueCalculator : contains
+IS ..> ISDealValidator : contains
+IS ..> ISDealProcessor : contains
+ISDealProcessor ..|> ISDealValueCalculator : implements
+ISDealProcessor ..|> ISDealValidator : implements
+ISDealValueCalculator ..> Deal : processes
+ISDealValidator ..> Deal : validates
+
+' Relationships for Immutability
+IM ..> IMDealSummary : contains
+
+' Relationships for Command-Query Separation
+CQS ..> CQSDealManager : contains
+CQSDealManager --> Deal : manages
+
+' Notes explaining orthogonality concepts
+note "High Orthogonality: Components can be modified independently" as N1
+note "Low Orthogonality: Changes to one component affect others" as N2
+note "Orthogonality Principles: Techniques to achieve orthogonality" as N3
+
+HighOrthogonality .. N1
+LowOrthogonality .. N2
+OrthogonalityPrinciples .. N3
+
+@enduml

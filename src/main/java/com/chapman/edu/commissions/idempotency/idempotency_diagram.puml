@@ -1,0 +1,136 @@
+@startuml Idempotency Examples
+
+' Title
+title Idempotency Examples
+
+' Classes from model package
+package "Model Classes" {
+  class Deal {
+    -id: String
+    -title: String
+    -value: BigDecimal
+    -status: DealStatus
+    -salesRepId: String
+    -products: List<DealProduct>
+    +calculateTotalValue(): BigDecimal
+    +addProduct(product: DealProduct): void
+  }
+  
+  class DealProduct {
+    -id: String
+    -productId: String
+    -productName: String
+    -quantity: int
+    -price: BigDecimal
+    -discount: BigDecimal
+    +calculateTotalPrice(): BigDecimal
+  }
+  
+  enum DealStatus {
+    OPEN
+    WON
+    LOST
+    CANCELLED
+  }
+  
+  Deal --> DealStatus
+  Deal o--> "0..*" DealProduct
+}
+
+' Natural Idempotency
+class NaturalIdempotency {
+  +setDealStatusExample(deal: Deal): void
+  +maxPriceExample(product1: DealProduct, product2: DealProduct): BigDecimal
+  +productIdSetExample(deal: Deal): Set<String>
+  +absoluteValueExample(value: BigDecimal): BigDecimal
+}
+
+note right of NaturalIdempotency
+  Natural Idempotency:
+  Operations that are inherently idempotent
+  by their mathematical or logical nature.
+  
+  Examples:
+  - Setting a value (x = 5)
+  - Mathematical operations (max, min, abs)
+  - Set operations (union, intersection)
+end note
+
+NaturalIdempotency ..> Deal : uses
+NaturalIdempotency ..> DealProduct : uses
+
+' Implementation Idempotency
+class ImplementationIdempotency {
+  -processedRequests: Map<String, Boolean>
+  -operationResults: Map<String, BigDecimal>
+  +addProductWithRequestId(deal: Deal, product: DealProduct, requestId: String): boolean
+  +conditionalStatusUpdate(deal: Deal, newStatus: DealStatus): boolean
+  +calculateCommissionWithIdempotencyKey(deal: Deal, commissionRate: double, idempotencyKey: String): BigDecimal
+  +safeUpdateDealValue(deal: Deal, newValue: BigDecimal, expectedCurrentValue: BigDecimal): boolean
+}
+
+note right of ImplementationIdempotency
+  Implementation Idempotency:
+  Operations made idempotent through design
+  and implementation techniques.
+  
+  Examples:
+  - Request IDs to track processed requests
+  - Conditional execution based on state
+  - Caching operation results
+  - Optimistic concurrency control
+end note
+
+ImplementationIdempotency ..> Deal : uses
+ImplementationIdempotency ..> DealProduct : uses
+ImplementationIdempotency ..> DealStatus : uses
+
+' Infrastructure Idempotency
+class InfrastructureIdempotency {
+  -database: DatabaseSimulator
+  -messageQueue: MessageQueueSimulator
+  -apiGateway: ApiGatewaySimulator
+  +databaseTransactionExample(deal: Deal): void
+  +messageQueueExample(deal: Deal): void
+  +apiGatewayExample(deal: Deal): void
+}
+
+class "InfrastructureIdempotency$DatabaseSimulator" as DatabaseSimulator {
+  -deals: Map<String, Deal>
+  -processedTransactions: Map<String, String>
+  +executeTransaction(transactionId: String, operation: Runnable): boolean
+  +saveDeal(deal: Deal): void
+  +getDeal(dealId: String): Deal
+}
+
+class "InfrastructureIdempotency$MessageQueueSimulator" as MessageQueueSimulator {
+  -processedMessages: ConcurrentHashMap<String, Boolean>
+  +processMessage(messageId: String, messageHandler: Runnable): boolean
+}
+
+class "InfrastructureIdempotency$ApiGatewaySimulator" as ApiGatewaySimulator {
+  -responseCache: Map<String, Object>
+  +handleRequest(requestId: String, method: String, requestBody: Object, handler: Function): Object
+  -isIdempotentMethod(method: String): boolean
+}
+
+note right of InfrastructureIdempotency
+  Infrastructure Idempotency:
+  Idempotency provided by the system or framework
+  rather than application code.
+  
+  Examples:
+  - Database transactions
+  - Message queues with deduplication
+  - HTTP methods (GET, PUT, DELETE)
+  - API gateways with request deduplication
+end note
+
+InfrastructureIdempotency *-- DatabaseSimulator
+InfrastructureIdempotency *-- MessageQueueSimulator
+InfrastructureIdempotency *-- ApiGatewaySimulator
+InfrastructureIdempotency ..> Deal : uses
+InfrastructureIdempotency ..> DealProduct : uses
+InfrastructureIdempotency ..> DealStatus : uses
+
+@enduml

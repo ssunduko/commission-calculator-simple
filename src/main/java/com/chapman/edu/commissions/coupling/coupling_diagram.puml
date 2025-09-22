@@ -1,0 +1,169 @@
+@startuml Coupling Examples
+
+' Title
+title Coupling Examples
+
+' Classes from model package
+package "Model Classes" {
+  class Deal {
+    -id: String
+    -title: String
+    -value: BigDecimal
+    -status: DealStatus
+    -salesRepId: String
+    -products: List<DealProduct>
+    +calculateTotalValue(): BigDecimal
+    +addProduct(product: DealProduct): void
+  }
+  
+  class DealProduct {
+    -id: String
+    -productId: String
+    -productName: String
+    -quantity: int
+    -price: BigDecimal
+    -discount: BigDecimal
+    +calculateTotalPrice(): BigDecimal
+  }
+  
+  enum DealStatus {
+    OPEN
+    WON
+    LOST
+    CANCELLED
+  }
+  
+  Deal --> DealStatus
+  Deal o--> "0..*" DealProduct
+}
+
+' Content Coupling
+class ContentCoupling {
+  +addSpecialProduct(deal: Deal): void
+  +manipulateInternalCounter(): void
+}
+
+note right of ContentCoupling
+  Content Coupling:
+  Direct access to internal data
+end note
+
+ContentCoupling ..> Deal : directly accesses products list
+
+' Common Coupling
+class CommonCoupling.GlobalConfig << (S,#FF7700) Static >> {
+  +DEFAULT_COMMISSION_RATE: BigDecimal
+  +DEFAULT_CURRENCY: String
+  +MAX_PRODUCTS_PER_DEAL: int
+  +ALL_DEALS: List<Deal>
+}
+
+class CommonCoupling.DealManager {
+  +createDeal(title: String, salesRepId: String): void
+  +calculateCommission(deal: Deal): BigDecimal
+}
+
+class CommonCoupling.ProductManager {
+  +addProductToDeal(deal: Deal, productId: String, productName: String, quantity: int, price: BigDecimal): void
+  +formatPrice(price: BigDecimal): String
+}
+
+note right of CommonCoupling.GlobalConfig
+  Common Coupling:
+  Shared global data
+end note
+
+CommonCoupling.DealManager ..> CommonCoupling.GlobalConfig : uses shared global data
+CommonCoupling.ProductManager ..> CommonCoupling.GlobalConfig : uses shared global data
+
+' Control Coupling
+enum ControlCoupling.ProcessingMode {
+  STANDARD
+  EXPEDITED
+  BULK
+}
+
+class ControlCoupling.DealProcessor {
+  +processDeal(deal: Deal, mode: ProcessingMode, applyDiscount: boolean): void
+  +validateDeal(deal: Deal, strictValidation: boolean): boolean
+}
+
+note right of ControlCoupling.DealProcessor
+  Control Coupling:
+  Passing control flags
+end note
+
+ControlCoupling.DealProcessor ..> ControlCoupling.ProcessingMode : uses as control flag
+ControlCoupling.DealProcessor ..> Deal : processes
+
+' Stamp Coupling
+class StampCoupling.DealAnalyzer {
+  +analyzeProfitability(deal: Deal): double
+  +analyzeProductMix(deal: Deal): double
+}
+
+class StampCoupling.DealReporter {
+  +generateSummaryReport(deal: Deal): String
+  +generateFinancialReport(deal: Deal): String
+}
+
+note right of StampCoupling.DealAnalyzer
+  Stamp Coupling:
+  Sharing data structures
+end note
+
+StampCoupling.DealAnalyzer ..> Deal : uses parts of Deal
+StampCoupling.DealReporter ..> Deal : uses parts of Deal
+
+' Data Coupling
+class DataCoupling.CommissionCalculator {
+  +calculateCommission(dealValue: BigDecimal, commissionRate: BigDecimal): BigDecimal
+  +calculateTieredCommission(dealValue: BigDecimal): BigDecimal
+}
+
+class DataCoupling.ProductValueCalculator {
+  +calculateProductValue(price: BigDecimal, quantity: int): BigDecimal
+  +calculateDiscountedValue(price: BigDecimal, quantity: int, discountRate: BigDecimal): BigDecimal
+}
+
+note right of DataCoupling.CommissionCalculator
+  Data Coupling:
+  Passing simple data parameters
+end note
+
+' Message Coupling
+interface MessageCoupling.DealEventListener {
+  +onDealCreated(dealId: String, title: String): void
+  +onDealUpdated(dealId: String, status: DealStatus): void
+  +onDealClosed(dealId: String, finalValue: BigDecimal): void
+}
+
+interface MessageCoupling.DealOperations {
+  +createDeal(title: String, salesRepId: String): String
+  +updateDealStatus(dealId: String, status: DealStatus): void
+  +closeDeal(dealId: String): void
+}
+
+class MessageCoupling.DealService {
+  -deals: List<Deal>
+  -listeners: List<DealEventListener>
+  +registerListener(listener: DealEventListener): void
+}
+
+class MessageCoupling.CommissionService {
+}
+
+class MessageCoupling.NotificationService {
+}
+
+note right of MessageCoupling.DealEventListener
+  Message Coupling:
+  Communication via messages only
+end note
+
+MessageCoupling.DealService ..|> MessageCoupling.DealOperations
+MessageCoupling.CommissionService ..|> MessageCoupling.DealEventListener
+MessageCoupling.NotificationService ..|> MessageCoupling.DealEventListener
+MessageCoupling.DealService o--> "0..*" MessageCoupling.DealEventListener
+
+@enduml

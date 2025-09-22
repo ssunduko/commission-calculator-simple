@@ -1,0 +1,322 @@
+@startuml AbstractionAntiPatterns
+
+' Hide package structure
+hide circle
+hide empty members
+
+title "Abstraction Anti-Patterns"
+
+' God Object Anti-Pattern
+class GodObject {
+  - userCredentials: Map<String, String>
+  - userEmails: Map<String, String>
+  - userFirstNames: Map<String, String>
+  - userLastNames: Map<String, String>
+  - userRoles: Map<String, Set<String>>
+  - dealTitles: Map<String, String>
+  - dealValues: Map<String, BigDecimal>
+  - dealStatuses: Map<String, String>
+  - dealSalesReps: Map<String, String>
+  - dealProducts: Map<String, List<String>>
+  - productNames: Map<String, String>
+  - productQuantities: Map<String, Integer>
+  - productPrices: Map<String, BigDecimal>
+  - planNames: Map<String, String>
+  - planRules: Map<String, List<String>>
+  - calculationDeals: Map<String, String>
+  - calculationBaseAmounts: Map<String, BigDecimal>
+  - dbUrl: String
+  - smtpServer: String
+  - reportOutputDir: String
+  + createUser(): String
+  + authenticateUser(): boolean
+  + createDeal(): String
+  + addProductToDeal(): String
+  + createCommissionPlan(): String
+  + calculateCommission(): String
+  + generateCommissionReport(): String
+  + connectToDatabase(): boolean
+  + sendEmail(): boolean
+}
+
+note top of GodObject
+  God Object Anti-Pattern
+  
+  A class that knows too much or does too much.
+  It has too many responsibilities and violates
+  the Single Responsibility Principle.
+end note
+
+' Anemic Domain Model Anti-Pattern
+class AnemicDomainModel {
+  + main(): void
+}
+
+class AnemicUser {
+  - id: String
+  - username: String
+  - email: String
+  - firstName: String
+  - lastName: String
+  - passwordHash: String
+  - roles: List<String>
+  - active: boolean
+  - lastLogin: LocalDate
+  + getId(): String
+  + setId(): void
+  + getUsername(): String
+  + setUsername(): void
+  + getEmail(): String
+  + setEmail(): void
+  + getFirstName(): String
+  + setFirstName(): void
+  + getLastName(): String
+  + setLastName(): void
+  + getPasswordHash(): String
+  + setPasswordHash(): void
+  + getRoles(): List<String>
+  + setRoles(): void
+  + isActive(): boolean
+  + setActive(): void
+  + getLastLogin(): LocalDate
+  + setLastLogin(): void
+}
+
+class AnemicDeal {
+  - id: String
+  - title: String
+  - value: BigDecimal
+  - status: String
+  - salesRepId: String
+  - products: List<AnemicDealProduct>
+  - closeDate: LocalDate
+  - createdDate: LocalDate
+  + getId(): String
+  + setId(): void
+  + getTitle(): String
+  + setTitle(): void
+  + getValue(): BigDecimal
+  + setValue(): void
+  + getStatus(): String
+  + setStatus(): void
+  + getSalesRepId(): String
+  + setSalesRepId(): void
+  + getProducts(): List<AnemicDealProduct>
+  + setProducts(): void
+  + getCloseDate(): LocalDate
+  + setCloseDate(): void
+  + getCreatedDate(): LocalDate
+  + setCreatedDate(): void
+}
+
+class AnemicDealProduct {
+  - id: String
+  - productId: String
+  - productName: String
+  - quantity: int
+  - price: BigDecimal
+  - discount: BigDecimal
+  - dealId: String
+  + getId(): String
+  + setId(): void
+  + getProductId(): String
+  + setProductId(): void
+  + getProductName(): String
+  + setProductName(): void
+  + getQuantity(): int
+  + setQuantity(): void
+  + getPrice(): BigDecimal
+  + setPrice(): void
+  + getDiscount(): BigDecimal
+  + setDiscount(): void
+  + getDealId(): String
+  + setDealId(): void
+}
+
+class AnemicCommissionPlan {
+  - id: String
+  - name: String
+  - status: String
+  - effectiveStartDate: LocalDate
+  - effectiveEndDate: LocalDate
+  + getId(): String
+  + setId(): void
+  + getName(): String
+  + setName(): void
+  + getStatus(): String
+  + setStatus(): void
+  + getEffectiveStartDate(): LocalDate
+  + setEffectiveStartDate(): void
+  + getEffectiveEndDate(): LocalDate
+  + setEffectiveEndDate(): void
+}
+
+class AnemicCommissionCalculation {
+  - id: String
+  - dealId: String
+  - salesRepId: String
+  - baseCommission: BigDecimal
+  - grossCommission: BigDecimal
+  - netCommission: BigDecimal
+  - status: String
+  - calculationDate: LocalDate
+  - payoutDate: LocalDate
+  - planId: String
+  + getId(): String
+  + setId(): void
+  + getDealId(): String
+  + setDealId(): void
+  + getSalesRepId(): String
+  + setSalesRepId(): void
+  + getBaseCommission(): BigDecimal
+  + setBaseCommission(): void
+  + getGrossCommission(): BigDecimal
+  + setGrossCommission(): void
+  + getNetCommission(): BigDecimal
+  + setNetCommission(): void
+  + getStatus(): String
+  + setStatus(): void
+  + getCalculationDate(): LocalDate
+  + setCalculationDate(): void
+  + getPayoutDate(): LocalDate
+  + setPayoutDate(): void
+  + getPlanId(): String
+  + setPlanId(): void
+}
+
+class UserService {
+  + isUserActive(): boolean
+  + hasRole(): boolean
+  + getFullName(): String
+  + authenticate(): boolean
+}
+
+class DealService {
+  + isDealOpen(): boolean
+  + calculateTotalValue(): BigDecimal
+  + closeDeal(): void
+  + addProduct(): void
+}
+
+class CommissionService {
+  + isPlanActive(): boolean
+  + calculateCommission(): BigDecimal
+  + saveCalculation(): void
+  + approveCalculation(): void
+}
+
+AnemicDomainModel ..> AnemicUser
+AnemicDomainModel ..> AnemicDeal
+AnemicDomainModel ..> AnemicDealProduct
+AnemicDomainModel ..> AnemicCommissionPlan
+AnemicDomainModel ..> AnemicCommissionCalculation
+AnemicDomainModel ..> UserService
+AnemicDomainModel ..> DealService
+AnemicDomainModel ..> CommissionService
+
+AnemicDeal "1" *-- "many" AnemicDealProduct
+
+UserService ..> AnemicUser
+DealService ..> AnemicDeal
+DealService ..> AnemicDealProduct
+CommissionService ..> AnemicDeal
+CommissionService ..> AnemicCommissionPlan
+CommissionService ..> AnemicCommissionCalculation
+
+note top of AnemicUser
+  Anemic Domain Model Anti-Pattern
+  
+  Domain objects are just data containers
+  with getters and setters, with no behavior.
+  Business logic is moved to service classes.
+end note
+
+' Feature Envy Anti-Pattern
+class FeatureEnvy {
+  + main(): void
+}
+
+class Deal {
+  - id: String
+  - title: String
+  - value: BigDecimal
+  - status: String
+  - salesRepId: String
+  - products: List<DealProduct>
+  - closeDate: LocalDate
+  - createdDate: LocalDate
+  + getId(): String
+  + setId(): void
+  + getTitle(): String
+  + setTitle(): void
+  + getValue(): BigDecimal
+  + setValue(): void
+  + getStatus(): String
+  + setStatus(): void
+  + getSalesRepId(): String
+  + setSalesRepId(): void
+  + getProducts(): List<DealProduct>
+  + setProducts(): void
+  + addProduct(): void
+  + getCloseDate(): LocalDate
+  + setCloseDate(): void
+  + getCreatedDate(): LocalDate
+  + setCreatedDate(): void
+  + calculateTotalValue(): BigDecimal
+}
+
+class DealProduct {
+  - id: String
+  - productId: String
+  - productName: String
+  - quantity: int
+  - price: BigDecimal
+  + getId(): String
+  + setId(): void
+  + getProductId(): String
+  + setProductId(): void
+  + getProductName(): String
+  + setProductName(): void
+  + getQuantity(): int
+  + setQuantity(): void
+  + getPrice(): BigDecimal
+  + setPrice(): void
+  + calculateTotalPrice(): BigDecimal
+}
+
+class CommissionCalculator {
+  + calculateCommission(Deal): BigDecimal
+}
+
+class ReportGenerator {
+  + generateDealReport(Deal): String
+}
+
+class NotificationService {
+  + sendDealNotification(Deal, String): void
+}
+
+FeatureEnvy ..> Deal
+FeatureEnvy ..> DealProduct
+FeatureEnvy ..> CommissionCalculator
+FeatureEnvy ..> ReportGenerator
+FeatureEnvy ..> NotificationService
+
+Deal "1" *-- "many" DealProduct
+
+CommissionCalculator ..> Deal
+CommissionCalculator ..> DealProduct
+ReportGenerator ..> Deal
+ReportGenerator ..> DealProduct
+NotificationService ..> Deal
+NotificationService ..> DealProduct
+
+note top of CommissionCalculator
+  Feature Envy Anti-Pattern
+  
+  Methods in these classes are more interested
+  in the features of the Deal class than their own.
+  They access multiple properties and methods of Deal.
+end note
+
+@enduml

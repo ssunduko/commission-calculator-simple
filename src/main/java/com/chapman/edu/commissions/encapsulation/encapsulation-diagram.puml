@@ -1,0 +1,364 @@
+@startuml Encapsulation Examples
+
+' Title
+title Encapsulation Examples
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f5f5f5
+skinparam classBorderColor #999999
+skinparam packageBackgroundColor #f0f0f0
+skinparam packageBorderColor #999999
+skinparam arrowColor #666666
+skinparam stereotypeCBackgroundColor #add8e6
+skinparam stereotypeCBorderColor #0000ff
+
+' Data Encapsulation
+package "Data Encapsulation" {
+  class DataEncapsulationExample {
+    +main(args: String[]): void
+  }
+  
+  class "Product" as DataProduct {
+    -id: String
+    -name: String
+    -price: BigDecimal
+    -stockQuantity: int
+    -createdDate: LocalDate
+    +getId(): String
+    +getName(): String
+    +getPrice(): BigDecimal
+    +getStockQuantity(): int
+    +getCreatedDate(): LocalDate
+    +setId(id: String): void
+    +setName(name: String): void
+    +setPrice(price: BigDecimal): void
+    +setStockQuantity(quantity: int): void
+    +isInStock(): boolean
+    +decreaseStock(quantity: int): void
+    +increaseStock(quantity: int): void
+  }
+  
+  class "Order" as DataOrder {
+    -id: String
+    -orderDate: LocalDate
+    -customerId: String
+    -items: List<OrderItem>
+    -totalAmount: BigDecimal
+    +getId(): String
+    +getOrderDate(): LocalDate
+    +getCustomerId(): String
+    +getItems(): List<OrderItem>
+    +getTotalAmount(): BigDecimal
+    +setId(id: String): void
+    +setOrderDate(date: LocalDate): void
+    +setCustomerId(id: String): void
+    +addItem(product: Product, quantity: int): void
+    -calculateTotalAmount(): void
+  }
+  
+  class "OrderItem" as DataOrderItem {
+    -productId: String
+    -productName: String
+    -price: BigDecimal
+    -quantity: int
+    +getProductId(): String
+    +getProductName(): String
+    +getPrice(): BigDecimal
+    +getQuantity(): int
+    +calculateSubtotal(): BigDecimal
+  }
+  
+  note bottom of DataProduct
+    Data Encapsulation:
+    - Private fields
+    - Public getters/setters
+    - Validation in setters
+  end note
+  
+  DataEncapsulationExample ..> DataProduct
+  DataEncapsulationExample ..> DataOrder
+  DataOrder o-- DataOrderItem
+  DataOrder ..> DataProduct
+}
+
+' Method Encapsulation
+package "Method Encapsulation" {
+  class MethodEncapsulationExample {
+    +main(args: String[]): void
+  }
+  
+  class CommissionCalculator {
+    -HUNDRED: BigDecimal
+    -SCALE: int
+    +calculateCommission(amount: BigDecimal, rate: BigDecimal): BigDecimal
+    +calculateTieredCommission(amount: BigDecimal, tiers: List<CommissionTier>): BigDecimal
+    -validateInputs(amount: BigDecimal, rate: BigDecimal): void
+    -calculateBaseCommission(amount: BigDecimal, rate: BigDecimal): BigDecimal
+    -applyAdjustments(commission: BigDecimal): BigDecimal
+    -findAndCalculateTierCommission(amount: BigDecimal, tiers: List<CommissionTier>): BigDecimal
+    -roundToStandardScale(amount: BigDecimal): BigDecimal
+  }
+  
+  class CommissionTier {
+    -threshold: BigDecimal
+    -rate: BigDecimal
+    +getThreshold(): BigDecimal
+    +getRate(): BigDecimal
+  }
+  
+  note bottom of CommissionCalculator
+    Method Encapsulation:
+    - Public methods with simple interfaces
+    - Private helper methods for implementation details
+    - Complex logic hidden from clients
+  end note
+  
+  MethodEncapsulationExample ..> CommissionCalculator
+  MethodEncapsulationExample ..> CommissionTier
+  CommissionCalculator ..> CommissionTier
+}
+
+' Class Encapsulation
+package "Class Encapsulation" {
+  class ClassEncapsulationExample {
+    +main(args: String[]): void
+  }
+  
+  class CommissionPlanManager {
+    -plans: List<CommissionPlan>
+    +createPlan(name: String, effectiveDate: LocalDate): String
+    +addRuleToPlan(planId: String, name: String, rate: BigDecimal): String
+    +getPlanSummary(planId: String): PlanSummary
+    +calculateCommission(planId: String, saleAmount: BigDecimal): BigDecimal
+    -findPlanById(planId: String): CommissionPlan
+  }
+  
+  class PlanSummary {
+    -id: String
+    -name: String
+    -effectiveDate: LocalDate
+    -ruleCount: int
+    +getId(): String
+    +getName(): String
+    +getEffectiveDate(): LocalDate
+    +getRuleCount(): int
+    +toString(): String
+  }
+  
+  class "CommissionPlan" as ClassCommissionPlan <<private>> {
+    -id: String
+    -name: String
+    -effectiveDate: LocalDate
+    -rules: List<CommissionRule>
+    +getId(): String
+    +getName(): String
+    +getEffectiveDate(): LocalDate
+    +getRules(): List<CommissionRule>
+    +addRule(rule: CommissionRule): void
+  }
+  
+  class "CommissionRule" as ClassCommissionRule <<private>> {
+    -id: String
+    -name: String
+    -rate: BigDecimal
+    +getId(): String
+    +getName(): String
+    +getRate(): BigDecimal
+  }
+  
+  class "CommissionCalculator" as ClassCommissionCalculator <<private>> {
+    +{static} calculate(plan: CommissionPlan, amount: BigDecimal): BigDecimal
+  }
+  
+  note bottom of CommissionPlanManager
+    Class Encapsulation:
+    - Public facade class
+    - Private implementation classes
+    - DTOs for data transfer
+  end note
+  
+  ClassEncapsulationExample ..> CommissionPlanManager
+  CommissionPlanManager ..> PlanSummary
+  CommissionPlanManager o-- ClassCommissionPlan
+  ClassCommissionPlan o-- ClassCommissionRule
+  CommissionPlanManager ..> ClassCommissionCalculator
+  ClassCommissionCalculator ..> ClassCommissionPlan
+  ClassCommissionCalculator ..> ClassCommissionRule
+  CommissionPlanManager +-- PlanSummary
+}
+
+' Module Encapsulation
+package "Module Encapsulation" {
+  class ModuleEncapsulationExample {
+    +main(args: String[]): void
+  }
+  
+  package "module" {
+    class UserManager {
+      -repository: UserRepository
+      -validator: UserValidator
+      +createUser(username: String, email: String, firstName: String, lastName: String, password: String): UserDTO
+      +getUserById(id: String): UserDTO
+      +updateUser(id: String, username: String, email: String, firstName: String, lastName: String): UserDTO
+      +deleteUser(id: String): void
+      +getAllUsers(): List<UserDTO>
+      +addRoleToUser(userId: String, role: String): UserDTO
+      +recordLogin(userId: String): void
+      -convertToDTO(user: User): UserDTO
+      -hashPassword(password: String): String
+    }
+    
+    class UserDTO {
+      -id: String
+      -username: String
+      -email: String
+      -firstName: String
+      -lastName: String
+      -fullName: String
+      -roles: Set<String>
+      -active: boolean
+      -lastLogin: LocalDateTime
+      -createdDate: LocalDateTime
+      +getId(): String
+      +getUsername(): String
+      +getEmail(): String
+      +getFirstName(): String
+      +getLastName(): String
+      +getFullName(): String
+      +getRoles(): Set<String>
+      +isActive(): boolean
+      +getLastLogin(): LocalDateTime
+      +getCreatedDate(): LocalDateTime
+      +toString(): String
+    }
+    
+    class "User" as ModuleUser <<package-private>> {
+      -id: String
+      -username: String
+      -email: String
+      -firstName: String
+      -lastName: String
+      -passwordHash: String
+      -roles: Set<String>
+      -active: boolean
+      -lastLogin: LocalDateTime
+      -createdDate: LocalDateTime
+      +getId(): String
+      +getUsername(): String
+      +getEmail(): String
+      +getFirstName(): String
+      +getLastName(): String
+      +getPasswordHash(): String
+      +getRoles(): Set<String>
+      +isActive(): boolean
+      +getLastLogin(): LocalDateTime
+      +getCreatedDate(): LocalDateTime
+      +getFullName(): String
+    }
+    
+    class "UserRepository" as ModuleUserRepository <<package-private>> {
+      -users: Map<String, User>
+      +save(user: User): User
+      +findById(id: String): Optional<User>
+      +findByUsername(username: String): Optional<User>
+      +findByEmail(email: String): Optional<User>
+      +findAll(): List<User>
+      +deleteById(id: String): boolean
+      +isUsernameTaken(username: String): boolean
+      +isEmailTaken(email: String): boolean
+    }
+    
+    class "UserValidator" as ModuleUserValidator <<package-private>> {
+      -repository: UserRepository
+      +validateForCreation(user: User): List<String>
+      +validateForUpdate(user: User, existingUser: User): List<String>
+    }
+  }
+  
+  note bottom of UserManager
+    Module Encapsulation:
+    - Public facade class
+    - Package-private implementation classes
+    - DTOs for data transfer
+  end note
+  
+  ModuleEncapsulationExample ..> UserManager
+  ModuleEncapsulationExample ..> UserDTO
+  UserManager o-- ModuleUserRepository
+  UserManager o-- ModuleUserValidator
+  UserManager ..> ModuleUser
+  UserManager +-- UserDTO
+  ModuleUserRepository o-- ModuleUser
+  ModuleUserValidator ..> ModuleUser
+  ModuleUserValidator ..> ModuleUserRepository
+}
+
+' Interface Encapsulation
+package "Interface Encapsulation" {
+  class InterfaceEncapsulationExample {
+    +main(args: String[]): void
+  }
+  
+  interface PaymentProcessor {
+    +processPayment(amount: BigDecimal, currency: String, source: String, destination: String): PaymentResult
+    +supportsCurrency(currency: String): boolean
+    +getName(): String
+  }
+  
+  class PaymentResult {
+    -transactionId: String
+    -success: boolean
+    -message: String
+    -timestamp: LocalDate
+    +getTransactionId(): String
+    +isSuccess(): boolean
+    +getMessage(): String
+    +getTimestamp(): LocalDate
+    +toString(): String
+  }
+  
+  class CreditCardProcessor {
+    -SUPPORTED_CURRENCIES: List<String>
+    +processPayment(amount: BigDecimal, currency: String, source: String, destination: String): PaymentResult
+    +supportsCurrency(currency: String): boolean
+    +getName(): String
+    -validateCreditCard(cardNumber: String): boolean
+    -calculateFee(amount: BigDecimal): BigDecimal
+  }
+  
+  class PayPalProcessor {
+    -SUPPORTED_CURRENCIES: List<String>
+    +processPayment(amount: BigDecimal, currency: String, source: String, destination: String): PaymentResult
+    +supportsCurrency(currency: String): boolean
+    +getName(): String
+    -calculateFee(amount: BigDecimal, currency: String): BigDecimal
+  }
+  
+  class PaymentService {
+    -processors: List<PaymentProcessor>
+    +addProcessor(processor: PaymentProcessor): void
+    +processPayment(amount: BigDecimal, currency: String, source: String, destination: String): PaymentResult
+  }
+  
+  note bottom of PaymentProcessor
+    Interface Encapsulation:
+    - Interface defines contract
+    - Multiple implementations
+    - Clients depend only on interface
+  end note
+  
+  InterfaceEncapsulationExample ..> PaymentService
+  InterfaceEncapsulationExample ..> CreditCardProcessor
+  InterfaceEncapsulationExample ..> PayPalProcessor
+  PaymentService o-- PaymentProcessor
+  CreditCardProcessor ..|> PaymentProcessor
+  PayPalProcessor ..|> PaymentProcessor
+  PaymentProcessor ..> PaymentResult
+  CreditCardProcessor ..> PaymentResult
+  PayPalProcessor ..> PaymentResult
+  PaymentService ..> PaymentResult
+}
+
+@enduml

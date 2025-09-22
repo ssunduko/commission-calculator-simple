@@ -1,0 +1,247 @@
+@startuml Decomposition Patterns
+
+' Hide package names
+hide empty members
+hide circle
+hide stereotype
+
+title Commission Calculator - Decomposition Patterns
+
+' Functional Decomposition
+package "Functional Decomposition" {
+  class FunctionalDecompositionExample {
+    + calculateCommission(Deal, CommissionPlan): BigDecimal
+    - validateInputs(Deal, CommissionPlan): boolean
+    - calculateBaseCommission(Deal, CommissionPlan): BigDecimal
+    - applyCommissionTiers(Deal, CommissionPlan, BigDecimal): BigDecimal
+    - calculateBonuses(Deal, CommissionPlan): BigDecimal
+    - applyAdjustments(BigDecimal, Deal, CommissionPlan): BigDecimal
+    - applyCap(BigDecimal, CommissionPlan): BigDecimal
+    - applyAccelerators(BigDecimal, Deal, CommissionPlan): BigDecimal
+  }
+  
+  note right of FunctionalDecompositionExample
+    Functional Decomposition Pattern:
+    - Functions are the primary unit of organization
+    - Top-down approach to problem solving
+    - Data flows through function parameters
+  end note
+}
+
+' Object-Oriented Decomposition
+package "Object-Oriented Decomposition" {
+  class ObjectOrientedDecompositionExample {
+    + main(String[]): void
+  }
+  
+  class CommissionCalculator {
+    - rules: List<CommissionRule>
+    - bonusRules: List<BonusRule>
+    + calculateCommission(Deal, CommissionPlan): CommissionResult
+    + addCommissionRule(CommissionRule): void
+    + addBonusRule(BonusRule): void
+  }
+  
+  class CalculationContext {
+    - deal: Deal
+    - plan: CommissionPlan
+    - baseCommission: BigDecimal
+    - tierAdjustment: BigDecimal
+    - bonusAmount: BigDecimal
+    + addBonus(BigDecimal): void
+  }
+  
+  class CommissionResult {
+    - baseCommission: BigDecimal
+    - tierAdjustment: BigDecimal
+    - bonusAmount: BigDecimal
+    + getTotalCommission(): BigDecimal
+  }
+  
+  interface CommissionRule {
+    + apply(CalculationContext): void
+  }
+  
+  class BaseCommissionRule {
+    + apply(CalculationContext): void
+  }
+  
+  class TierAdjustmentRule {
+    + apply(CalculationContext): void
+  }
+  
+  interface BonusRule {
+    + apply(CalculationContext): void
+  }
+  
+  class QuarterEndBonusRule {
+    + apply(CalculationContext): void
+    - isQuarterEndDeal(Deal): boolean
+  }
+  
+  class FirstTimeBuyerBonusRule {
+    + apply(CalculationContext): void
+    - isFirstTimeBuyer(Deal): boolean
+  }
+  
+  ObjectOrientedDecompositionExample --> CommissionCalculator
+  CommissionCalculator --> CommissionRule
+  CommissionCalculator --> BonusRule
+  CommissionCalculator --> CalculationContext
+  CommissionCalculator --> CommissionResult
+  CommissionRule <|.. BaseCommissionRule
+  CommissionRule <|.. TierAdjustmentRule
+  BonusRule <|.. QuarterEndBonusRule
+  BonusRule <|.. FirstTimeBuyerBonusRule
+  
+  note right of ObjectOrientedDecompositionExample
+    Object-Oriented Decomposition Pattern:
+    - Objects encapsulate data and behavior
+    - Uses inheritance and polymorphism
+    - Promotes reuse through class hierarchies
+  end note
+  
+  note right of CommissionRule
+    Strategy Pattern:
+    Different commission rules can be
+    applied interchangeably
+  end note
+  
+  note right of BonusRule
+    Strategy Pattern:
+    Different bonus rules can be
+    applied interchangeably
+  end note
+}
+
+' Data-Driven Decomposition
+package "Data-Driven Decomposition" {
+  class DataDrivenDecompositionExample {
+    + main(String[]): void
+  }
+  
+  class DealData {
+    - id: String
+    - title: String
+    - totalValue: BigDecimal
+    - closeDate: LocalDate
+    - salesRepId: String
+    - products: List<ProductData>
+    + isQuarterEndDeal(): boolean
+  }
+  
+  class ProductData {
+    - id: String
+    - productId: String
+    - productName: String
+    - quantity: int
+    - price: BigDecimal
+    - totalPrice: BigDecimal
+  }
+  
+  class PlanData {
+    - id: String
+    - name: String
+    - isActive: boolean
+    - baseRate: BigDecimal
+    - productRates: Map<String, BigDecimal>
+    - tiers: List<TierData>
+    + getRateForProduct(String): BigDecimal
+    + getTierForAmount(BigDecimal): TierData
+  }
+  
+  class TierData {
+    - minAmount: BigDecimal
+    - maxAmount: BigDecimal
+    - rate: BigDecimal
+    + appliesTo(BigDecimal): boolean
+  }
+  
+  class CommissionData {
+    - baseCommission: BigDecimal
+    - tierAdjustment: BigDecimal
+    - bonusAmount: BigDecimal
+    - productCommissions: Map<String, BigDecimal>
+    + getTotalCommission(): BigDecimal
+  }
+  
+  class CommissionCalculator {
+    + calculateCommission(Deal, CommissionPlan): CommissionData
+    - createEmptyResult(): CommissionData
+    - calculateProductCommissions(DealData, PlanData): Map<String, BigDecimal>
+    - calculateBaseCommission(DealData, PlanData): BigDecimal
+    - calculateTierAdjustment(DealData, PlanData, BigDecimal): BigDecimal
+    - calculateBonuses(DealData, PlanData): BigDecimal
+  }
+  
+  DataDrivenDecompositionExample --> CommissionCalculator
+  CommissionCalculator --> DealData
+  CommissionCalculator --> PlanData
+  CommissionCalculator --> CommissionData
+  DealData --> ProductData
+  PlanData --> TierData
+  
+  note right of DataDrivenDecompositionExample
+    Data-Driven Decomposition Pattern:
+    - Focuses on data structures and transformations
+    - Emphasizes data flow through the system
+    - Separates data from operations
+  end note
+  
+  note right of DealData
+    Data Transfer Object (DTO) Pattern:
+    Represents input data extracted
+    from domain objects
+  end note
+  
+  note right of CommissionData
+    Data Transfer Object (DTO) Pattern:
+    Represents output data from
+    the calculation process
+  end note
+}
+
+' Model classes (simplified)
+package "Model" {
+  class Deal {
+    - id: String
+    - title: String
+    - value: BigDecimal
+    - status: DealStatus
+    - salesRepId: String
+    - products: List<DealProduct>
+    - closeDate: LocalDate
+    + calculateTotalValue(): BigDecimal
+  }
+  
+  class DealProduct {
+    - id: String
+    - productId: String
+    - productName: String
+    - quantity: int
+    - price: BigDecimal
+    + calculateTotalPrice(): BigDecimal
+  }
+  
+  class CommissionPlan {
+    - id: String
+    - name: String
+    - rules: List<CommissionRule>
+    - tiers: List<CommissionTier>
+    - bonuses: List<BonusRule>
+    - status: PlanStatus
+    + isActiveOn(LocalDate): boolean
+  }
+  
+  Deal --> DealProduct
+}
+
+' Relationships between decomposition approaches and model
+FunctionalDecompositionExample --> Deal
+FunctionalDecompositionExample --> CommissionPlan
+ObjectOrientedDecompositionExample --> Deal
+ObjectOrientedDecompositionExample --> CommissionPlan
+DataDrivenDecompositionExample --> Deal
+DataDrivenDecompositionExample --> CommissionPlan
+
+@enduml

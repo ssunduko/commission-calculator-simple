@@ -1,0 +1,215 @@
+@startuml Concerns Diagram
+
+' Title
+title Commission Calculator Concerns Examples
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f5f5f5
+skinparam classBorderColor #999999
+skinparam arrowColor #666666
+skinparam stereotypeCBackgroundColor #add8e6
+skinparam stereotypeCBorderColor #0000ff
+
+' Notes
+note as N1
+  <b>Cross-Cutting Concerns</b>
+  Aspects that affect multiple parts of the system
+  Examples: Logging, Security, Transaction Management
+end note
+
+note as N2
+  <b>Access Modifiers</b>
+  Control visibility and accessibility of classes, methods, and fields
+  public, protected, default (package-private), private
+end note
+
+note as N3
+  <b>Immutable Objects</b>
+  Objects whose state cannot be changed after creation
+  Thread-safe without synchronization
+end note
+
+note as N4
+  <b>Indirect Object Construction</b>
+  Creating objects through intermediary methods or classes
+  Patterns: Factory Method, Abstract Factory, Builder, Prototype
+end note
+
+' Cross-Cutting Concerns Example
+class CrossCuttingConcernsExample {
+  -LOGGER: Logger
+  +main(args: String[]): void
+}
+
+class SecurityAspect <<aspect>> {
+  +isAuthorized(user: User, action: String): boolean
+}
+
+class LoggingAspect <<aspect>> {
+  +logEntry(methodName: String, params: Object...): void
+  +logExit(methodName: String, result: Object): void
+  +logException(methodName: String, exception: Exception): void
+}
+
+class DealService {
+  +createDeal(deal: Deal, user: User): boolean
+}
+
+class CommissionService {
+  +calculateCommission(deal: Deal, plan: CommissionPlan, user: User): double
+}
+
+CrossCuttingConcernsExample ..> SecurityAspect: uses
+CrossCuttingConcernsExample ..> LoggingAspect: uses
+CrossCuttingConcernsExample ..> DealService: uses
+CrossCuttingConcernsExample ..> CommissionService: uses
+DealService ..> SecurityAspect: uses
+DealService ..> LoggingAspect: uses
+CommissionService ..> SecurityAspect: uses
+CommissionService ..> LoggingAspect: uses
+
+' Access Modifiers Example
+class AccessModifiersExample {
+  +main(args: String[]): void
+}
+
+class CommissionCalculator {
+  +BASE_COMMISSION_RATE: BigDecimal
+  #tieredRateThreshold: BigDecimal
+  ~bonusRate: BigDecimal
+  -enableValidation: boolean
+  +calculateCommission(deal: Deal): BigDecimal
+  +getBaseRate(): BigDecimal
+  #calculateTieredRate(deal: Deal): BigDecimal
+  ~calculateBonusRate(deal: Deal): BigDecimal
+  -validateDeal(deal: Deal): boolean
+}
+
+class EnterpriseCommissionCalculator {
+  +calculateCommission(deal: Deal): BigDecimal
+  +demonstrateProtectedAccess(deal: Deal): void
+}
+
+AccessModifiersExample ..> CommissionCalculator: uses
+AccessModifiersExample ..> EnterpriseCommissionCalculator: uses
+EnterpriseCommissionCalculator --|> CommissionCalculator: extends
+
+' Immutable Objects Example
+class ImmutableObjectExample {
+  +main(args: String[]): void
+  -createProductCommissions(deal: Deal): List<ProductCommission>
+}
+
+class ImmutableCommissionCalculation <<immutable>> {
+  -id: String
+  -dealId: String
+  -salesRepId: String
+  -calculationDate: LocalDate
+  -baseCommission: BigDecimal
+  -tierAdjustment: BigDecimal
+  -bonusAmount: BigDecimal
+  -productCommissions: List<ProductCommission>
+  +getId(): String
+  +getDealId(): String
+  +getSalesRepId(): String
+  +getCalculationDate(): LocalDate
+  +getBaseCommission(): BigDecimal
+  +getTierAdjustment(): BigDecimal
+  +getBonusAmount(): BigDecimal
+  +getProductCommissions(): List<ProductCommission>
+  +getTotalCommission(): BigDecimal
+  +withBaseCommission(newBaseCommission: BigDecimal): ImmutableCommissionCalculation
+  +withTierAdjustment(newTierAdjustment: BigDecimal): ImmutableCommissionCalculation
+  +withBonusAmount(newBonusAmount: BigDecimal): ImmutableCommissionCalculation
+}
+
+class ProductCommission <<immutable>> {
+  -productId: String
+  -amount: BigDecimal
+  +getProductId(): String
+  +getAmount(): BigDecimal
+}
+
+ImmutableObjectExample ..> ImmutableCommissionCalculation: creates
+ImmutableObjectExample ..> ProductCommission: creates
+ImmutableCommissionCalculation o--> "0..*" ProductCommission: contains
+
+' Indirect Object Construction Example
+class IndirectObjectConstructionExample {
+  +main(args: String[]): void
+}
+
+class DealFactory <<factory>> {
+  +createStandardDeal(title: String, salesRepId: String): Deal
+  +createPremiumDeal(title: String, salesRepId: String): Deal
+  +createEnterpriseDeal(title: String, salesRepId: String): Deal
+}
+
+interface CommissionPlanFactory <<factory>> {
+  +createCommissionPlan(): CommissionPlan
+}
+
+class StandardCommissionPlanFactory <<factory>> {
+  +createCommissionPlan(): CommissionPlan
+}
+
+class PremiumCommissionPlanFactory <<factory>> {
+  +createCommissionPlan(): CommissionPlan
+}
+
+class CommissionCalculation {
+  -id: String
+  -dealId: String
+  -salesRepId: String
+  -calculationDate: LocalDate
+  -baseCommission: BigDecimal
+  -tierAdjustment: BigDecimal
+  -bonusAmount: BigDecimal
+}
+
+class Builder <<builder>> {
+  -id: String
+  -dealId: String
+  -salesRepId: String
+  -calculationDate: LocalDate
+  -baseCommission: BigDecimal
+  -tierAdjustment: BigDecimal
+  -bonusAmount: BigDecimal
+  +Builder(id: String)
+  +dealId(dealId: String): Builder
+  +salesRepId(salesRepId: String): Builder
+  +calculationDate(calculationDate: LocalDate): Builder
+  +baseCommission(baseCommission: BigDecimal): Builder
+  +tierAdjustment(tierAdjustment: BigDecimal): Builder
+  +bonusAmount(bonusAmount: BigDecimal): Builder
+  +build(): CommissionCalculation
+}
+
+class DealPrototype <<prototype>> {
+  -title: String
+  -value: BigDecimal
+  -salesRepId: String
+  -products: List<DealProduct>
+  +clone(): DealPrototype
+}
+
+IndirectObjectConstructionExample ..> DealFactory: uses
+IndirectObjectConstructionExample ..> CommissionPlanFactory: uses
+IndirectObjectConstructionExample ..> StandardCommissionPlanFactory: uses
+IndirectObjectConstructionExample ..> PremiumCommissionPlanFactory: uses
+IndirectObjectConstructionExample ..> Builder: uses
+IndirectObjectConstructionExample ..> DealPrototype: uses
+StandardCommissionPlanFactory ..|> CommissionPlanFactory: implements
+PremiumCommissionPlanFactory ..|> CommissionPlanFactory: implements
+Builder ..> CommissionCalculation: creates
+CommissionCalculation +-- Builder: inner class
+
+' Connect notes to relevant classes
+N1 .. CrossCuttingConcernsExample
+N2 .. AccessModifiersExample
+N3 .. ImmutableObjectExample
+N4 .. IndirectObjectConstructionExample
+
+@enduml

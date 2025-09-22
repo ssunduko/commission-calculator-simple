@@ -1,0 +1,104 @@
+@startuml Autonomy Concepts
+
+' Hide package structure
+hide empty members
+hide circle
+
+' Classes
+class DataAutonomyExample {
+  -dealStore: Map<String, Deal>
+  -userStore: Map<String, User>
+  +createDeal(title: String, value: BigDecimal, salesRepId: String): String
+  +addProductToDeal(dealId: String, productName: String, quantity: int, price: BigDecimal): String
+  +updateDealStatus(dealId: String, status: DealStatus): void
+  +createUser(username: String, email: String, firstName: String, lastName: String, role: UserRole): String
+  +getDealById(dealId: String): Deal
+  +getUserById(userId: String): User
+  +getDealsBySalesRep(salesRepId: String): List<Deal>
+  +getUsersByRole(role: UserRole): List<User>
+  -initializeSampleData(): void
+}
+
+class FunctionalAutonomyExample {
+  -dealStore: Map<String, Deal>
+  -userStore: Map<String, User>
+  -planStore: Map<String, CommissionPlan>
+  -calculationStore: Map<String, CommissionCalculation>
+  +createCommissionPlan(name: String, description: String, effectiveDate: LocalDate): String
+  +addRuleToPlan(planId: String, name: String, description: String): String
+  +addTierToRule(planId: String, ruleId: String, minAmount: BigDecimal, maxAmount: BigDecimal, rate: BigDecimal): void
+  +createDeal(title: String, value: BigDecimal, salesRepId: String): String
+  +addProductToDeal(dealId: String, productName: String, quantity: int, price: BigDecimal): String
+  +updateDealStatus(dealId: String, status: DealStatus): void
+  +createUser(username: String, email: String, firstName: String, lastName: String, role: UserRole): String
+  +assignPlanToUser(userId: String, planId: String): void
+  +calculateCommission(dealId: String): String
+  -calculateCommissionAmount(deal: Deal, plan: CommissionPlan): BigDecimal
+  +getCalculationsBySalesRep(salesRepId: String): List<CommissionCalculation>
+  +getTotalCommissionForSalesRep(salesRepId: String): BigDecimal
+  -initializeSampleData(): void
+}
+
+' External classes (from model package)
+class Deal {
+}
+
+class DealProduct {
+}
+
+class User {
+}
+
+class CommissionPlan {
+}
+
+class CommissionRule {
+}
+
+class CommissionTier {
+}
+
+class CommissionCalculation {
+}
+
+enum DealStatus {
+}
+
+enum UserRole {
+}
+
+' Relationships
+DataAutonomyExample --> Deal : uses >
+DataAutonomyExample --> DealProduct : uses >
+DataAutonomyExample --> User : uses >
+DataAutonomyExample --> DealStatus : uses >
+DataAutonomyExample --> UserRole : uses >
+
+FunctionalAutonomyExample --> Deal : uses >
+FunctionalAutonomyExample --> DealProduct : uses >
+FunctionalAutonomyExample --> User : uses >
+FunctionalAutonomyExample --> CommissionPlan : uses >
+FunctionalAutonomyExample --> CommissionRule : uses >
+FunctionalAutonomyExample --> CommissionTier : uses >
+FunctionalAutonomyExample --> CommissionCalculation : uses >
+FunctionalAutonomyExample --> DealStatus : uses >
+FunctionalAutonomyExample --> UserRole : uses >
+
+' Pattern component notes
+note top of DataAutonomyExample
+  <b>Data Autonomy Pattern</b>
+  - Owns its data storage (dealStore, userStore)
+  - Controls data access through well-defined interfaces
+  - Encapsulates internal data structures
+  - Responsible for data validation and integrity
+end note
+
+note top of FunctionalAutonomyExample
+  <b>Functional Autonomy Pattern</b>
+  - Provides complete business capability (commission calculation)
+  - Operates independently without external dependencies
+  - Encapsulates all logic needed for its business function
+  - Has well-defined interfaces for interaction
+end note
+
+@enduml
