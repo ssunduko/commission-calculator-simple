@@ -1,0 +1,224 @@
+@startuml Command Pattern - Commission Calculator
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Command Pattern - Commission Calculator
+
+' Domain Model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  +getId(): String
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +setValue(value: BigDecimal): void
+  +setStatus(status: DealStatus): void
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+Deal --> DealStatus
+
+' Command Pattern Structure
+interface Command <<Command>> {
+  +execute(): void
+  +undo(): void
+  +getDescription(): String
+}
+
+interface DealReceiver <<Receiver>> {
+  +updateDealStatus(dealId: String, status: DealStatus): DealStatus
+  +updateDealValue(dealId: String, value: BigDecimal): BigDecimal
+  +createDeal(deal: Deal): void
+  +removeDeal(dealId: String): Deal
+  +getDeal(dealId: String): Deal
+}
+
+' Invoker
+class CommandInvoker <<Invoker>> {
+  -commandHistory: Stack<Command>
+  -redoStack: Stack<Command>
+  +executeCommand(command: Command): void
+  +undo(): boolean
+  +redo(): boolean
+  +getHistory(): String
+  +clearHistory(): void
+  +getUndoCount(): int
+  +getRedoCount(): int
+}
+
+' Abstract Base Command
+abstract class AbstractCommand <<AbstractCommand>> {
+  #createdAt: LocalDateTime
+  #executedAt: LocalDateTime
+  #executed: boolean
+  +execute(): void
+  +undo(): void
+  #doExecute(): void {abstract}
+  #doUndo(): void {abstract}
+  +isExecuted(): boolean
+  +getExecutedAt(): LocalDateTime
+}
+
+' Concrete Receiver
+class DealManager <<ConcreteReceiver>> {
+  -deals: List<Deal>
+  +updateDealStatus(dealId: String, status: DealStatus): DealStatus
+  +updateDealValue(dealId: String, value: BigDecimal): BigDecimal
+  +createDeal(deal: Deal): void
+  +removeDeal(dealId: String): Deal
+  +getDeal(dealId: String): Deal
+  +getAllDeals(): List<Deal>
+  +getDealCount(): int
+}
+
+' Concrete Commands
+class UpdateDealStatusCommand <<ConcreteCommand>> {
+  -receiver: DealReceiver
+  -dealId: String
+  -newStatus: DealStatus
+  -oldStatus: DealStatus
+  +UpdateDealStatusCommand(receiver, dealId, newStatus)
+  #doExecute(): void
+  #doUndo(): void
+  +getDescription(): String
+}
+
+class UpdateDealValueCommand <<ConcreteCommand>> {
+  -receiver: DealReceiver
+  -dealId: String
+  -newValue: BigDecimal
+  -oldValue: BigDecimal
+  +UpdateDealValueCommand(receiver, dealId, newValue)
+  #doExecute(): void
+  #doUndo(): void
+  +getDescription(): String
+}
+
+class CreateDealCommand <<ConcreteCommand>> {
+  -receiver: DealReceiver
+  -deal: Deal
+  +CreateDealCommand(receiver, deal)
+  #doExecute(): void
+  #doUndo(): void
+  +getDescription(): String
+}
+
+class MacroDealCommand <<CompositeCommand>> {
+  -commands: List<Command>
+  -executedCommands: List<Command>
+  -description: String
+  +MacroDealCommand(description)
+  +addCommand(command: Command): MacroDealCommand
+  #doExecute(): void
+  #doUndo(): void
+  +getDescription(): String
+  +getCommandCount(): int
+}
+
+' Relationships
+Command <|.. AbstractCommand
+AbstractCommand <|-- UpdateDealStatusCommand
+AbstractCommand <|-- UpdateDealValueCommand
+AbstractCommand <|-- CreateDealCommand
+AbstractCommand <|-- MacroDealCommand
+
+DealReceiver <|.. DealManager
+
+CommandInvoker o--> "0..*" Command : commandHistory
+CommandInvoker o--> "0..*" Command : redoStack
+
+UpdateDealStatusCommand --> DealReceiver : receiver
+UpdateDealValueCommand --> DealReceiver : receiver
+CreateDealCommand --> DealReceiver : receiver
+CreateDealCommand --> Deal : deal
+
+MacroDealCommand o--> "1..*" Command : commands
+
+DealManager *--> "0..*" Deal : deals
+DealManager ..> DealStatus : uses
+
+' Pattern component notes
+note right of Command
+  <b>Command Interface</b>
+  Declares execution contract
+  with execute(), undo(), and
+  getDescription() methods
+end note
+
+note right of DealReceiver
+  <b>Receiver Interface</b>
+  Defines operations that
+  can be performed on deals.
+  Returns previous state for undo.
+end note
+
+note left of CommandInvoker
+  <b>Invoker</b>
+  Executes commands and
+  maintains history for
+  undo/redo functionality.
+  Uses two stacks for undo/redo.
+end note
+
+note left of AbstractCommand
+  <b>Abstract Command</b>
+  Provides template method
+  pattern for execute/undo
+  with common functionality
+  like timestamp tracking
+end note
+
+note right of DealManager
+  <b>Concrete Receiver</b>
+  Contains actual business logic
+  for deal operations. Maintains
+  deal collection and validates
+  business rules.
+end note
+
+note bottom of UpdateDealStatusCommand
+  <b>Concrete Command #1</b>
+  Encapsulates status update.
+  Stores previous status for undo.
+  Delegates to receiver.
+end note
+
+note bottom of UpdateDealValueCommand
+  <b>Concrete Command #2</b>
+  Encapsulates value update.
+  Stores previous value for undo.
+  Uses BigDecimal for precision.
+end note
+
+note bottom of CreateDealCommand
+  <b>Concrete Command #3</b>
+  Encapsulates deal creation.
+  Undo by deleting created deal.
+  No previous state to store.
+end note
+
+note bottom of MacroDealCommand
+  <b>Composite Command</b>
+  Executes multiple commands
+  as atomic unit. Provides
+  transactional semantics with
+  automatic rollback on failure.
+end note
+
+@enduml

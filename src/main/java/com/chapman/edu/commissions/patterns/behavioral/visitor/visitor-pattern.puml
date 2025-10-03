@@ -1,0 +1,356 @@
+@startuml Visitor Pattern - Commission System
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Visitor Pattern - Commission System Operations
+
+' Visitor Pattern Structure
+interface CommissionEntityVisitor <<Visitor>> {
+  +visitDeal(deal: CommissionDeal): void
+  +visitCommissionPlan(plan: CommissionPlanEntity): void
+  +visitUser(user: UserEntity): void
+  +visitDispute(dispute: DisputeEntity): void
+}
+
+' Concrete Visitors
+class ReportVisitor <<ConcreteVisitor>> {
+  -report: StringBuilder
+  -dealCount: int
+  -planCount: int
+  -userCount: int
+  -disputeCount: int
+  -totalDealValue: BigDecimal
+  +visitDeal(deal: CommissionDeal): void
+  +visitCommissionPlan(plan: CommissionPlanEntity): void
+  +visitUser(user: UserEntity): void
+  +visitDispute(dispute: DisputeEntity): void
+  +getReport(): String
+}
+
+class ValidationVisitor <<ConcreteVisitor>> {
+  -errors: List<String>
+  -validEntityCount: int
+  +visitDeal(deal: CommissionDeal): void
+  +visitCommissionPlan(plan: CommissionPlanEntity): void
+  +visitUser(user: UserEntity): void
+  +visitDispute(dispute: DisputeEntity): void
+  +isValid(): boolean
+  +getErrors(): List<String>
+  +getValidationReport(): String
+}
+
+class StatisticsVisitor <<ConcreteVisitor>> {
+  -totalEntities: int
+  -entityCounts: Map<String, Integer>
+  -dealStatusCounts: Map<DealStatus, Integer>
+  -totalDealValue: BigDecimal
+  -wonDealValue: BigDecimal
+  +visitDeal(deal: CommissionDeal): void
+  +visitCommissionPlan(plan: CommissionPlanEntity): void
+  +visitUser(user: UserEntity): void
+  +visitDispute(dispute: DisputeEntity): void
+  +getStatisticsReport(): String
+  +getTotalDealValue(): BigDecimal
+}
+
+class CsvExportVisitor <<ConcreteVisitor>> {
+  -csvData: StringBuilder
+  -dateFormatter: DateTimeFormatter
+  +visitDeal(deal: CommissionDeal): void
+  +visitCommissionPlan(plan: CommissionPlanEntity): void
+  +visitUser(user: UserEntity): void
+  +visitDispute(dispute: DisputeEntity): void
+  +getCsvData(): String
+  -escape(value: String): String
+}
+
+' Element Interface
+interface CommissionEntity <<Element>> {
+  +accept(visitor: CommissionEntityVisitor): void
+  +getId(): String
+  +getEntityType(): String
+}
+
+' Concrete Elements
+class CommissionDeal <<ConcreteElement>> {
+  -deal: Deal
+  +accept(visitor: CommissionEntityVisitor): void
+  +getId(): String
+  +getEntityType(): String
+  +getDeal(): Deal
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +getSalesRepId(): String
+  +getCloseDate(): LocalDate
+}
+
+class CommissionPlanEntity <<ConcreteElement>> {
+  -plan: CommissionPlan
+  +accept(visitor: CommissionEntityVisitor): void
+  +getId(): String
+  +getEntityType(): String
+  +getPlan(): CommissionPlan
+  +getName(): String
+  +getStatus(): PlanStatus
+  +getRuleCount(): int
+  +getTierCount(): int
+}
+
+class UserEntity <<ConcreteElement>> {
+  -user: User
+  +accept(visitor: CommissionEntityVisitor): void
+  +getId(): String
+  +getEntityType(): String
+  +getUser(): User
+  +getName(): String
+  +getEmail(): String
+  +getRole(): UserRole
+}
+
+class DisputeEntity <<ConcreteElement>> {
+  -dispute: Dispute
+  +accept(visitor: CommissionEntityVisitor): void
+  +getId(): String
+  +getEntityType(): String
+  +getDispute(): Dispute
+  +getDealId(): String
+  +getSubmittedBy(): String
+  +getStatus(): DisputeStatus
+  +getDisputedAmount(): BigDecimal
+}
+
+' Domain Models (wrapped by elements)
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+}
+
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -name: String
+  -status: PlanStatus
+}
+
+class User <<DomainModel>> {
+  -id: String
+  -firstName: String
+  -lastName: String
+  -email: String
+}
+
+class Dispute <<DomainModel>> {
+  -id: String
+  -dealId: String
+  -status: DisputeStatus
+}
+
+' Relationships - Visitor implementations
+CommissionEntityVisitor <|.. ReportVisitor
+CommissionEntityVisitor <|.. ValidationVisitor
+CommissionEntityVisitor <|.. StatisticsVisitor
+CommissionEntityVisitor <|.. CsvExportVisitor
+
+' Relationships - Element implementations
+CommissionEntity <|.. CommissionDeal
+CommissionEntity <|.. CommissionPlanEntity
+CommissionEntity <|.. UserEntity
+CommissionEntity <|.. DisputeEntity
+
+' Domain model wrapping
+CommissionDeal o--> Deal : wraps
+CommissionPlanEntity o--> CommissionPlan : wraps
+UserEntity o--> User : wraps
+DisputeEntity o--> Dispute : wraps
+
+' Double dispatch relationships
+CommissionEntity ..> CommissionEntityVisitor : accepts >
+CommissionEntityVisitor ..> CommissionEntity : visits >
+
+' Pattern component notes
+note top of CommissionEntityVisitor
+  <b>Visitor Interface</b>
+
+  Declares visit method for each
+  concrete element type.
+
+  <b>Key: One method per element type</b>
+  This enables the visitor to provide
+  type-specific behavior without
+  instanceof checks.
+end note
+
+note left of ReportVisitor
+  <b>Report Visitor</b>
+
+  <b>Purpose:</b> Generate comprehensive
+  reports for commission entities.
+
+  <b>State:</b> Accumulates report content,
+  counts, and totals across visits.
+
+  <b>Use Case:</b> Management reports,
+  dashboards, summaries.
+end note
+
+note left of ValidationVisitor
+  <b>Validation Visitor</b>
+
+  <b>Purpose:</b> Validate entities
+  according to business rules.
+
+  <b>State:</b> Collects validation
+  errors across all visits.
+
+  <b>Use Case:</b> Pre-processing
+  validation, data quality checks.
+end note
+
+note right of StatisticsVisitor
+  <b>Statistics Visitor</b>
+
+  <b>Purpose:</b> Collect aggregated
+  statistics and KPIs.
+
+  <b>State:</b> Maintains counts by
+  type/status, calculates totals.
+
+  <b>Use Case:</b> Analytics,
+  dashboards, KPI tracking.
+end note
+
+note right of CsvExportVisitor
+  <b>Export Visitor</b>
+
+  <b>Purpose:</b> Transform entities
+  to CSV format.
+
+  <b>State:</b> Builds CSV data
+  buffer during visits.
+
+  <b>Use Case:</b> Data export,
+  external system integration.
+end note
+
+note top of CommissionEntity
+  <b>Element Interface</b>
+
+  All visitable entities implement
+  this interface.
+
+  <b>accept() method:</b>
+  Implements the "trick" of double dispatch:
+  element.accept(visitor)
+    → calls visitor.visitElement(this)
+end note
+
+note bottom of CommissionDeal
+  <b>Concrete Element</b>
+
+  <b>accept() implementation:</b>
+  visitor.visitDeal(this);
+
+  <b>Wrapping Strategy:</b>
+  Wraps Deal domain model
+  without modifying it.
+
+  This preserves domain
+  model purity.
+end note
+
+note bottom of CommissionPlanEntity
+  <b>Concrete Element</b>
+
+  <b>accept() implementation:</b>
+  visitor.visitCommissionPlan(this);
+
+  Exposes plan properties
+  to visitors without breaking
+  encapsulation.
+end note
+
+note bottom of UserEntity
+  <b>Concrete Element</b>
+
+  <b>accept() implementation:</b>
+  visitor.visitUser(this);
+
+  Provides visitor access to
+  user information needed
+  for operations.
+end note
+
+note bottom of DisputeEntity
+  <b>Concrete Element</b>
+
+  <b>accept() implementation:</b>
+  visitor.visitDispute(this);
+
+  Enables operations on
+  dispute data without
+  modifying Dispute class.
+end note
+
+' Double dispatch flow
+note as N1
+  <b>DOUBLE DISPATCH MECHANISM</b>
+
+  <b>Flow:</b>
+  1. Client: element.accept(visitor)
+  2. Element: visitor.visitDeal(this)  [1st dispatch]
+  3. Visitor: ReportVisitor.visitDeal() [2nd dispatch]
+
+  <b>Result:</b>
+  Operation depends on BOTH:
+  • Type of visitor (ReportVisitor, ValidationVisitor, etc.)
+  • Type of element (Deal, User, Plan, Dispute)
+
+  <b>Benefit:</b>
+  No instanceof checks needed!
+  Type-safe at compile time.
+end note
+
+' Legend
+legend right
+  <b>Visitor Pattern Components:</b>
+
+  <b>Visitor (Interface):</b> Declares visit method
+  for each concrete element type.
+
+  <b>ConcreteVisitor:</b> Implements operations
+  for each element type. Can maintain state
+  across visits.
+
+  <b>Element (Interface):</b> Declares accept()
+  method that takes a visitor.
+
+  <b>ConcreteElement:</b> Implements accept()
+  by calling visitor.visitElement(this).
+
+  <b>Key Benefits:</b>
+  ✓ Easy to add new operations (new visitors)
+  ✓ Operations grouped in cohesive classes
+  ✓ Domain models stay clean
+  ✓ Type-safe double dispatch
+
+  <b>Trade-offs:</b>
+  ✗ Hard to add new element types
+  ✗ May break encapsulation
+  ✗ More complex than simple methods
+
+  <b>Use When:</b>
+  • Object structure stable
+  • Need many operations
+  • Want to separate concerns
+endlegend
+
+@enduml

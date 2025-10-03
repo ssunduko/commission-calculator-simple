@@ -1,0 +1,215 @@
+@startuml State Pattern - Commission Dispute Resolution
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title State Pattern - Commission Dispute Resolution
+
+' State Pattern Structure
+interface DisputeState <<State>> {
+  +addComment(context, comment, author): void
+  +assignReviewer(context, reviewerName): void
+  +approve(context, adjustedAmount): void
+  +reject(context, reason): void
+  +escalate(context, reason): void
+  +close(context): void
+  +getStateName(): String
+  +getAvailableActions(): String
+}
+
+' Concrete States
+class SubmittedState <<ConcreteState>> {
+  +addComment(context, comment, author): void
+  +assignReviewer(context, reviewerName): void
+  +approve(context, adjustedAmount): void
+  +reject(context, reason): void
+  +escalate(context, reason): void
+  +close(context): void
+  +getStateName(): String
+  +getAvailableActions(): String
+}
+
+class UnderReviewState <<ConcreteState>> {
+  +addComment(context, comment, author): void
+  +assignReviewer(context, reviewerName): void
+  +approve(context, adjustedAmount): void
+  +reject(context, reason): void
+  +escalate(context, reason): void
+  +close(context): void
+  +getStateName(): String
+  +getAvailableActions(): String
+}
+
+class EscalatedState <<ConcreteState>> {
+  +addComment(context, comment, author): void
+  +assignReviewer(context, reviewerName): void
+  +approve(context, adjustedAmount): void
+  +reject(context, reason): void
+  +escalate(context, reason): void
+  +close(context): void
+  +getStateName(): String
+  +getAvailableActions(): String
+}
+
+class ResolvedState <<ConcreteState>> {
+  +addComment(context, comment, author): void
+  +assignReviewer(context, reviewerName): void
+  +approve(context, adjustedAmount): void
+  +reject(context, reason): void
+  +escalate(context, reason): void
+  +close(context): void
+  +getStateName(): String
+  +getAvailableActions(): String
+}
+
+class ClosedState <<ConcreteState>> {
+  +addComment(context, comment, author): void
+  +assignReviewer(context, reviewerName): void
+  +approve(context, adjustedAmount): void
+  +reject(context, reason): void
+  +escalate(context, reason): void
+  +close(context): void
+  +getStateName(): String
+  +getAvailableActions(): String
+}
+
+' Context
+class DisputeContext <<Context>> {
+  -currentState: DisputeState
+  -disputeId: String
+  -submittedBy: String
+  -originalAmount: BigDecimal
+  -adjustedAmount: BigDecimal
+  -reviewer: String
+  -commentHistory: List<String>
+  -submittedDate: LocalDateTime
+  +setState(newState: DisputeState): void
+  +addComment(comment, author): void
+  +assignReviewer(reviewerName): void
+  +approve(adjustedAmount): void
+  +reject(reason): void
+  +escalate(reason): void
+  +close(): void
+  +getStateName(): String
+  +getAvailableActions(): String
+  +displayStatus(): void
+  +displayHistory(): void
+}
+
+' Relationships
+DisputeState <|.. SubmittedState
+DisputeState <|.. UnderReviewState
+DisputeState <|.. EscalatedState
+DisputeState <|.. ResolvedState
+DisputeState <|.. ClosedState
+
+DisputeContext o--> "1" DisputeState : currentState
+
+DisputeContext ..> DisputeState : delegates to >
+DisputeState ..> DisputeContext : manages >
+
+' State transitions (showing some key transitions)
+SubmittedState .right.> UnderReviewState : assignReviewer()
+SubmittedState ..> EscalatedState : escalate()
+UnderReviewState ..> ResolvedState : approve()/reject()
+UnderReviewState ..> EscalatedState : escalate()
+EscalatedState .left.> UnderReviewState : assignReviewer()
+EscalatedState ..> ResolvedState : approve()/reject()
+ResolvedState ..> ClosedState : close()
+ResolvedState ..> EscalatedState : escalate()
+
+' Pattern component notes
+note right of DisputeState
+  <b>State Interface</b>
+  Defines contract for all states.
+  Each method represents an action
+  that can be performed on a dispute.
+  States decide which actions are valid.
+end note
+
+note bottom of SubmittedState
+  <b>Initial State</b>
+  - Can add comments
+  - Can assign reviewer → transitions to UNDER_REVIEW
+  - Can escalate → transitions to ESCALATED
+  - Cannot approve/reject (no reviewer yet)
+  - Cannot close (not resolved yet)
+end note
+
+note bottom of UnderReviewState
+  <b>Active Review State</b>
+  - Can add review comments
+  - Can reassign reviewer
+  - Can approve → transitions to RESOLVED
+  - Can reject → transitions to RESOLVED
+  - Can escalate → transitions to ESCALATED
+end note
+
+note bottom of EscalatedState
+  <b>Management Review State</b>
+  - Requires higher authority
+  - Can approve with override → transitions to RESOLVED
+  - Can reject → transitions to RESOLVED
+  - Can reassign → transitions to UNDER_REVIEW
+  - Already at highest level (no further escalation)
+end note
+
+note bottom of ResolvedState
+  <b>Decision Made State</b>
+  - Decision has been made (approved/rejected)
+  - Can add comments (read-mostly)
+  - Can close → transitions to CLOSED
+  - Can re-escalate if disagreeing → ESCALATED
+  - Cannot change decision directly
+end note
+
+note bottom of ClosedState
+  <b>Terminal State</b>
+  - No modifications allowed
+  - Read-only access
+  - Final state in lifecycle
+  - Cannot transition to any other state
+end note
+
+note left of DisputeContext
+  <b>Context</b>
+  Maintains reference to current state
+  and delegates all requests to it.
+  Doesn't know which concrete state
+  it has - only the State interface.
+
+  <b>Key Method:</b>
+  setState() allows states to
+  transition to other states.
+end note
+
+' Legend
+legend right
+  <b>State Pattern Components:</b>
+
+  <b>State (Interface):</b> Defines interface for
+  encapsulating state-specific behavior.
+
+  <b>ConcreteState:</b> Implements behavior
+  associated with a particular state.
+  Knows which state(s) can follow it.
+
+  <b>Context:</b> Maintains current state
+  and delegates requests to state object.
+  Provides interface for clients.
+
+  <b>Key Benefits:</b>
+  • Eliminates complex if/else chains
+  • Makes state transitions explicit
+  • Easy to add new states
+  • Each state is independently testable
+  • Follows Open/Closed Principle
+endlegend
+
+@enduml

@@ -1,0 +1,378 @@
+@startuml Mediator Pattern - Commission System Coordination
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Mediator Pattern - Commission System Coordination
+
+' Mediator Interface
+interface CommissionSystemMediator <<Mediator>> {
+  +notify(sender: SystemComponent, event: CommissionEvent): void
+  +registerComponent(component: SystemComponent): void
+  +unregisterComponent(component: SystemComponent): void
+  +setLoggingEnabled(enabled: boolean): void
+  +getEventCount(): int
+}
+
+' Concrete Mediator
+class CommissionCoordinationHub <<ConcreteMediator>> {
+  -components: List<SystemComponent>
+  -eventCount: int
+  -loggingEnabled: boolean
+  +notify(sender: SystemComponent, event: CommissionEvent): void
+  +registerComponent(component: SystemComponent): void
+  +unregisterComponent(component: SystemComponent): void
+  +setLoggingEnabled(enabled: boolean): void
+  +getEventCount(): int
+  -routeEvent(event: CommissionEvent): void
+}
+
+' Colleague Base Class
+abstract class SystemComponent <<Colleague>> {
+  #mediator: CommissionSystemMediator
+  #componentName: String
+  #enabled: boolean
+  +setMediator(mediator: CommissionSystemMediator): void
+  +getComponentName(): String
+  +setEnabled(enabled: boolean): void
+  +isEnabled(): boolean
+  #notifyMediator(event: CommissionEvent): void
+  +{abstract} handleEvent(event: CommissionEvent): void
+  +{abstract} isInterestedIn(eventType: String): boolean
+}
+
+' Concrete Components
+class DealTrackerComponent <<ConcreteColleague>> {
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  +onDealWon(deal: Deal): void
+  +onDealLost(deal: Deal): void
+}
+
+class CommissionCalculatorComponent <<ConcreteColleague>> {
+  -COMMISSION_RATE: BigDecimal
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  -calculateCommission(deal: Deal): BigDecimal
+}
+
+class ApprovalWorkflowComponent <<ConcreteColleague>> {
+  -APPROVAL_THRESHOLD: BigDecimal
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  -requiresApproval(amount: BigDecimal): boolean
+}
+
+class NotificationComponent <<ConcreteColleague>> {
+  -sentNotifications: List<String>
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  +getSentNotifications(): List<String>
+  -sendNotification(message: String): void
+}
+
+class AuditLogComponent <<ConcreteColleague>> {
+  -auditEntries: List<String>
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  +getAuditEntries(): List<String>
+  +printAuditTrail(): void
+}
+
+class DisputeTrackerComponent <<ConcreteColleague>> {
+  -HIGH_COMMISSION_RATE: BigDecimal
+  -flaggedDisputes: List<String>
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  +getFlaggedDisputes(): List<String>
+  -checkForPotentialDispute(deal, commission): void
+}
+
+class AnalyticsComponent <<ConcreteColleague>> {
+  -totalDeals: int
+  -totalCommissions: BigDecimal
+  -approvalsRequired: int
+  +handleEvent(event: CommissionEvent): void
+  +isInterestedIn(eventType: String): boolean
+  +printStatistics(): void
+}
+
+' Event Object
+class CommissionEvent <<Event>> {
+  -eventType: String
+  -source: String
+  -timestamp: LocalDateTime
+  -eventData: Map<String, Object>
+  +getEventType(): String
+  +getSource(): String
+  +getTimestamp(): LocalDateTime
+  +addData(key: String, value: Object): void
+  +getData(key: String): Object
+}
+
+' Domain Model
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+}
+
+' Relationships
+CommissionSystemMediator <|.. CommissionCoordinationHub
+
+SystemComponent <|-- DealTrackerComponent
+SystemComponent <|-- CommissionCalculatorComponent
+SystemComponent <|-- ApprovalWorkflowComponent
+SystemComponent <|-- NotificationComponent
+SystemComponent <|-- AuditLogComponent
+SystemComponent <|-- DisputeTrackerComponent
+SystemComponent <|-- AnalyticsComponent
+
+CommissionCoordinationHub o--> "0..*" SystemComponent : components
+SystemComponent o--> "0..1" CommissionSystemMediator : mediator
+
+CommissionSystemMediator ..> CommissionEvent : uses >
+SystemComponent ..> CommissionEvent : uses >
+CommissionEvent ..> Deal : references >
+
+' Communication flow
+CommissionCoordinationHub ..> SystemComponent : notifies >
+SystemComponent ..> CommissionSystemMediator : notifies >
+
+' Pattern component notes
+note top of CommissionSystemMediator
+  <b>Mediator Interface</b>
+
+  Defines the interface for communicating
+  with system components.
+
+  <b>Key methods:</b>
+  • notify() - receives events from components
+  • registerComponent() - adds components
+  • getEventCount() - for metrics/testing
+end note
+
+note right of CommissionCoordinationHub
+  <b>Concrete Mediator</b>
+
+  Implements coordination logic:
+  • Maintains list of all components
+  • Routes events to interested components
+  • Provides centralized logging
+  • Tracks event metrics
+
+  <b>Coordination Algorithm:</b>
+  1. Receive event from component
+  2. Log event (if enabled)
+  3. Route to all interested components
+  4. Track metrics
+end note
+
+note left of SystemComponent
+  <b>Colleague Base Class</b>
+
+  Base class for all components:
+  • Knows only the mediator
+  • Provides event notification method
+  • Supports enable/disable
+  • Defines interest filtering
+
+  <b>Key principle:</b>
+  Components don't know about
+  each other - only the mediator!
+end note
+
+note bottom of DealTrackerComponent
+  <b>Deal Tracker Component</b>
+
+  <b>Responsibility:</b> Track deal lifecycle
+
+  <b>Initiates events:</b>
+  • DEAL_WON
+  • DEAL_LOST
+
+  <b>Listens to:</b> (none)
+
+  Entry point for deal events.
+end note
+
+note bottom of CommissionCalculatorComponent
+  <b>Commission Calculator Component</b>
+
+  <b>Responsibility:</b> Calculate commissions
+
+  <b>Listens to:</b> DEAL_WON
+
+  <b>Emits:</b> COMMISSION_CALCULATED
+
+  Applies 15% commission rate.
+end note
+
+note bottom of ApprovalWorkflowComponent
+  <b>Approval Workflow Component</b>
+
+  <b>Responsibility:</b> Manage approvals
+
+  <b>Listens to:</b> COMMISSION_CALCULATED
+
+  <b>Emits:</b> APPROVAL_REQUIRED
+
+  Threshold: $50,000
+end note
+
+note bottom of NotificationComponent
+  <b>Notification Component</b>
+
+  <b>Responsibility:</b> Send notifications
+
+  <b>Listens to:</b>
+  • COMMISSION_CALCULATED
+  • APPROVAL_REQUIRED
+  • APPROVED
+  • REJECTED
+
+  <b>Emits:</b> (none)
+
+  Sends notifications to appropriate parties.
+end note
+
+note bottom of AuditLogComponent
+  <b>Audit Log Component</b>
+
+  <b>Responsibility:</b> Create audit trails
+
+  <b>Listens to:</b> ALL events
+
+  <b>Emits:</b> (none)
+
+  isInterestedIn() returns true for all.
+  Records complete system history.
+end note
+
+note bottom of DisputeTrackerComponent
+  <b>Dispute Tracker Component</b>
+
+  <b>Responsibility:</b> Flag potential disputes
+
+  <b>Listens to:</b> COMMISSION_CALCULATED
+
+  <b>Emits:</b> DISPUTE_FLAGGED
+
+  Checks for suspicious commission rates.
+end note
+
+note bottom of AnalyticsComponent
+  <b>Analytics Component</b>
+
+  <b>Responsibility:</b> Collect metrics
+
+  <b>Listens to:</b>
+  • DEAL_WON
+  • COMMISSION_CALCULATED
+  • APPROVAL_REQUIRED
+  • APPROVED
+  • REJECTED
+
+  <b>Emits:</b> (none)
+
+  Tracks statistics across all events.
+end note
+
+note right of CommissionEvent
+  <b>Event Object</b>
+
+  Encapsulates communication data:
+  • Event type (string identifier)
+  • Source component
+  • Timestamp
+  • Flexible data map
+
+  <b>Usage:</b>
+  event.addData("deal", deal);
+  event.addData("commission", amount);
+end note
+
+' Event flow diagram
+note as N1
+  <b>TYPICAL EVENT FLOW</b>
+
+  <b>Scenario:</b> Deal Won ($60,000)
+
+  1. DealTracker.onDealWon(deal)
+     ↓
+  2. Sends DEAL_WON to Hub
+     ↓
+  3. Hub routes to interested:
+     • Calculator (calculates → $9,000)
+     • Analytics (records deal)
+     • AuditLog (logs event)
+     ↓
+  4. Calculator sends COMMISSION_CALCULATED
+     ↓
+  5. Hub routes to interested:
+     • ApprovalWorkflow (amount > $50k)
+     • Notifications (notifies rep)
+     • DisputeTracker (checks flags)
+     • Analytics (records commission)
+     • AuditLog (logs event)
+     ↓
+  6. ApprovalWorkflow sends APPROVAL_REQUIRED
+     ↓
+  7. Hub routes to interested:
+     • Notifications (notifies manager)
+     • Analytics (records approval)
+     • AuditLog (logs event)
+
+  <b>Complete audit trail created automatically!</b>
+end note
+
+' Legend
+legend right
+  <b>Mediator Pattern Components:</b>
+
+  <b>Mediator (Interface):</b> Defines interface for
+  communicating with colleagues.
+
+  <b>ConcreteMediator:</b> Implements coordination
+  logic. Knows all colleagues and orchestrates
+  their interactions.
+
+  <b>Colleague (Base Class):</b> Base class for all
+  components. Knows only the mediator, not
+  other colleagues.
+
+  <b>ConcreteColleague:</b> Implements specific
+  component behavior. Communicates only
+  through the mediator.
+
+  <b>Event Object:</b> Encapsulates communication
+  data passed between components.
+
+  <b>Key Benefits:</b>
+  ✓ Loose coupling between components
+  ✓ Centralized coordination logic
+  ✓ Easy to add new components
+  ✓ Components testable in isolation
+  ✓ Clear, explicit interaction flow
+  ✓ Natural audit trail creation
+
+  <b>Communication Pattern:</b>
+  Component → Mediator → Other Components
+  (Never: Component → Component)
+
+  <b>Event Filtering:</b>
+  Components use isInterestedIn() to
+  selectively handle events, reducing
+  unnecessary processing.
+endlegend
+
+@enduml

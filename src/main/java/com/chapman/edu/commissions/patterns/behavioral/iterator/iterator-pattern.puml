@@ -1,0 +1,421 @@
+@startuml Iterator Pattern - Commission Data Traversal
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Iterator Pattern - Commission Data Traversal
+
+' Iterator Interface
+interface CommissionIterator<T> <<Iterator>> {
+  +hasNext(): boolean
+  +next(): T
+  +remaining(): int
+  +reset(): void
+}
+
+' Concrete Iterators for Deals
+class AllDealsIterator <<ConcreteIterator>> {
+  -currentIndex: int
+  +hasNext(): boolean
+  +next(): Deal
+  +remaining(): int
+  +reset(): void
+}
+
+class StatusFilterIterator <<ConcreteIterator>> {
+  -targetStatus: DealStatus
+  -currentIndex: int
+  -nextDeal: Deal
+  -nextSet: boolean
+  +hasNext(): boolean
+  +next(): Deal
+  +remaining(): int
+  +reset(): void
+  -findNext(): Deal
+}
+
+class ValueRangeIterator <<ConcreteIterator>> {
+  -minValue: BigDecimal
+  -maxValue: BigDecimal
+  -currentIndex: int
+  -nextDeal: Deal
+  -nextSet: boolean
+  +hasNext(): boolean
+  +next(): Deal
+  +remaining(): int
+  +reset(): void
+  -findNext(): Deal
+}
+
+class DateFilterIterator <<ConcreteIterator>> {
+  -afterDate: LocalDate
+  -currentIndex: int
+  -nextDeal: Deal
+  -nextSet: boolean
+  +hasNext(): boolean
+  +next(): Deal
+  +remaining(): int
+  +reset(): void
+  -findNext(): Deal
+}
+
+class ValueSortedIterator <<ConcreteIterator>> {
+  -sortedDeals: List<Deal>
+  -currentIndex: int
+  +hasNext(): boolean
+  +next(): Deal
+  +remaining(): int
+  +reset(): void
+}
+
+' Aggregate for Deals
+class DealCollection <<Aggregate>> {
+  -deals: List<Deal>
+  +addDeal(deal: Deal): void
+  +size(): int
+  +createIterator(): CommissionIterator<Deal>
+  +createStatusIterator(status: DealStatus): CommissionIterator<Deal>
+  +createValueRangeIterator(min: BigDecimal, max: BigDecimal): CommissionIterator<Deal>
+  +createDateIterator(afterDate: LocalDate): CommissionIterator<Deal>
+  +createValueSortedIterator(): CommissionIterator<Deal>
+}
+
+' Concrete Iterators for Plans
+class ActivePlansIterator <<ConcreteIterator>> {
+  -currentIndex: int
+  -nextPlan: CommissionPlan
+  -nextSet: boolean
+  +hasNext(): boolean
+  +next(): CommissionPlan
+  +remaining(): int
+  +reset(): void
+  -findNext(): CommissionPlan
+}
+
+class EffectiveDateIterator <<ConcreteIterator>> {
+  -targetDate: LocalDate
+  -currentIndex: int
+  -nextPlan: CommissionPlan
+  -nextSet: boolean
+  +hasNext(): boolean
+  +next(): CommissionPlan
+  +remaining(): int
+  +reset(): void
+  -findNext(): CommissionPlan
+}
+
+' Aggregate for Plans
+class CommissionPlanRepository <<Aggregate>> {
+  -plans: List<CommissionPlan>
+  +addPlan(plan: CommissionPlan): void
+  +size(): int
+  +createActiveIterator(): CommissionIterator<CommissionPlan>
+  +createEffectiveOnIterator(date: LocalDate): CommissionIterator<CommissionPlan>
+}
+
+' Composite Iterator
+class CompositeIterator<T> <<CompositeIterator>> {
+  -iterators: List<CommissionIterator<T>>
+  -currentIteratorIndex: int
+  +hasNext(): boolean
+  +next(): T
+  +remaining(): int
+  +reset(): void
+}
+
+' Domain Models
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+}
+
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -planName: String
+  -status: PlanStatus
+  -effectiveDate: LocalDate
+  -expiryDate: LocalDate
+  +isActiveOn(date: LocalDate): boolean
+}
+
+enum DealStatus <<Enumeration>> {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+enum PlanStatus <<Enumeration>> {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+' Relationships
+CommissionIterator <|.. AllDealsIterator
+CommissionIterator <|.. StatusFilterIterator
+CommissionIterator <|.. ValueRangeIterator
+CommissionIterator <|.. DateFilterIterator
+CommissionIterator <|.. ValueSortedIterator
+CommissionIterator <|.. ActivePlansIterator
+CommissionIterator <|.. EffectiveDateIterator
+CommissionIterator <|.. CompositeIterator
+
+DealCollection ..> CommissionIterator : creates >
+DealCollection *--> "0..*" Deal : stores
+DealCollection ..> AllDealsIterator : instantiates
+DealCollection ..> StatusFilterIterator : instantiates
+DealCollection ..> ValueRangeIterator : instantiates
+DealCollection ..> DateFilterIterator : instantiates
+DealCollection ..> ValueSortedIterator : instantiates
+
+CommissionPlanRepository ..> CommissionIterator : creates >
+CommissionPlanRepository *--> "0..*" CommissionPlan : stores
+CommissionPlanRepository ..> ActivePlansIterator : instantiates
+CommissionPlanRepository ..> EffectiveDateIterator : instantiates
+
+AllDealsIterator ..> Deal : iterates >
+StatusFilterIterator ..> Deal : iterates >
+ValueRangeIterator ..> Deal : iterates >
+DateFilterIterator ..> Deal : iterates >
+ValueSortedIterator ..> Deal : iterates >
+ActivePlansIterator ..> CommissionPlan : iterates >
+EffectiveDateIterator ..> CommissionPlan : iterates >
+
+CompositeIterator o--> "1..*" CommissionIterator : combines
+
+Deal --> DealStatus
+CommissionPlan --> PlanStatus
+
+' Pattern component notes
+note top of CommissionIterator
+  <b>Iterator Interface</b>
+
+  Defines uniform traversal interface:
+  • hasNext() - check if more elements
+  • next() - get next element
+  • remaining() - count left
+  • reset() - restart iteration
+
+  <b>Key principle:</b>
+  All iterators implement same interface,
+  enabling polymorphic iteration.
+end note
+
+note right of AllDealsIterator
+  <b>Simple Iterator</b>
+
+  Forward iteration through all deals:
+  • Maintains currentIndex
+  • No filtering logic
+  • Direct array access
+
+  <b>Use case:</b>
+  When all deals needed in order.
+end note
+
+note right of StatusFilterIterator
+  <b>Filtering Iterator</b>
+
+  Iterates only deals with target status:
+  • Lazy evaluation (finds on demand)
+  • Caches next element
+  • Skips non-matching deals
+
+  <b>Use case:</b>
+  Process won deals, open deals, etc.
+
+  <b>Implementation:</b>
+  findNext() searches for next match.
+end note
+
+note right of ValueRangeIterator
+  <b>Range Filter Iterator</b>
+
+  Filters deals by value range:
+  • min/max threshold checking
+  • Lazy evaluation
+  • Supports complex criteria
+
+  <b>Use case:</b>
+  High-value pipeline, small deals,
+  specific value segments.
+end note
+
+note right of ValueSortedIterator
+  <b>Sorted Iterator</b>
+
+  Provides sorted traversal:
+  • Creates sorted copy on construction
+  • Sorted by value (descending)
+  • Independent of original order
+
+  <b>Use case:</b>
+  Top deals report, priority processing.
+
+  <b>Note:</b>
+  Snapshot approach - safe from
+  concurrent modifications.
+end note
+
+note left of DealCollection
+  <b>Aggregate (Collection)</b>
+
+  Stores deals and provides iterators:
+  • Hides internal structure
+  • Factory methods for iterators
+  • Multiple iterator types
+
+  <b>Iterator Factory Methods:</b>
+  • createIterator() - all deals
+  • createStatusIterator() - by status
+  • createValueRangeIterator() - by value
+  • createDateIterator() - by date
+  • createValueSortedIterator() - sorted
+
+  <b>Key principle:</b>
+  Collection structure completely
+  hidden from clients.
+end note
+
+note left of CommissionPlanRepository
+  <b>Plan Aggregate</b>
+
+  Specialized collection for plans:
+  • Active plans only
+  • Effective on specific date
+  • Different domain, same pattern
+
+  <b>Demonstrates:</b>
+  Iterator pattern applies to
+  any collection type.
+end note
+
+note bottom of CompositeIterator
+  <b>Composite Iterator</b>
+
+  Combines multiple iterators:
+  • Traverses multiple collections
+  • Seamless transition between iterators
+  • Useful for federated data
+
+  <b>Use case:</b>
+  Aggregate data from multiple sources,
+  process related collections together.
+end note
+
+' Usage flow diagram
+note as N1
+  <b>TYPICAL USAGE FLOW</b>
+
+  <b>1. Create Iterator:</b>
+     Client → DealCollection.createStatusIterator(WON)
+       → Returns StatusFilterIterator instance
+       → Iterator holds reference to collection
+
+  <b>2. Check for Elements:</b>
+     Client → iterator.hasNext()
+       → Iterator.findNext() searches for match
+       → Caches result for efficiency
+       → Returns true/false
+
+  <b>3. Get Next Element:</b>
+     Client → iterator.next()
+       → Returns cached element
+       → Advances position
+       → Ready for next hasNext()
+
+  <b>4. Repeat 2-3:</b>
+     Continue until hasNext() returns false
+
+  <b>Key Points:</b>
+  • Client only uses iterator interface
+  • Internal structure completely hidden
+  • Filtering logic in iterator
+  • Collection unchanged during iteration
+end note
+
+' Iterator strategies comparison
+note as N2
+  <b>ITERATOR STRATEGIES</b>
+
+  <b>All Deals Iterator:</b>
+  ┌─────────────────────────┐
+  │ Deal1 → Deal2 → Deal3   │
+  │   ↓       ↓       ↓     │
+  │  ALL    ALL    ALL      │
+  └─────────────────────────┘
+  Processes every deal.
+
+  <b>Status Filter Iterator:</b>
+  ┌─────────────────────────┐
+  │ Deal1 → Deal2 → Deal3   │
+  │ (OPEN)  (WON)  (LOST)   │
+  │   ✗       ✓      ✗      │
+  └─────────────────────────┘
+  Only returns Deal2 (WON).
+
+  <b>Value Range Iterator:</b>
+  ┌─────────────────────────┐
+  │ $5k  →  $50k  →  $10k   │
+  │  ✗       ✓       ✓      │
+  └─────────────────────────┘
+  Returns deals in $10k-$100k range.
+
+  <b>Sorted Iterator:</b>
+  ┌─────────────────────────┐
+  │ Original: 1, 3, 2       │
+  │ Sorted:   3, 2, 1       │
+  └─────────────────────────┘
+  Creates sorted copy, returns in order.
+
+  Same collection, different views!
+end note
+
+' Legend
+legend right
+  <b>Iterator Pattern Components:</b>
+
+  <b>Iterator (Interface):</b> Defines traversal
+  interface. All iterators implement this,
+  enabling polymorphic iteration.
+
+  <b>ConcreteIterator:</b> Implements specific
+  traversal strategy. Maintains current
+  position and filtering logic.
+
+  <b>Aggregate:</b> Collection that provides
+  iterator factory methods. Hides internal
+  structure from clients.
+
+  <b>Key Benefits:</b>
+  ✓ Encapsulation (internals hidden)
+  ✓ Uniform interface (hasNext/next)
+  ✓ Multiple simultaneous traversals
+  ✓ Flexible filtering strategies
+  ✓ Easy to add new iterator types
+  ✓ Separation of concerns
+
+  <b>Traversal Encapsulation:</b>
+  Client code independent of how collection
+  stores data. Can change from List to Array
+  to Tree without affecting clients.
+
+  <b>Multiple Strategies:</b>
+  Same collection can be traversed in
+  different ways: filtered, sorted, reversed,
+  skipped, etc. Each iterator encapsulates
+  its strategy.
+endlegend
+
+@enduml

@@ -1,0 +1,362 @@
+@startuml Chain of Responsibility Pattern - Commission Approval
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Chain of Responsibility Pattern - Commission Approval Workflow
+
+' Request
+class CommissionApprovalRequest <<Request>> {
+  -requestId: String
+  -deal: Deal
+  -salesRepId: String
+  -salesRepName: String
+  -commissionAmount: BigDecimal
+  -requestDate: LocalDate
+  -approvalHistory: List<String>
+  -approved: boolean
+  -rejected: boolean
+  -rejectionReason: String
+  +approve(approver, comments): void
+  +reject(rejector, reason): void
+  +addToHistory(entry): void
+  +isProcessed(): boolean
+  +getCommissionAmount(): BigDecimal
+}
+
+' Handler Interface
+interface ApprovalHandler <<Handler>> {
+  +setNext(handler: ApprovalHandler): ApprovalHandler
+  +approve(request: CommissionApprovalRequest): void
+  +getHandlerName(): String
+}
+
+' Base Handler
+abstract class BaseApprovalHandler <<BaseHandler>> {
+  -nextHandler: ApprovalHandler
+  +setNext(handler: ApprovalHandler): ApprovalHandler
+  +approve(request: CommissionApprovalRequest): void
+  #passToNext(request): void
+  #{abstract} canApprove(request): boolean
+  #{abstract} processApproval(request): void
+  #shouldContinueChain(request): boolean
+}
+
+' Business Logic Handlers
+class AutoApprovalHandler <<ConcreteHandler>> {
+  -THRESHOLD: BigDecimal = 5000
+  #canApprove(request): boolean
+  #processApproval(request): void
+  +getHandlerName(): String
+}
+
+class SalesManagerApprovalHandler <<ConcreteHandler>> {
+  -MIN_THRESHOLD: BigDecimal = 5000
+  -MAX_THRESHOLD: BigDecimal = 25000
+  -managerName: String
+  #canApprove(request): boolean
+  #processApproval(request): void
+  +getHandlerName(): String
+}
+
+class RegionalDirectorApprovalHandler <<ConcreteHandler>> {
+  -MIN_THRESHOLD: BigDecimal = 25000
+  -MAX_THRESHOLD: BigDecimal = 100000
+  -directorName: String
+  #canApprove(request): boolean
+  #processApproval(request): void
+  -hasValidDocumentation(request): boolean
+  +getHandlerName(): String
+}
+
+class VPSalesApprovalHandler <<ConcreteHandler>> {
+  -MIN_THRESHOLD: BigDecimal = 100000
+  -MAX_THRESHOLD: BigDecimal = 500000
+  -vpName: String
+  #canApprove(request): boolean
+  #processApproval(request): void
+  -meetsExecutiveReviewCriteria(request): boolean
+  +getHandlerName(): String
+}
+
+class CFOApprovalHandler <<ConcreteHandler>> {
+  -THRESHOLD: BigDecimal = 500000
+  -cfoName: String
+  #canApprove(request): boolean
+  #processApproval(request): void
+  -meetsFinancialGuidelines(request): boolean
+  +getHandlerName(): String
+}
+
+' Interceptor Handlers
+class ValidationHandler <<Interceptor>> {
+  #canApprove(request): boolean
+  #processApproval(request): void
+  #shouldContinueChain(request): boolean
+  +getHandlerName(): String
+}
+
+class FraudDetectionHandler <<Interceptor>> {
+  #canApprove(request): boolean
+  #processApproval(request): void
+  #shouldContinueChain(request): boolean
+  +getHandlerName(): String
+}
+
+class AuditLogHandler <<Interceptor>> {
+  #canApprove(request): boolean
+  #processApproval(request): void
+  #shouldContinueChain(request): boolean
+  +getHandlerName(): String
+}
+
+' Domain Model
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -closeDate: LocalDate
+}
+
+' Relationships
+ApprovalHandler <|.. BaseApprovalHandler
+BaseApprovalHandler <|-- AutoApprovalHandler
+BaseApprovalHandler <|-- SalesManagerApprovalHandler
+BaseApprovalHandler <|-- RegionalDirectorApprovalHandler
+BaseApprovalHandler <|-- VPSalesApprovalHandler
+BaseApprovalHandler <|-- CFOApprovalHandler
+BaseApprovalHandler <|-- ValidationHandler
+BaseApprovalHandler <|-- FraudDetectionHandler
+BaseApprovalHandler <|-- AuditLogHandler
+
+BaseApprovalHandler o--> "0..1" ApprovalHandler : nextHandler
+
+ApprovalHandler ..> CommissionApprovalRequest : processes >
+CommissionApprovalRequest o--> Deal : references
+
+' Chain flow (showing typical chain order)
+ValidationHandler .right.> FraudDetectionHandler : setNext()
+FraudDetectionHandler .right.> AutoApprovalHandler : setNext()
+AutoApprovalHandler .down.> SalesManagerApprovalHandler : setNext()
+SalesManagerApprovalHandler .down.> RegionalDirectorApprovalHandler : setNext()
+RegionalDirectorApprovalHandler .down.> VPSalesApprovalHandler : setNext()
+VPSalesApprovalHandler .down.> CFOApprovalHandler : setNext()
+CFOApprovalHandler .down.> AuditLogHandler : setNext()
+
+' Pattern component notes
+note top of ApprovalHandler
+  <b>Handler Interface</b>
+
+  Defines the interface for handling requests.
+
+  <b>Key methods:</b>
+  • setNext() - builds the chain
+  • approve() - processes request
+  • getHandlerName() - for logging/debugging
+end note
+
+note right of BaseApprovalHandler
+  <b>Base Handler</b>
+
+  Provides chain management logic:
+  • Maintains reference to next handler
+  • Implements chain traversal
+  • Template method for handling
+
+  <b>Decision flow:</b>
+  1. Can this handler process?
+     → Yes: Process and maybe continue
+     → No: Pass to next
+  2. If processed, continue chain?
+     → Yes: Call next handler
+     → No: Stop chain
+end note
+
+note bottom of AutoApprovalHandler
+  <b>Auto-Approval Handler</b>
+
+  <b>Authority:</b> System
+  <b>Range:</b> < $5,000
+
+  <b>Logic:</b>
+  Automatically approves low-value
+  commissions without human approval.
+
+  <b>Stops chain:</b> Yes (after approval)
+end note
+
+note bottom of SalesManagerApprovalHandler
+  <b>Sales Manager Handler</b>
+
+  <b>Authority:</b> Manager level
+  <b>Range:</b> $5,000 - $25,000
+
+  <b>Logic:</b>
+  Validates deal status and approves
+  within manager authority limit.
+
+  <b>Stops chain:</b> Yes (after approval)
+end note
+
+note bottom of RegionalDirectorApprovalHandler
+  <b>Regional Director Handler</b>
+
+  <b>Authority:</b> Director level
+  <b>Range:</b> $25,000 - $100,000
+
+  <b>Logic:</b>
+  Checks documentation and approves
+  within director authority limit.
+
+  <b>Stops chain:</b> Yes (after approval)
+end note
+
+note bottom of VPSalesApprovalHandler
+  <b>VP of Sales Handler</b>
+
+  <b>Authority:</b> Executive level
+  <b>Range:</b> $100,000 - $500,000
+
+  <b>Logic:</b>
+  Executive review of commission
+  rate and deal structure.
+
+  <b>Stops chain:</b> Yes (after approval)
+end note
+
+note bottom of CFOApprovalHandler
+  <b>CFO Handler</b>
+
+  <b>Authority:</b> Highest level
+  <b>Range:</b> ≥ $500,000
+
+  <b>Logic:</b>
+  Financial review for very large
+  commissions. Ultimate authority.
+
+  <b>Stops chain:</b> Yes (after approval)
+end note
+
+note left of ValidationHandler
+  <b>Validation Interceptor</b>
+
+  <b>Type:</b> Cross-cutting concern
+
+  <b>Logic:</b>
+  Validates all requests:
+  • Positive amount
+  • Deal is WON
+  • Sales rep exists
+
+  <b>Stops chain:</b> Only if invalid
+  <b>Continues:</b> If valid
+end note
+
+note left of FraudDetectionHandler
+  <b>Fraud Detection Interceptor</b>
+
+  <b>Type:</b> Cross-cutting concern
+
+  <b>Logic:</b>
+  Checks fraud indicators:
+  • Unusually high commission rate
+  • Same-day deal close
+  • Other suspicious patterns
+
+  <b>Stops chain:</b> Only if fraud detected
+  <b>Continues:</b> If clean
+end note
+
+note left of AuditLogHandler
+  <b>Audit Log Interceptor</b>
+
+  <b>Type:</b> Cross-cutting concern
+
+  <b>Logic:</b>
+  Records audit trail for all
+  requests regardless of outcome.
+
+  <b>Stops chain:</b> No (always continues)
+  <b>Continues:</b> Always
+end note
+
+note bottom of CommissionApprovalRequest
+  <b>Request Object</b>
+
+  Contains all data needed for approval:
+  • Deal information
+  • Commission amount
+  • Sales rep details
+  • Approval history (audit trail)
+  • Status (approved/rejected/pending)
+
+  <b>Maintains state during chain traversal</b>
+end note
+
+' Chain flow diagram
+note as N1
+  <b>TYPICAL CHAIN FLOW</b>
+
+  Request → Validation → Fraud Detection
+    ↓
+  If valid and clean:
+    → Auto-Approval (< $5k) [STOP if approved]
+    → Sales Manager ($5k-$25k) [STOP if approved]
+    → Regional Director ($25k-$100k) [STOP if approved]
+    → VP Sales ($100k-$500k) [STOP if approved]
+    → CFO (≥ $500k) [STOP if approved]
+    → Audit Log [Record trail]
+
+  <b>Key Points:</b>
+  • Interceptors run for ALL requests
+  • Only ONE authority approves (stops chain)
+  • Audit always runs (even if rejected)
+  • History tracked throughout chain
+end note
+
+' Legend
+legend right
+  <b>Chain of Responsibility Pattern Components:</b>
+
+  <b>Handler (Interface):</b> Defines handling interface
+  and chain management methods.
+
+  <b>BaseHandler (Abstract):</b> Implements chain logic
+  and provides template for concrete handlers.
+
+  <b>ConcreteHandler:</b> Implements specific handling
+  logic. Decides if it can handle request.
+
+  <b>Request:</b> Object containing data to be processed.
+  Passed along the chain.
+
+  <b>Handler Types:</b>
+  1. <b>Business Logic Handlers:</b> Approval authorities
+     (Auto, Manager, Director, VP, CFO)
+     → Process and STOP chain
+
+  2. <b>Interceptor Handlers:</b> Cross-cutting concerns
+     (Validation, Fraud Detection, Audit)
+     → Process and CONTINUE chain
+
+  <b>Key Benefits:</b>
+  ✓ Decouples sender from receiver
+  ✓ Flexible chain composition
+  ✓ Single responsibility per handler
+  ✓ Easy to add/remove handlers
+  ✓ Natural audit trail creation
+
+  <b>Chain Building:</b>
+  handler1.setNext(handler2)
+         .setNext(handler3)
+         .setNext(handler4);
+endlegend
+
+@enduml

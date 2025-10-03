@@ -1,0 +1,364 @@
+@startuml Memento Pattern - Commission Plan Versioning
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Memento Pattern - Commission Plan Versioning
+
+' Memento
+class CommissionPlanMemento <<Memento>> {
+  -planId: String
+  -planName: String
+  -status: PlanStatus
+  -effectiveDate: LocalDate
+  -expiryDate: LocalDate
+  -rules: List<CommissionRule>
+  -tiers: List<CommissionTier>
+  -bonusRules: List<BonusRule>
+  -timestamp: LocalDateTime
+  -label: String
+  -createdBy: String
+  +getTimestamp(): LocalDateTime
+  +getLabel(): String
+  +getCreatedBy(): String
+  +toString(): String
+}
+
+' Originator
+class CommissionPlanEditor <<Originator>> {
+  -plan: CommissionPlan
+  -isDirty: boolean
+  -editorUsername: String
+  +save(label: String): CommissionPlanMemento
+  +restore(memento: CommissionPlanMemento): void
+  +setPlanName(name: String): void
+  +setStatus(status: PlanStatus): void
+  +setEffectiveDate(date: LocalDate): void
+  +addRule(rule: CommissionRule): void
+  +removeRule(rule: CommissionRule): void
+  +addTier(tier: CommissionTier): void
+  +addBonusRule(bonus: BonusRule): void
+  +getPlan(): CommissionPlan
+  +isDirty(): boolean
+  +display(): void
+}
+
+' Caretaker
+class VersionHistoryManager <<Caretaker>> {
+  -editor: CommissionPlanEditor
+  -history: List<CommissionPlanMemento>
+  -currentIndex: int
+  -maxHistorySize: int
+  +checkpoint(label: String): void
+  +undo(): boolean
+  +redo(): boolean
+  +restoreVersion(index: int): boolean
+  +restoreCheckpoint(label: String): boolean
+  +showHistory(): void
+  +compareVersions(index1: int, index2: int): void
+  +getCurrentIndex(): int
+  +getHistorySize(): int
+  +canUndo(): boolean
+  +canRedo(): boolean
+}
+
+' Domain Model
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -planName: String
+  -status: PlanStatus
+  -effectiveDate: LocalDate
+  -expiryDate: LocalDate
+  -rules: List<CommissionRule>
+  -tiers: List<CommissionTier>
+  -bonusRules: List<BonusRule>
+}
+
+class CommissionRule <<DomainModel>> {
+  -ruleName: String
+  -commissionRate: BigDecimal
+}
+
+class CommissionTier <<DomainModel>> {
+  -tierLevel: int
+  -minThreshold: BigDecimal
+  -maxThreshold: BigDecimal
+}
+
+class BonusRule <<DomainModel>> {
+  -bonusName: String
+  -bonusAmount: BigDecimal
+}
+
+enum PlanStatus <<Enumeration>> {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+' Bonus: Transaction Manager
+class DealTransactionManager <<TransactionManager>> {
+  -deal: Deal
+  -snapshot: Deal
+  +beginTransaction(): void
+  +commit(): void
+  +rollback(): void
+  +setTitle(title: String): void
+  +setValue(value: BigDecimal): void
+  +setStatus(status: DealStatus): void
+  +display(): void
+}
+
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+}
+
+' Relationships
+CommissionPlanEditor ..> CommissionPlanMemento : creates >
+CommissionPlanEditor ..> CommissionPlanMemento : restores from >
+CommissionPlanEditor o--> "1" CommissionPlan : edits
+
+VersionHistoryManager o--> "1" CommissionPlanEditor : manages
+VersionHistoryManager o--> "0..*" CommissionPlanMemento : stores
+
+CommissionPlanMemento ..> CommissionPlan : captures state of >
+CommissionPlanMemento ..> CommissionRule : stores
+CommissionPlanMemento ..> CommissionTier : stores
+CommissionPlanMemento ..> BonusRule : stores
+
+CommissionPlan --> PlanStatus
+CommissionPlan *--> "0..*" CommissionRule
+CommissionPlan *--> "0..*" CommissionTier
+CommissionPlan *--> "0..*" BonusRule
+
+DealTransactionManager o--> "1" Deal : manages
+DealTransactionManager o--> "0..1" Deal : snapshot
+
+' Pattern component notes
+note top of CommissionPlanMemento
+  <b>Memento</b>
+
+  Stores internal state of CommissionPlan:
+  • Immutable snapshot (final fields)
+  • Deep copy of all mutable collections
+  • Metadata: timestamp, label, creator
+
+  <b>Key principle:</b>
+  Only originator (CommissionPlanEditor)
+  should access internal state.
+
+  <b>Encapsulation:</b>
+  Package-private getters protect state
+  from external modification.
+end note
+
+note left of CommissionPlanEditor
+  <b>Originator</b>
+
+  Creates and restores mementos:
+  • save() - creates memento snapshot
+  • restore() - restores from memento
+  • Editing operations mark as dirty
+
+  <b>Key responsibility:</b>
+  Only originator knows how to
+  create and interpret mementos.
+
+  <b>State management:</b>
+  Tracks isDirty flag to indicate
+  unsaved changes.
+end note
+
+note right of VersionHistoryManager
+  <b>Caretaker</b>
+
+  Manages memento collection:
+  • Stores history of mementos
+  • Provides undo/redo navigation
+  • Enforces history size limits
+  • Never examines memento contents
+
+  <b>Features:</b>
+  • checkpoint() - save current state
+  • undo() - go back one version
+  • redo() - go forward one version
+  • restoreCheckpoint() - jump to label
+  • compareVersions() - diff analysis
+
+  <b>History Management:</b>
+  Maintains currentIndex pointer for
+  undo/redo stack navigation.
+end note
+
+note bottom of CommissionPlan
+  <b>Domain Model</b>
+
+  Business object being edited.
+  Originator manages this object
+  and creates mementos from it.
+
+  Contains complex state:
+  • Multiple collections
+  • Nested objects
+  • Business rules
+end note
+
+note bottom of DealTransactionManager
+  <b>Transaction Manager</b>
+
+  Simplified memento usage for
+  transactional editing:
+  • beginTransaction() - save snapshot
+  • commit() - keep changes
+  • rollback() - restore snapshot
+
+  <b>Use case:</b>
+  All-or-nothing editing semantics.
+end note
+
+' Interaction flow diagram
+note as N1
+  <b>TYPICAL INTERACTION FLOW</b>
+
+  <b>1. Checkpoint (Save):</b>
+     User → VersionHistoryManager.checkpoint("label")
+       → CommissionPlanEditor.save("label")
+       → Create CommissionPlanMemento
+       → Store in history
+
+  <b>2. Undo:</b>
+     User → VersionHistoryManager.undo()
+       → Get previous memento from history
+       → CommissionPlanEditor.restore(memento)
+       → Plan state restored
+
+  <b>3. Redo:</b>
+     User → VersionHistoryManager.redo()
+       → Get next memento from history
+       → CommissionPlanEditor.restore(memento)
+       → Plan state restored
+
+  <b>4. Jump to Checkpoint:</b>
+     User → VersionHistoryManager.restoreCheckpoint("label")
+       → Find memento by label
+       → CommissionPlanEditor.restore(memento)
+       → Plan state restored
+
+  <b>Key Points:</b>
+  • Caretaker never examines memento contents
+  • Only originator creates/reads mementos
+  • Encapsulation fully preserved
+  • Complete undo/redo capability
+end note
+
+' Use case diagram
+note as N2
+  <b>MEMENTO PATTERN USE CASES</b>
+
+  <b>1. Undo/Redo Operations:</b>
+     • Navigate through edit history
+     • Restore previous states
+     • Re-apply undone changes
+
+  <b>2. Named Checkpoints:</b>
+     • Mark important milestones
+     • Jump to specific versions
+     • Compare different versions
+
+  <b>3. Draft Editing:</b>
+     • Experiment with changes
+     • Discard if unsuccessful
+     • Restore published version
+
+  <b>4. Version Comparison:</b>
+     • Diff two versions
+     • See what changed
+     • Audit trail analysis
+
+  <b>5. Transactional Editing:</b>
+     • Begin/commit/rollback
+     • All-or-nothing semantics
+     • Safe complex operations
+
+  <b>6. Auto-Save/Recovery:</b>
+     • Periodic snapshots
+     • Crash recovery
+     • No data loss
+end note
+
+' Legend
+legend right
+  <b>Memento Pattern Components:</b>
+
+  <b>Memento:</b> Stores internal state snapshot
+  of originator. Immutable and opaque to
+  caretaker. Only originator can access state.
+
+  <b>Originator:</b> Creates mementos containing
+  snapshots of its internal state. Uses
+  mementos to restore previous state.
+
+  <b>Caretaker:</b> Responsible for memento
+  safekeeping. Never operates on or examines
+  memento contents. Manages history and
+  provides undo/redo functionality.
+
+  <b>Key Benefits:</b>
+  ✓ Preserves encapsulation
+  ✓ Simplifies originator (no history mgmt)
+  ✓ Powerful undo/redo capability
+  ✓ Version history and checkpoints
+  ✓ Transactional operations
+  ✓ Safe experimentation
+
+  <b>Encapsulation Principle:</b>
+  Caretaker stores mementos but never
+  examines them. Only originator knows
+  how to create and interpret mementos.
+
+  <b>Memory Consideration:</b>
+  Mementos can consume significant memory.
+  Implement history limits, compression,
+  or incremental snapshots for optimization.
+endlegend
+
+' State flow visualization
+note as N3
+  <b>STATE HISTORY VISUALIZATION</b>
+
+  History Stack (currentIndex = 2):
+  ┌─────────────────────────────────┐
+  │ 0. Initial Draft                │
+  ├─────────────────────────────────┤
+  │ 1. Added Rules                  │
+  ├─────────────────────────────────┤
+  │ 2. Activated ← CURRENT          │
+  ├─────────────────────────────────┤
+  │ 3. Added Bonuses                │
+  └─────────────────────────────────┘
+
+  <b>Operations:</b>
+  • undo() → currentIndex--
+  • redo() → currentIndex++
+  • checkpoint() → add at currentIndex+1,
+                   clear forward history
+  • restoreVersion(n) → currentIndex = n
+
+  <b>History Pruning:</b>
+  When new checkpoint created at index < last,
+  all forward history is discarded.
+  Example: checkpoint at index 2 removes index 3.
+end note
+
+@enduml

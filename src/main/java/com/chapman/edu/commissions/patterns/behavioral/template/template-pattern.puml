@@ -1,0 +1,232 @@
+@startuml Template Method Pattern - Commission Calculation
+
+' Define the styles (matching observer pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Template Method Pattern - Commission Calculation
+
+' Domain Model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +getCloseDate(): LocalDate
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+class CommissionResult {
+  -baseCommission: BigDecimal
+  -modifiers: BigDecimal
+  -bonuses: BigDecimal
+  -adjustments: BigDecimal
+  -finalCommission: BigDecimal
+  -calculationSteps: List<String>
+  +getFinalCommission(): BigDecimal
+  +displayReport(): void
+}
+
+Deal --> DealStatus
+
+' Template Method Pattern Structure
+abstract class CommissionCalculator <<AbstractClass>> {
+  #calculationLog: List<String>
+  #runningTotal: BigDecimal
+  +{method} calculateCommission(deal: Deal): CommissionResult
+  #validateDeal(deal: Deal): void
+  #{abstract} calculateBaseCommission(deal: Deal): BigDecimal
+  #shouldApplyTimeBasedModifiers(deal: Deal): boolean
+  #applyTimeBasedModifiers(deal: Deal, current: BigDecimal): BigDecimal
+  #{abstract} applyPerformanceBonuses(deal: Deal, current: BigDecimal): BigDecimal
+  #shouldApplyCapsAndFloors(): boolean
+  #applyCapsAndFloors(deal: Deal, commission: BigDecimal): BigDecimal
+  #finalizeCalculation(commission: BigDecimal): BigDecimal
+  #logCalculation(deal: Deal, final: BigDecimal): void
+  #{abstract} getCalculatorType(): String
+}
+
+' Concrete Calculators
+class SoftwareCommissionCalculator <<ConcreteClass>> {
+  #calculateBaseCommission(deal: Deal): BigDecimal
+  #applyPerformanceBonuses(deal: Deal, current: BigDecimal): BigDecimal
+  #getCalculatorType(): String
+}
+
+class HardwareCommissionCalculator <<ConcreteClass>> {
+  #calculateBaseCommission(deal: Deal): BigDecimal
+  #shouldApplyTimeBasedModifiers(deal: Deal): boolean
+  #applyPerformanceBonuses(deal: Deal, current: BigDecimal): BigDecimal
+  #applyCapsAndFloors(deal: Deal, commission: BigDecimal): BigDecimal
+  #getCalculatorType(): String
+}
+
+class ServicesCommissionCalculator <<ConcreteClass>> {
+  #calculateBaseCommission(deal: Deal): BigDecimal
+  #applyTimeBasedModifiers(deal: Deal, current: BigDecimal): BigDecimal
+  #applyPerformanceBonuses(deal: Deal, current: BigDecimal): BigDecimal
+  #shouldApplyCapsAndFloors(): boolean
+  #getCalculatorType(): String
+}
+
+class TrainingCommissionCalculator <<ConcreteClass>> {
+  #calculateBaseCommission(deal: Deal): BigDecimal
+  #applyPerformanceBonuses(deal: Deal, current: BigDecimal): BigDecimal
+  #applyCapsAndFloors(deal: Deal, commission: BigDecimal): BigDecimal
+  #getCalculatorType(): String
+}
+
+' Relationships
+CommissionCalculator <|-- SoftwareCommissionCalculator
+CommissionCalculator <|-- HardwareCommissionCalculator
+CommissionCalculator <|-- ServicesCommissionCalculator
+CommissionCalculator <|-- TrainingCommissionCalculator
+
+CommissionCalculator ..> Deal : uses >
+CommissionCalculator ..> CommissionResult : creates >
+
+' Pattern component notes
+note top of CommissionCalculator
+  <b>Abstract Class - Template</b>
+
+  <b>Template Method (final):</b>
+  calculateCommission() defines the algorithm skeleton:
+  1. validateDeal() - concrete
+  2. calculateBaseCommission() - abstract
+  3. applyTimeBasedModifiers() - hook
+  4. applyPerformanceBonuses() - abstract
+  5. applyCapsAndFloors() - hook
+  6. logCalculation() - concrete
+
+  <b>Method Types:</b>
+  • Concrete: Shared behavior (validateDeal, logCalculation)
+  • Abstract: Must be implemented (calculateBase, applyBonuses)
+  • Hook: Optional override (applyModifiers, applyCaps)
+end note
+
+note right of SoftwareCommissionCalculator
+  <b>Concrete Class - Software</b>
+
+  <b>Implementation Details:</b>
+  • Base: 15% of deal value
+  • Bonus: 3% for deals > $50k
+  • Time Modifiers: Uses default (5% quarter-end)
+  • Caps: Uses default (min $100, max 50%)
+
+  <b>Overrides:</b>
+  ✓ calculateBaseCommission() - required
+  ✓ applyPerformanceBonuses() - required
+  ✓ getCalculatorType() - required
+end note
+
+note right of HardwareCommissionCalculator
+  <b>Concrete Class - Hardware</b>
+
+  <b>Implementation Details:</b>
+  • Base: 8% of deal value (lower margin)
+  • Bonus: Tiered fixed ($500/$1000/$2000)
+  • Time Modifiers: DISABLED (hook returns false)
+  • Caps: Custom (min $50, max 30%)
+
+  <b>Overrides:</b>
+  ✓ calculateBaseCommission() - required
+  ✓ applyPerformanceBonuses() - required
+  ✓ shouldApplyTimeBasedModifiers() - hook
+  ✓ applyCapsAndFloors() - hook
+  ✓ getCalculatorType() - required
+end note
+
+note right of ServicesCommissionCalculator
+  <b>Concrete Class - Services</b>
+
+  <b>Implementation Details:</b>
+  • Base: 20% of deal value (high margin)
+  • Bonus: 10% for strategic (> $30k)
+  • Time Modifiers: ENHANCED (10% quarter + 5% year)
+  • Caps: DISABLED (uncapped potential)
+
+  <b>Overrides:</b>
+  ✓ calculateBaseCommission() - required
+  ✓ applyPerformanceBonuses() - required
+  ✓ applyTimeBasedModifiers() - hook
+  ✓ shouldApplyCapsAndFloors() - hook
+  ✓ getCalculatorType() - required
+end note
+
+note right of TrainingCommissionCalculator
+  <b>Concrete Class - Training</b>
+
+  <b>Implementation Details:</b>
+  • Base: $500 flat rate
+  • Bonus: Volume-based ($100/$300/$600)
+  • Time Modifiers: Uses default
+  • Caps: Custom (min $500, max $2000)
+
+  <b>Overrides:</b>
+  ✓ calculateBaseCommission() - required
+  ✓ applyPerformanceBonuses() - required
+  ✓ applyCapsAndFloors() - hook
+  ✓ getCalculatorType() - required
+end note
+
+note bottom of Deal
+  <b>Domain Model</b>
+  Represents a sales deal
+  for which commissions
+  are calculated.
+end note
+
+note bottom of CommissionResult
+  <b>Result Value Object</b>
+  Holds calculation details
+  and final commission amount.
+end note
+
+' Legend
+legend right
+  <b>Template Method Pattern Components:</b>
+
+  <b>Template Method:</b> Final method that defines
+  the algorithm skeleton. Cannot be overridden.
+
+  <b>Abstract Methods:</b> Steps that MUST be
+  implemented by concrete classes (required variation).
+
+  <b>Hook Methods:</b> Steps that MAY be overridden
+  by concrete classes (optional variation). Have
+  default implementations.
+
+  <b>Concrete Methods:</b> Steps with shared
+  implementation (invariant behavior).
+
+  <b>Key Principles:</b>
+  • <b>Hollywood Principle:</b> "Don't call us, we'll call you"
+    Parent controls flow, calls child methods
+  • <b>Inversion of Control:</b> Template orchestrates algorithm
+  • <b>Code Reuse:</b> Common logic written once
+  • <b>Open/Closed:</b> Easy to add new types (extend)
+    without modifying existing code
+
+  <b>Benefits:</b>
+  ✓ Eliminates code duplication
+  ✓ Enforces consistent algorithm structure
+  ✓ Controlled variation points
+  ✓ Easy to extend with new calculator types
+endlegend
+
+@enduml

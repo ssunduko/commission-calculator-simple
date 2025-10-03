@@ -1,0 +1,139 @@
+@startuml Observer Pattern - Commission Calculator
+
+' Define the styles (matching facade pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Observer Pattern - Commission Calculator
+
+' Domain Model
+class Deal {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  +getId(): String
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +getSalesRepId(): String
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  CANCELLED
+}
+
+Deal --> DealStatus
+
+' Observer Pattern Structure
+interface DealSubject <<Subject>> {
+  +attach(observer: DealObserver): void
+  +detach(observer: DealObserver): void
+  +notifyObservers(): void
+}
+
+interface DealObserver <<Observer>> {
+  +onDealUpdated(deal: Deal, eventType: String): void
+}
+
+' Concrete Subject
+class ObservableDealTracker <<ConcreteSubject>> {
+  -observers: List<DealObserver>
+  -deals: List<Deal>
+  -lastEventType: String
+  -lastAffectedDeal: Deal
+  +attach(observer: DealObserver): void
+  +detach(observer: DealObserver): void
+  +notifyObservers(): void
+  +createDeal(deal: Deal): void
+  +updateDealStatus(dealId: String, status: DealStatus): void
+  +updateDealValue(dealId: String, value: BigDecimal): void
+  +getDeals(): List<Deal>
+  +getObserverCount(): int
+}
+
+' Concrete Observers
+class CommissionCalculationObserver <<ConcreteObserver>> {
+  -commissionRate: BigDecimal
+  +onDealUpdated(deal: Deal, eventType: String): void
+  -calculateCommission(deal: Deal): void
+}
+
+class AuditLogObserver <<ConcreteObserver>> {
+  -auditLog: List<String>
+  +onDealUpdated(deal: Deal, eventType: String): void
+  +getAuditLog(): List<String>
+  +getLogCount(): int
+}
+
+class NotificationObserver <<ConcreteObserver>> {
+  -highValueThreshold: BigDecimal
+  -sentNotifications: List<String>
+  +onDealUpdated(deal: Deal, eventType: String): void
+  -handleDealCreated(deal: Deal): void
+  -handleStatusChanged(deal: Deal): void
+  -handleValueUpdated(deal: Deal): void
+  -sendNotification(recipient, subject, message): void
+  +getSentNotifications(): List<String>
+}
+
+' Relationships
+DealSubject <|.. ObservableDealTracker
+DealObserver <|.. CommissionCalculationObserver
+DealObserver <|.. AuditLogObserver
+DealObserver <|.. NotificationObserver
+
+ObservableDealTracker o--> "0..*" DealObserver : observers
+ObservableDealTracker *--> "0..*" Deal : deals
+
+ObservableDealTracker ..> DealObserver : notifies >
+DealObserver ..> Deal : observes >
+
+' Pattern component notes
+note right of DealSubject
+  <b>Subject Interface</b>
+  Defines contract for managing
+  observers and sending notifications
+end note
+
+note right of DealObserver
+  <b>Observer Interface</b>
+  Defines callback method for
+  receiving notifications
+end note
+
+note right of ObservableDealTracker
+  <b>Concrete Subject</b>
+  Maintains observer list and
+  business state (deals), notifies
+  observers on state changes
+end note
+
+note right of CommissionCalculationObserver
+  <b>Concrete Observer #1</b>
+  Calculates commissions when
+  deals are won (selective handling)
+end note
+
+note right of AuditLogObserver
+  <b>Concrete Observer #2</b>
+  Records all deal changes
+  for compliance (universal handling)
+end note
+
+note right of NotificationObserver
+  <b>Concrete Observer #3</b>
+  Sends notifications based on
+  deal events (conditional handling)
+end note
+
+@enduml
