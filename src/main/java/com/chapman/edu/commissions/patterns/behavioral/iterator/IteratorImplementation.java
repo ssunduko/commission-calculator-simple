@@ -1,5 +1,6 @@
 package com.chapman.edu.commissions.patterns.behavioral.iterator;
 
+import com.chapman.edu.commissions.patterns.behavioral.iterator.IteratorStructure.*;
 import com.chapman.edu.commissions.model.*;
 
 import java.math.BigDecimal;
@@ -26,22 +27,9 @@ import java.util.*;
  * - Easy to add new iteration strategies
  * - Decouple traversal from data structure
  *
- * @author Commission Calculator Educational Project
  */
 public class IteratorImplementation {
 
-    /**
-     * GENERIC ITERATOR INTERFACE
-     *
-     * Base interface for all commission system iterators.
-     * Extends with additional metadata methods useful for reporting.
-     */
-    public interface CommissionIterator<T> {
-        boolean hasNext();
-        T next();
-        int remaining();  // Additional: How many items left
-        void reset();     // Additional: Reset to beginning
-    }
 
     /**
      * AGGREGATE: Deal Collection
@@ -577,196 +565,5 @@ public class IteratorImplementation {
                 iterator.reset();
             }
         }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows the Iterator pattern in action with commission data.
-     */
-    public static void main(String[] args) {
-        System.out.println("\n");
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                                                           ║");
-        System.out.println("║   ITERATOR PATTERN - COMMISSION SYSTEM IMPLEMENTATION     ║");
-        System.out.println("║                                                           ║");
-        System.out.println("║  Demonstrates specialized iterators for commission data  ║");
-        System.out.println("║                                                           ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println("\n");
-
-        demonstrateDealIterators();
-        demonstratePlanIterators();
-        demonstrateCompositeIterator();
-
-        System.out.println("\n");
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                    PATTERN SUMMARY                        ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println();
-        System.out.println("ITERATOR PATTERN COMPONENTS:");
-        System.out.println("  • Iterator: CommissionIterator<T> interface");
-        System.out.println("  • ConcreteIterators: Status, Value, Date filters");
-        System.out.println("  • Aggregate: DealCollection, PlanRepository");
-        System.out.println();
-        System.out.println("KEY BENEFITS:");
-        System.out.println("  ✓ Uniform traversal interface");
-        System.out.println("  ✓ Multiple iteration strategies");
-        System.out.println("  ✓ Encapsulated traversal logic");
-        System.out.println("  ✓ Concurrent iterations supported");
-        System.out.println("  ✓ Easy to add new iterators");
-        System.out.println();
-        System.out.println("═══════════════════════════════════════════════════════════");
-        System.out.println();
-    }
-
-    private static void demonstrateDealIterators() {
-        System.out.println("EXAMPLE 1: Deal Collection Iterators\n");
-        System.out.println("=".repeat(60));
-
-        DealCollection deals = createSampleDeals();
-
-        // All deals
-        System.out.println("\n--- All Deals ---");
-        CommissionIterator<Deal> allDeals = deals.createIterator();
-        System.out.println("Total: " + allDeals.remaining());
-        while (allDeals.hasNext()) {
-            Deal deal = allDeals.next();
-            System.out.println("  → " + deal.getTitle() + " [$" + deal.getValue() +
-                             "] [" + deal.getStatus() + "]");
-        }
-
-        // Won deals only
-        System.out.println("\n--- Won Deals Only ---");
-        CommissionIterator<Deal> wonDeals = deals.createStatusIterator(DealStatus.WON);
-        System.out.println("Won deals: " + wonDeals.remaining());
-        while (wonDeals.hasNext()) {
-            Deal deal = wonDeals.next();
-            System.out.println("  → " + deal.getTitle() + " [$" + deal.getValue() + "]");
-        }
-
-        // High value deals
-        System.out.println("\n--- High Value Deals ($50k+) ---");
-        CommissionIterator<Deal> highValue = deals.createValueRangeIterator(
-            new BigDecimal("50000"), new BigDecimal("1000000")
-        );
-        while (highValue.hasNext()) {
-            Deal deal = highValue.next();
-            System.out.println("  → " + deal.getTitle() + " [$" + deal.getValue() + "]");
-        }
-
-        // Sorted by value
-        System.out.println("\n--- Deals Sorted by Value (Highest First) ---");
-        CommissionIterator<Deal> sorted = deals.createValueSortedIterator();
-        while (sorted.hasNext()) {
-            Deal deal = sorted.next();
-            System.out.println("  → " + deal.getTitle() + " [$" + deal.getValue() + "]");
-        }
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-    }
-
-    private static void demonstratePlanIterators() {
-        System.out.println("EXAMPLE 2: Commission Plan Iterators\n");
-        System.out.println("=".repeat(60));
-
-        CommissionPlanRepository repo = createSamplePlans();
-
-        System.out.println("\n--- Active Plans Only ---");
-        CommissionIterator<CommissionPlan> activePlans = repo.createActiveIterator();
-        System.out.println("Active plans: " + activePlans.remaining());
-        while (activePlans.hasNext()) {
-            CommissionPlan plan = activePlans.next();
-            System.out.println("  → " + plan.getName() + " [" + plan.getStatus() + "]");
-        }
-
-        System.out.println("\n--- Plans Effective on 2024-02-15 ---");
-        LocalDate targetDate = LocalDate.of(2024, 2, 15);
-        CommissionIterator<CommissionPlan> effectivePlans =
-            repo.createEffectiveOnIterator(targetDate);
-        while (effectivePlans.hasNext()) {
-            CommissionPlan plan = effectivePlans.next();
-            System.out.println("  → " + plan.getName() +
-                             " [" + plan.getEffectiveStartDate() + " to " + plan.getEffectiveEndDate() + "]");
-        }
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-    }
-
-    private static void demonstrateCompositeIterator() {
-        System.out.println("EXAMPLE 3: Composite Iterator\n");
-        System.out.println("=".repeat(60));
-
-        DealCollection collection1 = new DealCollection();
-        collection1.addDeal(createDeal("Deal A", "10000", DealStatus.WON));
-        collection1.addDeal(createDeal("Deal B", "20000", DealStatus.WON));
-
-        DealCollection collection2 = new DealCollection();
-        collection2.addDeal(createDeal("Deal C", "30000", DealStatus.WON));
-        collection2.addDeal(createDeal("Deal D", "40000", DealStatus.WON));
-
-        System.out.println("\n--- Composite Iterator (Both Collections) ---");
-        List<CommissionIterator<Deal>> iterators = Arrays.asList(
-            collection1.createIterator(),
-            collection2.createIterator()
-        );
-
-        CompositeIterator<Deal> composite = new CompositeIterator<>(iterators);
-        System.out.println("Total deals across collections: " + composite.remaining());
-        while (composite.hasNext()) {
-            Deal deal = composite.next();
-            System.out.println("  → " + deal.getTitle() + " [$" + deal.getValue() + "]");
-        }
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-    }
-
-    // Helper methods
-
-    private static DealCollection createSampleDeals() {
-        DealCollection deals = new DealCollection();
-
-        deals.addDeal(createDeal("Small Sale", "5000", DealStatus.WON));
-        deals.addDeal(createDeal("Medium Deal", "25000", DealStatus.WON));
-        deals.addDeal(createDeal("Large Enterprise", "75000", DealStatus.WON));
-        deals.addDeal(createDeal("Pending Deal", "30000", DealStatus.OPEN));
-        deals.addDeal(createDeal("Lost Opportunity", "50000", DealStatus.LOST));
-        deals.addDeal(createDeal("Mega Deal", "150000", DealStatus.WON));
-
-        return deals;
-    }
-
-    private static Deal createDeal(String title, String value, DealStatus status) {
-        Deal deal = new Deal(title, new BigDecimal(value), "REP-" + System.currentTimeMillis());
-        deal.setStatus(status);
-        deal.setCloseDate(LocalDate.now().minusDays((long)(Math.random() * 90)));
-        return deal;
-    }
-
-    private static CommissionPlanRepository createSamplePlans() {
-        CommissionPlanRepository repo = new CommissionPlanRepository();
-
-        CommissionPlan plan1 = new CommissionPlan();
-        plan1.setName("Q1 2024 Plan");
-        plan1.setStatus(PlanStatus.ACTIVE);
-        plan1.setEffectiveStartDate(LocalDate.of(2024, 1, 1));
-        plan1.setEffectiveEndDate(LocalDate.of(2024, 3, 31));
-        repo.addPlan(plan1);
-
-        CommissionPlan plan2 = new CommissionPlan();
-        plan2.setName("Q2 2024 Plan");
-        plan2.setStatus(PlanStatus.DRAFT);
-        plan2.setEffectiveStartDate(LocalDate.of(2024, 4, 1));
-        plan2.setEffectiveEndDate(LocalDate.of(2024, 6, 30));
-        repo.addPlan(plan2);
-
-        CommissionPlan plan3 = new CommissionPlan();
-        plan3.setName("2023 Annual Plan");
-        plan3.setStatus(PlanStatus.ARCHIVED);
-        plan3.setEffectiveStartDate(LocalDate.of(2023, 1, 1));
-        plan3.setEffectiveEndDate(LocalDate.of(2023, 12, 31));
-        repo.addPlan(plan3);
-
-        return repo;
     }
 }

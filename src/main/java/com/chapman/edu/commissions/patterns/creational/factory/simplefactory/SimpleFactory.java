@@ -40,44 +40,88 @@ import java.math.BigDecimal;
 public class SimpleFactory {
 
     /**
-     * Creates a commission calculation based on the specified type
-     * 
-     * @param type the type of commission calculation to create
-     * @param dealId the ID of the deal
-     * @param salesRepId the ID of the sales representative
-     * @param amount the base commission amount
-     * @return a new commission calculation instance
+     * FACTORY METHOD: Creates commission calculation objects based on type parameter
+     *
+     * PURPOSE:
+     * This is the core factory method that encapsulates the object creation logic.
+     * Instead of client code calling "new CommissionCalculation()" and configuring it,
+     * clients call this method which handles all initialization details.
+     *
+     * PATTERN COMPONENT: This is the "Factory" in the Simple Factory pattern
+     *
+     * HOW IT WORKS:
+     * 1. Accepts a type parameter to determine which variant to create
+     * 2. Creates base CommissionCalculation object
+     * 3. Applies type-specific configuration using conditional logic (switch statement)
+     * 4. Returns fully initialized object to client
+     *
+     * BENEFITS:
+     * - Centralizes creation logic in one place
+     * - Hides complexity from client code
+     * - Provides meaningful method name instead of generic "new"
+     * - Makes it easy to add validation and error handling
+     *
+     * DRAWBACK:
+     * - Adding new types requires modifying this method (violates Open/Closed Principle)
+     * - This is acceptable for stable, limited set of types
+     *
+     * @param type the type of commission calculation to create ("standard", "bonus", "accelerated")
+     * @param dealId the ID of the deal this commission is for
+     * @param salesRepId the ID of the sales representative earning the commission
+     * @param amount the base commission amount before any adjustments
+     * @return a fully configured commission calculation instance
+     * @throws IllegalArgumentException if an unknown type is provided
      */
     public static CommissionCalculation createCommissionCalculation(String type, String dealId, String salesRepId, BigDecimal amount) {
+        // STEP 1: Create the base product object
+        // All commission calculations start with the same base constructor
         CommissionCalculation calculation = new CommissionCalculation(dealId, salesRepId, amount);
 
-        // Set a unique identifier based on the type
+        // STEP 2: Apply common configuration
+        // Set a unique identifier based on the type - helps with debugging and tracking
         calculation.setId("COMMISSION-" + type.toUpperCase());
 
-        // Set the calculated by field based on the type
+        // Set the calculated by field - indicates this was created by the factory
         calculation.setCalculatedBy("SimpleFactory-" + type);
 
-        // Perform type-specific initialization
+        // STEP 3: Apply type-specific initialization using conditional logic
+        // This is where the Simple Factory's conditional logic lives
+        // Each case handles the unique configuration for that commission type
         switch (type.toLowerCase()) {
             case "standard":
-                // Standard commission calculation - no additional processing
+                // STANDARD VARIANT: No additional processing needed
+                // The base commission amount is used as-is
+                // This represents a straightforward commission with no bonuses or multipliers
                 break;
+
             case "bonus":
-                // Apply a 10% bonus to the base commission
+                // BONUS VARIANT: Add a percentage bonus to the base commission
+                // Calculate 10% bonus on top of the base amount
                 BigDecimal bonusAmount = amount.multiply(new BigDecimal("0.1"));
+                // Set the new base commission (original + 10% bonus)
                 calculation.setBaseCommission(amount.add(bonusAmount));
+                // Use case: Reward exceptional sales performance or quota achievement
                 break;
+
             case "accelerated":
-                // Apply a 1.5x multiplier to the base commission
+                // ACCELERATED VARIANT: Apply a multiplier to the base commission
+                // Multiply the base amount by 1.5x for accelerated earnings
                 calculation.setBaseCommission(amount.multiply(new BigDecimal("1.5")));
+                // Use case: Incentivize closing large deals or strategic accounts
                 break;
+
             default:
+                // ERROR HANDLING: Validate input and provide clear error message
+                // This prevents creation of invalid commission calculations
                 throw new IllegalArgumentException("Unknown commission calculation type: " + type);
         }
 
-        // Recalculate the commission amounts
+        // STEP 4: Finalize the product
+        // Recalculate ensures all derived fields are updated based on the configuration
         calculation.recalculate();
 
+        // STEP 5: Return the fully initialized product
+        // Client receives a ready-to-use object without knowing how it was configured
         return calculation;
     }
 }

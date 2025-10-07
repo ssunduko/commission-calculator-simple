@@ -2,11 +2,14 @@ package com.chapman.edu.commissions.patterns.behavioral.visitor;
 
 import com.chapman.edu.commissions.model.*;
 import com.chapman.edu.commissions.patterns.behavioral.visitor.VisitorImplementation.*;
+import com.chapman.edu.commissions.patterns.behavioral.visitor.VisitorStructure.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 /**
  * VISITOR PATTERN - PRACTICAL USAGE EXAMPLES
@@ -29,7 +32,6 @@ import java.util.List;
  * - Double dispatch enables type-specific behavior
  * - Visitors work well with composite patterns
  *
- * @author Commission Calculator Educational Project
  */
 public class VisitorUsage {
 
@@ -40,7 +42,7 @@ public class VisitorUsage {
      */
     public static void exampleBasicUsage() {
         System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║         EXAMPLE 1: Basic Single-Purpose Visitor          ║");
+        System.out.println("║         EXAMPLE 1: Basic Single-Purpose Visitor           ║");
         System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
 
         // Create a collection of entities

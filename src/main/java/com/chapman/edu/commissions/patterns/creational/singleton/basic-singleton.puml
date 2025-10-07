@@ -1,0 +1,140 @@
+@startuml Thread-Safe Singleton - Double-Checked Locking
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Thread-Safe Singleton Pattern - Double-Checked Locking
+
+' Singleton Class
+class Singleton <<Singleton>> {
+  {static} -«volatile» instance: Singleton
+  -data: Object
+  -Singleton()
+  {static} +getInstance(): Singleton
+  +getData(): Object
+  +setData(data: Object): void
+}
+
+' Relationships (self-reference)
+Singleton --> Singleton : <<creates>>
+
+' Pattern component notes
+note left of Singleton
+  <b>Private Constructor</b>
+  Prevents external instantiation.
+  Only accessible within the class.
+
+  <b>Example:</b>
+  private Singleton() {
+      // Initialize resources
+      this.data = new Object();
+  }
+end note
+
+note top of Singleton
+  <b>Static Volatile Instance</b>
+  • volatile ensures visibility across threads
+  • Prevents instruction reordering
+  • Essential for double-checked locking
+
+  <b>Why volatile?</b>
+  Without volatile, another thread might see
+  a partially constructed object.
+end note
+
+note right of Singleton
+  <b>Double-Checked Locking Pattern</b>
+
+  public static Singleton getInstance() {
+      // First check (no locking)
+      if (instance == null) {
+          // Synchronize on class object
+          synchronized (Singleton.class) {
+              // Second check (with lock)
+              if (instance == null) {
+                  instance = new Singleton();
+              }
+          }
+      }
+      return instance;
+  }
+
+  <b>How it works:</b>
+  1. First check: Fast path for already-initialized instance
+  2. Synchronization: Only when instance is null
+  3. Second check: Prevents race condition
+  4. Return: Thread-safe singleton instance
+
+  <b>Benefits:</b>
+  • Thread-safe initialization
+  • Minimal synchronization overhead
+  • Lazy initialization
+  • Good performance after initialization
+end note
+
+note right of Singleton
+  <b>Thread Safety Guarantee:</b>
+
+  <b>Scenario:</b> Two threads (T1, T2) call getInstance() simultaneously
+
+  <b>Without Double-Check:</b>
+  T1: if (instance == null) → true
+  T2: if (instance == null) → true
+  T1: creates instance
+  T2: creates another instance ✗ (BUG!)
+
+  <b>With Double-Check:</b>
+  T1: if (instance == null) → true
+  T2: if (instance == null) → true
+  T1: acquires lock, checks again, creates instance
+  T2: waits for lock
+  T2: acquires lock, checks again → false (instance exists)
+  T2: returns existing instance ✓ (SAFE!)
+
+  <b>Performance:</b>
+  • First call: Slight overhead due to synchronization
+  • Subsequent calls: No synchronization (just null check)
+  • Much faster than synchronized method approach
+end note
+
+' Legend
+note right of Singleton
+  <b>Singleton Pattern Core Components:</b>
+
+  <b>Private Constructor:</b> Prevents direct
+  instantiation from outside the class.
+
+  <b>Static Instance Variable:</b> Holds the
+  single instance. Declared volatile for
+  thread safety.
+
+  <b>Static getInstance() Method:</b> Provides
+  global access point with thread-safe
+  lazy initialization.
+
+  <b>Double-Checked Locking:</b>
+  • Checks instance == null twice
+  • Synchronizes only on first initialization
+  • Minimizes performance impact
+  • Requires volatile keyword (Java 5+)
+
+  <b>Key Benefits:</b>
+  • Lazy initialization (created when needed)
+  • Thread-safe (prevents multiple instances)
+  • High performance (minimal locking)
+  • Memory efficient (single instance)
+
+  <b>When to Use:</b>
+  • Need exactly one instance
+  • Global access point required
+  • Thread safety is important
+  • Resource-heavy object (lazy init beneficial)
+end note
+
+@enduml

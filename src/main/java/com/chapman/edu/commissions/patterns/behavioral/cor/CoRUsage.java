@@ -1,7 +1,9 @@
 package com.chapman.edu.commissions.patterns.behavioral.cor;
 
+
 import com.chapman.edu.commissions.model.*;
 import com.chapman.edu.commissions.patterns.behavioral.cor.CoRImplementation.*;
+import com.chapman.edu.commissions.patterns.behavioral.cor.CoRStructure.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

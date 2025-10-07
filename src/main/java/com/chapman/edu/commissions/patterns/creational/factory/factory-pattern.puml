@@ -1,0 +1,287 @@
+@startuml Factory Patterns - Commission Calculator
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Factory Patterns - Commission Calculator Implementation
+
+' ==================== SIMPLE FACTORY ====================
+
+  class SimpleFactory <<SimpleFactory>> {
+    +{static} createCommissionCalculation(type: String, dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  }
+
+  class CommissionCalculation <<Product>> {
+    -id: String
+    -dealId: String
+    -salesRepId: String
+    -baseCommission: BigDecimal
+    -calculatedBy: String
+    +recalculate(): void
+  }
+
+  SimpleFactory ..> CommissionCalculation : creates >
+
+  note right of SimpleFactory
+    <b>Simple Factory (Static Factory)</b>
+
+    Centralizes object creation logic in a
+    single static method. Uses conditional
+    logic (switch/if) to determine which
+    product variant to create.
+
+    <b>Creation Method:</b>
+    Based on string parameter ("standard",
+    "bonus", "accelerated"), creates and
+    configures different CommissionCalculation
+    instances with specific initialization.
+
+    <b>Limitation:</b>
+    Violates Open/Closed Principle - adding
+    new types requires modifying factory code.
+  end note
+
+
+' ==================== FACTORY METHOD ====================
+  abstract class DealFactory <<Creator>> {
+    #{abstract} createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    +createDealWithProducts(title: String, value: BigDecimal, salesRepId: String): Deal
+    #addDefaultProducts(deal: Deal): void
+  }
+
+  class HardwareDealFactory <<ConcreteCreator>> {
+    #createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    #addDefaultProducts(deal: Deal): void
+  }
+
+  class SoftwareDealFactory <<ConcreteCreator>> {
+    #createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    #addDefaultProducts(deal: Deal): void
+  }
+
+  class ServiceDealFactory <<ConcreteCreator>> {
+    #createDeal(title: String, value: BigDecimal, salesRepId: String): Deal
+    #addDefaultProducts(deal: Deal): void
+  }
+
+  class Deal <<Product>> {
+    -id: String
+    -title: String
+    -value: BigDecimal
+    -status: DealStatus
+    -salesRepId: String
+    -products: List<DealProduct>
+    +addProduct(product: DealProduct): void
+  }
+
+  DealFactory <|-- HardwareDealFactory
+  DealFactory <|-- SoftwareDealFactory
+  DealFactory <|-- ServiceDealFactory
+
+  DealFactory ..> Deal : creates >
+  HardwareDealFactory ..> Deal : creates HW deals >
+  SoftwareDealFactory ..> Deal : creates SW deals >
+  ServiceDealFactory ..> Deal : creates SVC deals >
+
+  note right of DealFactory
+    <b>Factory Method (Creator)</b>
+
+    Defines an abstract interface for creating
+    objects, but lets subclasses decide which
+    concrete class to instantiate.
+
+    <b>Template Method Integration:</b>
+    createDealWithProducts() is a template
+    method that calls:
+    1. createDeal() - factory method
+    2. addDefaultProducts() - hook method
+
+    <b>Benefit:</b>
+    Adheres to Open/Closed Principle - new
+    deal types are added by creating new
+    subclasses, not modifying existing code.
+  end note
+
+  note bottom of HardwareDealFactory
+    <b>Concrete Creator</b>
+
+    Creates Deal with ID prefix "HW-"
+    and adds hardware-specific products:
+    • Laptop (HW-LAPTOP)
+    • Monitor (HW-MONITOR)
+
+    Each factory encapsulates the
+    creation logic for its product type.
+  end note
+
+
+' ==================== ABSTRACT FACTORY ====================
+
+  interface CommissionFactory <<AbstractFactory>> {
+    +createPlanCreator(): CommissionPlanCreator
+    +createCalculator(): CommissionCalculator
+  }
+
+  class StandardCommissionFactory <<ConcreteFactory>> {
+    +createPlanCreator(): CommissionPlanCreator
+    +createCalculator(): CommissionCalculator
+  }
+
+  class PremiumCommissionFactory <<ConcreteFactory>> {
+    +createPlanCreator(): CommissionPlanCreator
+    +createCalculator(): CommissionCalculator
+  }
+
+  interface CommissionPlanCreator <<AbstractProduct>> {
+    +createCommissionPlan(name: String, description: String): CommissionPlan
+  }
+
+  interface CommissionCalculator <<AbstractProduct>> {
+    +calculateCommission(deal: Deal, salesRep: User, plan: CommissionPlan): CommissionCalculation
+  }
+
+  class StandardCommissionPlanCreator <<ConcreteProduct>> {
+    +createCommissionPlan(name: String, description: String): CommissionPlan
+  }
+
+  class PremiumCommissionPlanCreator <<ConcreteProduct>> {
+    +createCommissionPlan(name: String, description: String): CommissionPlan
+  }
+
+  class StandardCommissionCalculator <<ConcreteProduct>> {
+    +calculateCommission(deal: Deal, salesRep: User, plan: CommissionPlan): CommissionCalculation
+  }
+
+  class PremiumCommissionCalculator <<ConcreteProduct>> {
+    +calculateCommission(deal: Deal, salesRep: User, plan: CommissionPlan): CommissionCalculation
+  }
+
+  class CommissionPlan <<DomainProduct>> {
+    -id: String
+    -name: String
+    -rules: List<CommissionRule>
+    -effectiveStartDate: LocalDate
+    -effectiveEndDate: LocalDate
+  }
+
+  CommissionFactory <|.. StandardCommissionFactory
+  CommissionFactory <|.. PremiumCommissionFactory
+
+  CommissionPlanCreator <|.. StandardCommissionPlanCreator
+  CommissionPlanCreator <|.. PremiumCommissionPlanCreator
+
+  CommissionCalculator <|.. StandardCommissionCalculator
+  CommissionCalculator <|.. PremiumCommissionCalculator
+
+  StandardCommissionFactory ..> StandardCommissionPlanCreator : creates >
+  StandardCommissionFactory ..> StandardCommissionCalculator : creates >
+  PremiumCommissionFactory ..> PremiumCommissionPlanCreator : creates >
+  PremiumCommissionFactory ..> PremiumCommissionCalculator : creates >
+
+  CommissionPlanCreator ..> CommissionPlan : creates >
+  CommissionCalculator ..> CommissionCalculation : creates >
+
+  note right of CommissionFactory
+    <b>Abstract Factory Interface</b>
+
+    Declares methods for creating families
+    of related products. Each method returns
+    an abstract product type.
+
+    <b>Product Family Concept:</b>
+    Creates multiple related products that
+    are designed to work together:
+    • CommissionPlanCreator
+    • CommissionCalculator
+
+    Ensures consistency within product families.
+  end note
+
+  note bottom of StandardCommissionFactory
+    <b>Concrete Factory</b>
+
+    Creates STANDARD family:
+    • StandardCommissionPlanCreator
+      (5% base rate, no bonuses)
+    • StandardCommissionCalculator
+      (Basic calculation algorithm)
+
+    Products from same factory are
+    guaranteed to be compatible.
+  end note
+
+  note bottom of PremiumCommissionFactory
+    <b>Concrete Factory</b>
+
+    Creates PREMIUM family:
+    • PremiumCommissionPlanCreator
+      (8% base rate)
+    • PremiumCommissionCalculator
+      (Enhanced algorithm with 10% bonus)
+
+    Higher rates and additional features
+    compared to standard family.
+  end note
+
+  note right of CommissionPlanCreator
+    <b>Abstract Product A</b>
+
+    Defines interface for creating
+    commission plans. Each concrete
+    implementation creates plans with
+    different rate structures.
+  end note
+
+  note right of CommissionCalculator
+    <b>Abstract Product B</b>
+
+    Defines interface for calculating
+    commissions. Works with plans created
+    by the same factory to ensure
+    compatibility.
+  end note
+
+
+' Legend
+note right of CommissionCalculator
+  <b>Factory Pattern Comparison:</b>
+
+  <b>Simple Factory:</b>
+  • Single factory class with static creation method
+  • Uses conditional logic (switch/if) to select product type
+  • Simplest pattern, but violates Open/Closed Principle
+  • Best for: Limited, stable product types
+
+  <b>Factory Method:</b>
+  • Abstract creator class with factory method
+  • Subclasses implement factory method to create specific products
+  • Follows Open/Closed Principle
+  • Can integrate with Template Method pattern
+  • Best for: Single product type with multiple variants
+
+  <b>Abstract Factory:</b>
+  • Creates families of related products
+  • Multiple factory methods (one per product type)
+  • Ensures product family consistency
+  • More complex but provides highest level of abstraction
+  • Best for: Multiple related products that must work together
+
+  <b>Pattern Selection Guide:</b>
+  • Use Simple Factory for quick, straightforward object creation
+  • Use Factory Method when you need extensibility for one product type
+  • Use Abstract Factory when you need to create families of related objects
+
+  <b>Common Benefits Across All Patterns:</b>
+  • Encapsulates object creation logic
+  • Reduces coupling between client code and concrete classes
+  • Makes code more maintainable and testable
+  • Provides meaningful names for creation operations
+end note
+
+@enduml

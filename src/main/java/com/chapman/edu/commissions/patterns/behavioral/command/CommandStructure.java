@@ -40,12 +40,10 @@ public class CommandStructure {
      *
      * The Command interface represents the core abstraction of the pattern.
      * It defines a single method that all concrete commands must implement.
-     *
      * RESPONSIBILITIES:
      * - Define a standard interface for executing operations
      * - Support undo/redo through reverse operations
      * - Enable command composition and sequencing
-     *
      * DESIGN BENEFITS:
      * - Commands can be passed around as objects
      * - Commands can be stored and executed later
@@ -53,7 +51,6 @@ public class CommandStructure {
      * - New command types can be added without changing existing code
      */
     public interface Command {
-
         /**
          * Executes the command.
          *
@@ -61,13 +58,11 @@ public class CommandStructure {
          * This is the core method that performs the encapsulated operation.
          * When called, it executes the business logic, typically by delegating
          * to a receiver object.
-         *
          * EXECUTION FLOW:
          * 1. Command is created with necessary parameters
          * 2. Invoker calls execute() when ready
          * 3. Command delegates to receiver to perform actual work
          * 4. State changes are recorded for potential undo
-         *
          * IMPLEMENTATION STRATEGIES:
          * - Simple commands: Execute directly without a receiver
          * - Complex commands: Delegate to receiver's methods

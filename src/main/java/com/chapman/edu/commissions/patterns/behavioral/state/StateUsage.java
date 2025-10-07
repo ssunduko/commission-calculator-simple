@@ -22,7 +22,6 @@ import java.math.BigDecimal;
  * - How the same method call produces different results based on state
  * - How to test stateful behavior
  *
- * @author Commission Calculator Educational Project
  */
 public class StateUsage {
 
@@ -77,38 +76,30 @@ public class StateUsage {
         System.out.println("╔═══════════════════════════════════════════════════════════╗");
         System.out.println("║         EXAMPLE 2: Rejection - Invalid Claim              ║");
         System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
-
         StateImplementation.DisputeContext dispute = new StateImplementation.DisputeContext(
             "DISP-2024-101",
             "Tom Baker",
             new BigDecimal("8000.00")
         );
-
         dispute.addComment(
             "My commission should include the renewal revenue",
             "Tom Baker"
         );
-
         dispute.assignReviewer("Linda Chen");
 
         dispute.addComment(
             "Reviewing the commission plan terms...",
             "Linda Chen"
         );
-
         dispute.addComment(
             "Commission plan clearly states renewals are handled by account management team",
             "Linda Chen"
         );
-
         System.out.println("\n❌ Reviewer rejects the dispute...");
         dispute.reject("Renewal revenue is not included per Section 4.2 of commission plan");
-
         System.out.println("\n🔒 Closing dispute...");
         dispute.close();
-
         dispute.displayHistory();
-
         System.out.println("Result: Dispute rejected based on commission plan rules.\n");
     }
 

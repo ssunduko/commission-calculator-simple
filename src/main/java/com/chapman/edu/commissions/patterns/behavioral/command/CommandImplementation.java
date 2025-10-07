@@ -366,12 +366,9 @@ public class CommandImplementation {
     /**
      * CONCRETE COMMAND #2: UpdateDealValueCommand
      * ============================================
-     *
      * This command encapsulates a deal value update operation.
      * Similar structure to UpdateDealStatusCommand but operates on value.
-     *
      * PATTERN ROLE: Concrete Command
-     *
      * DEMONSTRATES:
      * - Numeric value change handling
      * - Same pattern as status command (consistency)
@@ -387,7 +384,6 @@ public class CommandImplementation {
 
         /**
          * Previous value for undo.
-         *
          * BIGDECIMAL FOR MONEY:
          * Using BigDecimal for monetary values ensures precision.
          * This is critical for undo - we need exact values, not

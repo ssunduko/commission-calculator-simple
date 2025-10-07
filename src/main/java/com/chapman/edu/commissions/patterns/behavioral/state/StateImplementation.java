@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.chapman.edu.commissions.patterns.behavioral.state.StateStructure.*;
+
 /**
  * STATE PATTERN - COMMISSION DISPUTE LIFECYCLE IMPLEMENTATION
  *
@@ -27,63 +29,8 @@ import java.util.List;
  * 4. Easy to add new states (e.g., "Pending Legal Review") without modifying existing code
  * 5. Each state's behavior is isolated and testable
  *
- * @author Commission Calculator Educational Project
  */
 public class StateImplementation {
-
-    /**
-     * DISPUTE STATE INTERFACE
-     *
-     * Defines all possible actions that can be taken on a dispute.
-     * Not all actions are valid in all states - each state decides what's allowed.
-     */
-    public interface DisputeState {
-        /**
-         * Add a comment to the dispute.
-         * Some states may restrict who can comment.
-         */
-        void addComment(DisputeContext context, String comment, String author);
-
-        /**
-         * Assign the dispute to a reviewer.
-         * Only valid in certain states.
-         */
-        void assignReviewer(DisputeContext context, String reviewerName);
-
-        /**
-         * Approve the dispute and adjust the commission.
-         * Only valid when the dispute is being reviewed.
-         */
-        void approve(DisputeContext context, BigDecimal adjustedAmount);
-
-        /**
-         * Reject the dispute with a reason.
-         * Only valid when the dispute is being reviewed.
-         */
-        void reject(DisputeContext context, String reason);
-
-        /**
-         * Escalate the dispute to higher management.
-         * May be done from multiple states.
-         */
-        void escalate(DisputeContext context, String reason);
-
-        /**
-         * Close the dispute.
-         * Only valid in terminal states.
-         */
-        void close(DisputeContext context);
-
-        /**
-         * Get the name of the current state.
-         */
-        String getStateName();
-
-        /**
-         * Get help text showing what actions are available in this state.
-         */
-        String getAvailableActions();
-    }
 
     /**
      * SUBMITTED STATE
@@ -522,64 +469,5 @@ public class StateImplementation {
             }
             System.out.println("-".repeat(60) + "\n");
         }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows a complete dispute lifecycle with various state transitions.
-     */
-    public static void main(String[] args) {
-        System.out.println("=== COMMISSION DISPUTE STATE PATTERN DEMO ===\n");
-
-        // Create a dispute
-        DisputeContext dispute = new DisputeContext(
-            "DISP-2024-001",
-            "John Smith",
-            new BigDecimal("5000.00")
-        );
-
-        dispute.displayStatus();
-
-        // Scenario 1: Normal workflow
-        System.out.println("\n--- SCENARIO: Normal Review Process ---\n");
-        dispute.addComment("I believe my commission calculation is incorrect", "John Smith");
-        dispute.assignReviewer("Jane Reviewer");
-        dispute.displayStatus();
-
-        dispute.addComment("Reviewing the deal details", "Jane Reviewer");
-        dispute.addComment("Found the error in the calculation", "Jane Reviewer");
-        dispute.approve(new BigDecimal("5500.00"));
-        dispute.displayStatus();
-
-        dispute.close();
-        dispute.displayStatus();
-
-        // Try invalid action on closed dispute
-        dispute.addComment("This should fail", "John Smith");
-
-        // Show complete history
-        dispute.displayHistory();
-
-        // Scenario 2: Escalation workflow
-        System.out.println("\n\n--- SCENARIO: Escalation Process ---\n");
-        DisputeContext dispute2 = new DisputeContext(
-            "DISP-2024-002",
-            "Sarah Johnson",
-            new BigDecimal("10000.00")
-        );
-
-        dispute2.assignReviewer("Bob Reviewer");
-        dispute2.addComment("This is a complex case involving multiple deals", "Bob Reviewer");
-        dispute2.escalate("Requires management approval due to high value");
-        dispute2.displayStatus();
-
-        dispute2.addComment("Reviewed by senior management", "Alice Manager");
-        dispute2.approve(new BigDecimal("11000.00"));
-        dispute2.displayStatus();
-
-        dispute2.displayHistory();
-
-        System.out.println("\n=== END DEMONSTRATION ===");
     }
 }

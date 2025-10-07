@@ -1,0 +1,195 @@
+@startuml Basic Proxy Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Proxy Pattern - Core Structure
+
+' Subject interface
+interface Subject <<Subject>> {
+  +request(): void
+}
+
+' RealSubject class
+class RealSubject <<RealSubject>> {
+  +request(): void
+}
+
+' Proxy class
+class Proxy <<Proxy>> {
+  -realSubject: RealSubject
+  +request(): void
+  -checkAccess(): boolean
+  -logAccess(): void
+}
+
+' Client
+class Client <<Client>> {
+  -subject: Subject
+  +doWork(): void
+}
+
+' Relationships
+Subject <|.. RealSubject
+Subject <|.. Proxy
+Proxy o--> RealSubject : delegates to >
+Client --> Subject : uses >
+
+' Pattern component notes
+note right of Subject
+  <b>Subject (Interface)</b>
+
+  Defines the common interface for both
+  RealSubject and Proxy.
+
+  <b>Purpose:</b>
+  Allows Proxy to be used anywhere the
+  RealSubject is expected. Client code
+  depends on this interface, not on
+  concrete implementations.
+
+  <b>Key Characteristic:</b>
+  Both Proxy and RealSubject implement
+  the same interface, making them
+  interchangeable from the client's
+  perspective.
+end note
+
+note left of RealSubject
+  <b>RealSubject</b>
+
+  The real object that the proxy represents.
+  Contains the actual business logic and
+  functionality.
+
+  <b>Characteristics:</b>
+  • Implements the Subject interface
+  • Performs the actual work
+  • May be expensive to create/access
+  • No knowledge of the proxy
+
+  The RealSubject does its job without
+  knowing it's being proxied.
+end note
+
+note right of Proxy
+  <b>Proxy</b>
+
+  Controls access to the RealSubject.
+  Implements the same interface as
+  RealSubject but adds additional behavior.
+
+  <b>Responsibilities:</b>
+  • Maintains reference to RealSubject
+  • Implements Subject interface
+  • Controls access to RealSubject
+  • May perform pre/post processing
+  • Delegates actual work to RealSubject
+
+  <b>Common Proxy Operations:</b>
+  • checkAccess() - verify permissions
+  • logAccess() - track usage
+  • lazy initialization - delay creation
+  • caching - store results
+  • validation - check preconditions
+
+  <b>Delegation Pattern:</b>
+  public void request() {
+    if (checkAccess()) {
+      realSubject.request();
+      logAccess();
+    }
+  }
+end note
+
+note right of Client
+  <b>Client</b>
+
+  Works with Subject interface without
+  knowing whether it's using a Proxy
+  or RealSubject.
+
+  <b>Usage Pattern:</b>
+  Subject subject = new Proxy();
+  subject.request();
+
+  Client is decoupled from whether
+  it's using the real object or a proxy.
+
+  <b>Benefit:</b>
+  Client code remains unchanged when
+  proxy is introduced or removed.
+end note
+
+' Pattern flow note
+note left of Proxy
+  <b>Proxy Pattern Flow:</b>
+
+  1. Client calls proxy.request()
+  2. Proxy performs pre-processing (e.g., checkAccess())
+  3. If access granted, Proxy creates/gets RealSubject (if needed)
+  4. Proxy delegates to realSubject.request()
+  5. Proxy performs post-processing (e.g., logAccess())
+  6. Proxy returns result to client
+
+  <b>Key Advantage:</b>
+  Client is unaware of the proxy layer. All additional
+  functionality (access control, caching, logging) is
+  transparent to the client.
+
+  <b>Lazy Initialization:</b>
+  Proxy can delay creating RealSubject until first use:
+  if (realSubject == null) {
+    realSubject = new RealSubject();
+  }
+end note
+
+' Legend
+note left of Subject
+  <b>Proxy Pattern Core Components:</b>
+
+  <b>Subject:</b> Common interface for RealSubject and Proxy.
+  Defines the contract that both must implement.
+
+  <b>RealSubject:</b> The actual object doing the real work.
+  Contains business logic and may be expensive to create
+  or access.
+
+  <b>Proxy:</b> Surrogate or placeholder for RealSubject.
+  Controls access and may add functionality like:
+  • Access control (Protection Proxy)
+  • Lazy initialization (Virtual Proxy)
+  • Remote access (Remote Proxy)
+  • Caching (Caching Proxy)
+  • Logging/monitoring (Smart Proxy)
+
+  <b>Client:</b> Uses Subject interface. Unaware of whether
+  it's interacting with Proxy or RealSubject.
+
+  <b>Key Benefits:</b>
+  • Controls access to RealSubject
+  • Adds functionality without changing RealSubject
+  • Can delay expensive object creation
+  • Provides location transparency (Remote Proxy)
+  • Enables caching and performance optimization
+  • Maintains same interface as RealSubject
+
+  <b>Intent:</b>
+  Provide a surrogate or placeholder for another object
+  to control access to it. Create a representative object
+  that controls access to another object, which may be
+  remote, expensive to create, or require protection.
+
+  <b>Real-World Analogy:</b>
+  Like a credit card that acts as a proxy for your bank
+  account. The card provides controlled access to your
+  funds without exposing the actual account directly.
+end note
+
+@enduml

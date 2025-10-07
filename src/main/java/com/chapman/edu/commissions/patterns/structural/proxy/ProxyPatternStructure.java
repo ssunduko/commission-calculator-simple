@@ -79,37 +79,4 @@ public class ProxyPatternStructure {
             }
         }
     }
-
-    /**
-     * Client code that uses the proxy
-     */
-    public static void main(String[] args) {
-        // Create a proxy with admin access
-        UserService adminProxy = new UserServiceProxy(true);
-        
-        // Create a proxy without admin access
-        UserService userProxy = new UserServiceProxy(false);
-        
-        // Both proxies can get user information
-        User user1 = adminProxy.getUserById("123");
-        System.out.println("Retrieved user: " + user1.getUsername());
-        
-        User user2 = userProxy.getUserById("456");
-        System.out.println("Retrieved user: " + user2.getUsername());
-        
-        // Only the admin proxy can update user information
-        try {
-            adminProxy.updateUser(user1);
-            System.out.println("User updated successfully by admin proxy");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        
-        try {
-            userProxy.updateUser(user2);
-            System.out.println("User updated successfully by user proxy");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
 }

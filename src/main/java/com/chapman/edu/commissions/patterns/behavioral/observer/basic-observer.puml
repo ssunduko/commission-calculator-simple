@@ -1,0 +1,257 @@
+@startuml Basic Observer Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Observer Pattern - Core Structure
+
+' Subject interface
+interface Subject <<Subject>> {
+  +attach(observer: Observer): void
+  +detach(observer: Observer): void
+  +notifyObservers(): void
+}
+
+' Observer interface
+interface Observer <<Observer>> {
+  +update(subject: Subject): void
+}
+
+' ConcreteSubject
+class ConcreteSubject <<ConcreteSubject>> {
+  -observers: List<Observer>
+  -state: Object
+  +attach(observer: Observer): void
+  +detach(observer: Observer): void
+  +notifyObservers(): void
+  +getState(): Object
+  +setState(state: Object): void
+}
+
+' ConcreteObservers
+class ConcreteObserverA <<ConcreteObserver>> {
+  -observerState: Object
+  +update(subject: Subject): void
+}
+
+class ConcreteObserverB <<ConcreteObserver>> {
+  -observerState: Object
+  +update(subject: Subject): void
+}
+
+class ConcreteObserverC <<ConcreteObserver>> {
+  -observerState: Object
+  +update(subject: Subject): void
+}
+
+' Client
+class Client <<Client>> {
+  +main(): void
+}
+
+' Relationships
+Subject <|.. ConcreteSubject
+Observer <|.. ConcreteObserverA
+Observer <|.. ConcreteObserverB
+Observer <|.. ConcreteObserverC
+
+ConcreteSubject o--> "0..*" Observer : observers
+ConcreteSubject ..> Observer : notifies >
+
+Client ..> Subject : creates/uses >
+Client ..> Observer : creates/attaches >
+
+' Pattern component notes
+note right of Subject
+  <b>Subject (Observable)</b>
+
+  Defines the interface for attaching,
+  detaching, and notifying observers.
+
+  <b>Responsibilities:</b>
+  • Maintain list of observers
+  • Provide methods to add/remove observers
+  • Define notification mechanism
+
+  <b>Key Methods:</b>
+  • attach() - register an observer
+  • detach() - unregister an observer
+  • notifyObservers() - inform all observers
+
+  Subjects don't need to know concrete
+  observer types - only the Observer interface.
+end note
+
+note left of Observer
+  <b>Observer</b>
+
+  Defines the callback interface for
+  objects that should be notified of
+  changes in the subject.
+
+  <b>Responsibilities:</b>
+  • Define update/notification method
+  • Respond to subject state changes
+
+  <b>Update Method:</b>
+  Called by subject when state changes.
+  Observer pulls data from subject or
+  receives it as parameters (push/pull model).
+
+  Multiple observers can watch the
+  same subject independently.
+end note
+
+note right of ConcreteSubject
+  <b>ConcreteSubject</b>
+
+  Implements the Subject interface and
+  maintains state that observers are interested in.
+
+  <b>Responsibilities:</b>
+  • Store state that observers care about
+  • Implement observer management (attach/detach)
+  • Notify observers when state changes
+  • Provide state access methods (for pull model)
+
+  <b>State Change Flow:</b>
+  1. setState(newState) is called
+  2. Internal state is updated
+  3. notifyObservers() is called
+  4. Each observer's update() is invoked
+
+  <b>Implementation Details:</b>
+  • Maintains List<Observer> for registered observers
+  • Iterates through observers during notification
+  • May include duplicate prevention logic
+  • Should handle exceptions from faulty observers
+end note
+
+note left of ConcreteObserverA
+  <b>ConcreteObserver A</b>
+
+  Implements the Observer interface
+  with specific update logic.
+
+  <b>Responsibilities:</b>
+  • Implement update() method
+  • Maintain reference to subject (optional)
+  • Store observer-specific state
+  • React to subject changes
+
+  <b>Update Implementation:</b>
+  public void update(Subject subject) {
+    Object newState = subject.getState();
+    // React to the change
+    this.observerState = newState;
+    // Perform observer-specific actions
+  }
+
+  Each observer can respond differently
+  to the same subject change.
+end note
+
+note right of Client
+  <b>Client</b>
+
+  Creates subjects and observers,
+  establishes their relationships.
+
+  <b>Typical Usage:</b>
+  Subject subject = new ConcreteSubject();
+  Observer obs1 = new ConcreteObserverA();
+  Observer obs2 = new ConcreteObserverB();
+
+  subject.attach(obs1);
+  subject.attach(obs2);
+
+  subject.setState(newState);
+  // Automatically notifies obs1 and obs2
+
+  Client doesn't manage notifications -
+  the pattern handles that automatically.
+end note
+
+' Pattern flow note
+note bottom of ConcreteSubject
+  <b>Observer Pattern Flow:</b>
+
+  1. Client creates Subject and Observers
+  2. Client attaches Observers to Subject via attach()
+  3. Subject's state changes (setState() called)
+  4. Subject calls notifyObservers()
+  5. Subject iterates through observer list
+  6. Subject calls update() on each Observer
+  7. Each Observer retrieves new state (pull) or receives it (push)
+  8. Each Observer reacts to the change independently
+
+  <b>Key Advantages:</b>
+  • Subject and Observers are loosely coupled
+  • One-to-many dependency automatically maintained
+  • Observers can be added/removed dynamically
+  • No tight coupling between Subject and concrete Observers
+
+  <b>Push vs. Pull Model:</b>
+
+  PUSH: Subject sends data to observers
+  update(data: Object)
+
+  PULL: Observers query subject for data
+  update(subject: Subject)
+  then observer calls subject.getState()
+
+  Pull model shown here - more flexible.
+end note
+
+' Legend
+note bottom of Observer
+  <b>Observer Pattern Core Components:</b>
+
+  <b>Subject:</b> The object being observed. Maintains
+  a list of observers and notifies them of state changes.
+
+  <b>Observer:</b> Interface for objects that want to be
+  notified of subject changes. Defines the update callback.
+
+  <b>ConcreteSubject:</b> Implements Subject interface.
+  Stores state of interest to observers and sends
+  notifications when state changes.
+
+  <b>ConcreteObserver:</b> Implements Observer interface.
+  Maintains reference to ConcreteSubject (optional) and
+  defines specific response to notifications.
+
+  <b>Key Benefits:</b>
+  • Loose coupling between subject and observers
+  • Dynamic observer registration/deregistration
+  • Broadcast communication (one-to-many)
+  • Open/Closed Principle (add new observers without changing subject)
+  • Supports multiple independent views of data
+  • Automatic notification mechanism
+
+  <b>Common Use Cases:</b>
+  • Event handling systems
+  • Model-View-Controller (MVC) pattern
+  • Publish/Subscribe messaging
+  • Data binding in UI frameworks
+  • Monitoring and logging systems
+
+  <b>Intent:</b>
+  Define a one-to-many dependency between objects so
+  that when one object changes state, all its dependents
+  are notified and updated automatically.
+
+  <b>Real-World Analogy:</b>
+  Like subscribing to a newsletter. When the publisher
+  (subject) releases new content, all subscribers
+  (observers) are automatically notified. Subscribers
+  can join or leave the mailing list at any time.
+end note
+
+@enduml

@@ -1,10 +1,10 @@
 package com.chapman.edu.commissions.patterns.behavioral.memento;
 
 import com.chapman.edu.commissions.model.*;
+import com.chapman.edu.commissions.patterns.behavioral.memento.MementoStructure.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -28,79 +28,8 @@ import java.util.*;
  * - State snapshots for testing and comparison
  * - Preserve encapsulation of internal state
  *
- * @author Commission Calculator Educational Project
  */
 public class MementoImplementation {
-
-    /**
-     * MEMENTO: Commission Plan Memento
-     *
-     * Captures complete state of a commission plan including all rules,
-     * tiers, and bonus rules. Immutable snapshot.
-     *
-     * DESIGN NOTES:
-     * - Deep copy of all mutable objects to prevent external modification
-     * - Metadata for tracking (timestamp, version label, who created)
-     * - Serializable for persistence (if needed)
-     */
-    public static class CommissionPlanMemento {
-        // State data (immutable)
-        private final String planId;
-        private final String planName;
-        private final PlanStatus status;
-        private final LocalDate effectiveDate;
-        private final LocalDate expiryDate;
-        private final List<CommissionRule> rules;  // Deep copy
-        private final List<CommissionTier> tiers;  // Deep copy
-        private final List<BonusRule> bonusRules;  // Deep copy
-
-        // Metadata
-        private final LocalDateTime timestamp;
-        private final String label;
-        private final String createdBy;
-
-        /**
-         * Private constructor - only CommissionPlanEditor can create.
-         */
-        private CommissionPlanMemento(CommissionPlan plan, String label, String createdBy) {
-            // Copy state
-            this.planId = plan.getId();
-            this.planName = plan.getName();
-            this.status = plan.getStatus();
-            this.effectiveDate = plan.getEffectiveStartDate();
-            this.expiryDate = plan.getEffectiveEndDate();
-
-            // Deep copy collections to ensure immutability
-            this.rules = new ArrayList<>(plan.getRules());
-            this.tiers = new ArrayList<>(plan.getTiers());
-            this.bonusRules = new ArrayList<>(plan.getBonuses());
-
-            // Metadata
-            this.timestamp = LocalDateTime.now();
-            this.label = label;
-            this.createdBy = createdBy;
-        }
-
-        // Getters (package-private - only originator should access)
-        String getPlanId() { return planId; }
-        String getPlanName() { return planName; }
-        PlanStatus getStatus() { return status; }
-        LocalDate getEffectiveDate() { return effectiveDate; }
-        LocalDate getExpiryDate() { return expiryDate; }
-        List<CommissionRule> getRules() { return new ArrayList<>(rules); }  // Defensive copy
-        List<CommissionTier> getTiers() { return new ArrayList<>(tiers); }
-        List<BonusRule> getBonusRules() { return new ArrayList<>(bonusRules); }
-
-        public LocalDateTime getTimestamp() { return timestamp; }
-        public String getLabel() { return label; }
-        public String getCreatedBy() { return createdBy; }
-
-        @Override
-        public String toString() {
-            return String.format("CommissionPlanMemento[%s, plan='%s', rules=%d, tiers=%d, by=%s, time=%s]",
-                    label, planName, rules.size(), tiers.size(), createdBy, timestamp);
-        }
-    }
 
     /**
      * ORIGINATOR: Commission Plan Editor
@@ -493,162 +422,5 @@ public class MementoImplementation {
             target.setSalesRepId(source.getSalesRepId());
             target.setCloseDate(source.getCloseDate());
         }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows the Memento pattern in action with commission plans.
-     */
-    public static void main(String[] args) {
-        System.out.println("\n");
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                                                           ║");
-        System.out.println("║   MEMENTO PATTERN - COMMISSION SYSTEM IMPLEMENTATION      ║");
-        System.out.println("║                                                           ║");
-        System.out.println("║  Demonstrates undo/redo and versioning for plans         ║");
-        System.out.println("║                                                           ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println("\n");
-
-        demonstrateCommissionPlanVersioning();
-        demonstrateDealTransactions();
-
-        System.out.println("\n");
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                    PATTERN SUMMARY                        ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println();
-        System.out.println("MEMENTO PATTERN COMPONENTS:");
-        System.out.println("  • Memento: CommissionPlanMemento (immutable snapshot)");
-        System.out.println("  • Originator: CommissionPlanEditor (creates/restores)");
-        System.out.println("  • Caretaker: VersionHistoryManager (manages history)");
-        System.out.println();
-        System.out.println("KEY BENEFITS:");
-        System.out.println("  ✓ Undo/redo functionality");
-        System.out.println("  ✓ Version history and checkpoints");
-        System.out.println("  ✓ Transactional editing (commit/rollback)");
-        System.out.println("  ✓ Encapsulation preserved");
-        System.out.println("  ✓ Complete audit trail");
-        System.out.println();
-        System.out.println("═══════════════════════════════════════════════════════════");
-        System.out.println();
-    }
-
-    private static void demonstrateCommissionPlanVersioning() {
-        System.out.println("EXAMPLE 1: Commission Plan Versioning with Undo/Redo\n");
-        System.out.println("=".repeat(60));
-
-        // Create initial plan
-        CommissionPlan plan = new CommissionPlan();
-        plan.setId("PLAN-2024-Q1");
-        plan.setName("Q1 2024 Sales Plan");
-        plan.setStatus(PlanStatus.DRAFT);
-        plan.setEffectiveStartDate(LocalDate.of(2024, 1, 1));
-        plan.setEffectiveEndDate(LocalDate.of(2024, 3, 31));
-
-        // Create editor and version manager
-        CommissionPlanEditor editor = new CommissionPlanEditor(plan, "john.doe");
-        VersionHistoryManager versionManager = new VersionHistoryManager(editor);
-
-        // Checkpoint 0: Initial version
-        versionManager.checkpoint("Initial Draft");
-        editor.display();
-
-        // Edit 1: Add rules
-        System.out.println("\n--- Edit Session 1: Add Rules ---");
-        CommissionRule rule1 = new CommissionRule();
-        rule1.setName("Software Sales Rule");
-        editor.addRule(rule1);
-
-        CommissionTier tier1 = new CommissionTier();
-        tier1.setName("Tier 1");
-        editor.addTier(tier1);
-
-        versionManager.checkpoint("Added rules and tiers");
-        editor.display();
-
-        // Edit 2: Change plan name and status
-        System.out.println("\n--- Edit Session 2: Update Plan ---");
-        editor.setPlanName("Q1 2024 Enterprise Sales Plan");
-        editor.setStatus(PlanStatus.ACTIVE);
-
-        versionManager.checkpoint("Activated plan with new name");
-        editor.display();
-
-        // Edit 3: Add bonus rules
-        System.out.println("\n--- Edit Session 3: Add Bonuses ---");
-        BonusRule bonus1 = new BonusRule();
-        bonus1.setName("Q1 Accelerator");
-        editor.addBonusRule(bonus1);
-
-        versionManager.checkpoint("Added Q1 bonuses");
-        editor.display();
-
-        // Show complete history
-        versionManager.showHistory();
-
-        // Undo operations
-        System.out.println("--- Performing Undo ---");
-        versionManager.undo();
-        editor.display();
-
-        System.out.println("\n--- Performing Another Undo ---");
-        versionManager.undo();
-        editor.display();
-
-        // Redo operation
-        System.out.println("\n--- Performing Redo ---");
-        versionManager.redo();
-        editor.display();
-
-        // Restore to specific checkpoint
-        System.out.println("\n--- Restore to 'Initial Draft' ---");
-        versionManager.restoreCheckpoint("Initial Draft");
-        editor.display();
-
-        // Compare versions
-        versionManager.compareVersions(0, 3);
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-    }
-
-    private static void demonstrateDealTransactions() {
-        System.out.println("EXAMPLE 2: Deal Transaction Management (Commit/Rollback)\n");
-        System.out.println("=".repeat(60));
-
-        // Create deal
-        Deal deal = new Deal("Enterprise Software License",
-                           new BigDecimal("50000"), "REP-123");
-        deal.setStatus(DealStatus.OPEN);
-
-        DealTransactionManager txManager = new DealTransactionManager(deal);
-
-        // Show initial state
-        System.out.println("Initial state:");
-        txManager.display();
-
-        // Transaction 1: Successful changes (commit)
-        System.out.println("\n--- Transaction 1: Update Deal (will commit) ---");
-        txManager.beginTransaction();
-        txManager.setTitle("Enterprise Software Suite");
-        txManager.setValue(new BigDecimal("75000"));
-        txManager.display();
-        txManager.commit();
-        System.out.println("Changes committed!");
-
-        // Transaction 2: Failed changes (rollback)
-        System.out.println("\n--- Transaction 2: Risky Changes (will rollback) ---");
-        txManager.beginTransaction();
-        txManager.setTitle("WRONG TITLE");
-        txManager.setValue(new BigDecimal("99999999"));
-        txManager.setStatus(DealStatus.WON);
-        txManager.display();
-        System.out.println("Oops! These changes are wrong...");
-        txManager.rollback();
-        System.out.println("Changes rolled back!");
-        txManager.display();
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
     }
 }

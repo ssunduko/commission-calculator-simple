@@ -53,44 +53,155 @@ import java.util.Currency;
 public class AbstractFactoryImplementation {
 
     /**
-     * Abstract Product: Commission Plan Creator
+     * ABSTRACT PRODUCT A: Interface for creating commission plans
+     *
+     * PATTERN COMPONENT: This is an "AbstractProduct" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Defines the interface for objects that create commission plans.
+     * Different implementations will create plans with different rate structures
+     * (e.g., standard rates vs. premium rates).
+     *
+     * PRODUCT FAMILY ROLE:
+     * This is the first type of product in our product families. Each concrete
+     * factory will create a specific implementation of this interface that is
+     * compatible with the other products from the same family.
+     *
+     * WHY INTERFACE:
+     * Using an interface ensures client code depends only on abstractions,
+     * not on concrete implementations. This is the Dependency Inversion Principle.
      */
     public interface CommissionPlanCreator {
+        /**
+         * Creates a commission plan with the specified name and description
+         *
+         * @param name the name of the commission plan
+         * @param description the description of the plan
+         * @return a CommissionPlan configured according to this creator's family type
+         */
         CommissionPlan createCommissionPlan(String name, String description);
     }
 
     /**
-     * Abstract Product: Commission Calculator
+     * ABSTRACT PRODUCT B: Interface for calculating commissions
+     *
+     * PATTERN COMPONENT: This is an "AbstractProduct" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Defines the interface for objects that calculate commissions from deals.
+     * Different implementations will use different calculation algorithms
+     * (e.g., standard calculation vs. premium calculation with bonuses).
+     *
+     * PRODUCT FAMILY ROLE:
+     * This is the second type of product in our product families. Calculators
+     * are designed to work with plans from the same family. A standard calculator
+     * works with standard plans, premium calculators with premium plans.
+     *
+     * COMPATIBILITY GUARANTEE:
+     * The Abstract Factory pattern ensures that when you get a calculator from
+     * a factory, it will be compatible with the plan creator from that same factory.
      */
     public interface CommissionCalculator {
+        /**
+         * Calculates commission for a deal using the specified plan
+         *
+         * @param deal the deal to calculate commission for
+         * @param salesRep the sales representative earning the commission
+         * @param plan the commission plan to use for calculation
+         * @return a CommissionCalculation with the computed commission amount
+         */
         CommissionCalculation calculateCommission(Deal deal, User salesRep, CommissionPlan plan);
     }
 
     /**
-     * Abstract Factory: Commission Factory
+     * ABSTRACT FACTORY: Interface for creating families of related commission objects
+     *
+     * PATTERN COMPONENT: This is the "AbstractFactory" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Declares methods for creating each type of product in the family.
+     * Concrete implementations create products that are designed to work together.
+     *
+     * PRODUCT FAMILY CONCEPT:
+     * This factory creates TWO related products:
+     * 1. CommissionPlanCreator - creates commission plans
+     * 2. CommissionCalculator - calculates commissions
+     *
+     * These products MUST work together correctly. The Abstract Factory pattern
+     * guarantees this by ensuring both products come from the same factory.
+     *
+     * KEY BENEFIT:
+     * Client code can be written against this interface and work with ANY
+     * product family (standard, premium, etc.) without knowing which specific
+     * family is being used.
+     *
+     * EXAMPLE FAMILIES:
+     * - Standard Family: 5% rate plans + basic calculator
+     * - Premium Family: 8% rate plans + calculator with 10% bonus
      */
     public interface CommissionFactory {
+        /**
+         * Creates a commission plan creator for this factory's product family
+         *
+         * @return a CommissionPlanCreator specific to this family
+         */
         CommissionPlanCreator createPlanCreator();
+
+        /**
+         * Creates a commission calculator for this factory's product family
+         *
+         * @return a CommissionCalculator specific to this family
+         */
         CommissionCalculator createCalculator();
     }
 
     /**
-     * Concrete Product: Standard Commission Plan Creator
+     * CONCRETE PRODUCT A1: Standard tier commission plan creator
+     *
+     * PATTERN COMPONENT: This is a "ConcreteProduct" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Creates commission plans for the STANDARD product family with conservative
+     * commission rates suitable for standard sales tiers or entry-level programs.
+     *
+     * FAMILY MEMBERSHIP:
+     * Part of the STANDARD family - works with StandardCommissionCalculator.
+     *
+     * CONFIGURATION:
+     * - 5% base commission rate (conservative)
+     * - Standard rule type
+     * - 1-year validity period
+     * - "STD-" prefix for identification
+     *
+     * BUSINESS LOGIC:
+     * Standard plans are designed for typical sales scenarios without special
+     * incentives or bonuses. They provide predictable, moderate commission rates.
      */
     public static class StandardCommissionPlanCreator implements CommissionPlanCreator {
+        /**
+         * Creates a standard commission plan with 5% base rate
+         *
+         * @param name the name of the plan
+         * @param description the description of the plan
+         * @return a CommissionPlan configured with standard rates
+         */
         @Override
         public CommissionPlan createCommissionPlan(String name, String description) {
+            // Create the base commission plan object
             CommissionPlan plan = new CommissionPlan(name, Currency.getInstance("USD"));
+            // Set unique identifier with STD prefix to indicate standard family
             plan.setId("STD-PLAN-" + System.currentTimeMillis());
+            // Set validity period - starts now, ends in 1 year
             plan.setEffectiveStartDate(LocalDate.now());
             plan.setEffectiveEndDate(LocalDate.now().plusYears(1));
 
-            // Create a base rate rule
+            // Create the base commission rate rule for standard tier
             CommissionRule baseRateRule = new CommissionRule();
             baseRateRule.setId("STD-RULE-" + System.currentTimeMillis());
             baseRateRule.setName("Standard Base Rate");
             baseRateRule.setDescription(description);
-            baseRateRule.setRate(new BigDecimal("0.05")); // 5% base commission rate
+            // KEY CONFIGURATION: 5% commission rate for standard tier
+            baseRateRule.setRate(new BigDecimal("0.05"));
             baseRateRule.setType(CommissionRule.RuleType.STANDARD);
             baseRateRule.setPriority(1);
 
@@ -101,22 +212,57 @@ public class AbstractFactoryImplementation {
     }
 
     /**
-     * Concrete Product: Premium Commission Plan Creator
+     * CONCRETE PRODUCT A2: Premium tier commission plan creator
+     *
+     * PATTERN COMPONENT: This is a "ConcreteProduct" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Creates commission plans for the PREMIUM product family with enhanced
+     * commission rates designed for top-tier sales programs or strategic accounts.
+     *
+     * FAMILY MEMBERSHIP:
+     * Part of the PREMIUM family - works with PremiumCommissionCalculator.
+     *
+     * CONFIGURATION:
+     * - 8% base commission rate (60% higher than standard)
+     * - Standard rule type
+     * - 1-year validity period
+     * - "PREM-" prefix for identification
+     *
+     * BUSINESS LOGIC:
+     * Premium plans incentivize high-value sales with higher base rates.
+     * When combined with PremiumCommissionCalculator (which adds 10% bonus),
+     * total effective rate becomes even more attractive.
+     *
+     * FAMILY COMPATIBILITY:
+     * Designed to work seamlessly with PremiumCommissionCalculator which
+     * understands and enhances these premium rates with additional bonuses.
      */
     public static class PremiumCommissionPlanCreator implements CommissionPlanCreator {
+        /**
+         * Creates a premium commission plan with 8% base rate
+         *
+         * @param name the name of the plan
+         * @param description the description of the plan
+         * @return a CommissionPlan configured with premium rates
+         */
         @Override
         public CommissionPlan createCommissionPlan(String name, String description) {
+            // Create the base commission plan object
             CommissionPlan plan = new CommissionPlan(name, Currency.getInstance("USD"));
+            // Set unique identifier with PREM prefix to indicate premium family
             plan.setId("PREM-PLAN-" + System.currentTimeMillis());
+            // Set validity period - starts now, ends in 1 year
             plan.setEffectiveStartDate(LocalDate.now());
             plan.setEffectiveEndDate(LocalDate.now().plusYears(1));
 
-            // Create a base rate rule
+            // Create the base commission rate rule for premium tier
             CommissionRule baseRateRule = new CommissionRule();
             baseRateRule.setId("PREM-RULE-" + System.currentTimeMillis());
             baseRateRule.setName("Premium Base Rate");
             baseRateRule.setDescription(description);
-            baseRateRule.setRate(new BigDecimal("0.08")); // 8% base commission rate
+            // KEY CONFIGURATION: 8% commission rate for premium tier (60% higher than standard)
+            baseRateRule.setRate(new BigDecimal("0.08"));
             baseRateRule.setType(CommissionRule.RuleType.STANDARD);
             baseRateRule.setPriority(1);
 
@@ -178,13 +324,48 @@ public class AbstractFactoryImplementation {
         }
     }
     /**
-     * Concrete Factory: Premium Commission Factory
+     * CONCRETE FACTORY 2: Premium commission system factory
+     *
+     * PATTERN COMPONENT: This is a "ConcreteFactory" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Creates the complete PREMIUM product family for commission processing.
+     * Ensures all products work together correctly for premium-tier sales programs.
+     *
+     * PRODUCTS CREATED:
+     * 1. PremiumCommissionPlanCreator - creates plans with 8% rates
+     * 2. PremiumCommissionCalculator - calculates with 8% rate + 10% bonus
+     *
+     * FAMILY GUARANTEE:
+     * All products from this factory are designed to work together:
+     * - Plan creator makes premium plans (8% rate)
+     * - Calculator expects premium plans and adds bonus
+     * - Combined effect: Competitive premium commission structure
+     *
+     * USE CASE:
+     * Use this factory for high-value sales programs, strategic accounts,
+     * or top-tier sales representatives who merit enhanced compensation.
+     *
+     * EASY SWITCHING:
+     * Client code can switch from standard to premium by simply changing
+     * the factory instance - no other code changes needed.
      */
     public static class PremiumCommissionFactory implements CommissionFactory {
+        /**
+         * Creates a premium commission plan creator
+         *
+         * @return PremiumCommissionPlanCreator that makes 8% rate plans
+         */
         @Override
         public CommissionPlanCreator createPlanCreator() {
             return new PremiumCommissionPlanCreator();
         }
+
+        /**
+         * Creates a premium commission calculator
+         *
+         * @return PremiumCommissionCalculator that adds 10% bonus
+         */
         @Override
         public CommissionCalculator createCalculator() {
             return new PremiumCommissionCalculator();
@@ -192,14 +373,48 @@ public class AbstractFactoryImplementation {
     }
 
     /**
-     * Concrete Factory: Standard Commission Factory
+     * CONCRETE FACTORY 1: Standard commission system factory
+     *
+     * PATTERN COMPONENT: This is a "ConcreteFactory" in the Abstract Factory pattern
+     *
+     * PURPOSE:
+     * Creates the complete STANDARD product family for commission processing.
+     * Ensures all products work together correctly for standard-tier sales programs.
+     *
+     * PRODUCTS CREATED:
+     * 1. StandardCommissionPlanCreator - creates plans with 5% rates
+     * 2. StandardCommissionCalculator - calculates with 5% rate, no bonuses
+     *
+     * FAMILY GUARANTEE:
+     * All products from this factory are designed to work together:
+     * - Plan creator makes standard plans (5% rate)
+     * - Calculator uses plan rate directly with no bonuses
+     * - Combined effect: Predictable, moderate commission structure
+     *
+     * USE CASE:
+     * Use this factory for typical sales programs, entry-level representatives,
+     * or situations requiring conservative, predictable commission rates.
+     *
+     * PATTERN BENEFIT DEMONSTRATED:
+     * By using this factory, client code is guaranteed to get compatible
+     * plan creators and calculators without having to manually ensure compatibility.
      */
     public static class StandardCommissionFactory implements CommissionFactory {
+        /**
+         * Creates a standard commission plan creator
+         *
+         * @return StandardCommissionPlanCreator that makes 5% rate plans
+         */
         @Override
         public CommissionPlanCreator createPlanCreator() {
             return new StandardCommissionPlanCreator();
         }
 
+        /**
+         * Creates a standard commission calculator
+         *
+         * @return StandardCommissionCalculator that uses plan rates directly
+         */
         @Override
         public CommissionCalculator createCalculator() {
             return new StandardCommissionCalculator();

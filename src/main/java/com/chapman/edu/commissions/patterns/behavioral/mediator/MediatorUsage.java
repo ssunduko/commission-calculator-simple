@@ -2,6 +2,7 @@ package com.chapman.edu.commissions.patterns.behavioral.mediator;
 
 import com.chapman.edu.commissions.model.*;
 import com.chapman.edu.commissions.patterns.behavioral.mediator.MediatorImplementation.*;
+import com.chapman.edu.commissions.patterns.behavioral.mediator.MediatorStructure.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,7 +28,6 @@ import java.time.LocalDate;
  * - Centralized coordination simplifies complex workflows
  * - Perfect for event-driven architectures
  *
- * @author Commission Calculator Educational Project
  */
 public class MediatorUsage {
 

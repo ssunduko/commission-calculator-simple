@@ -1,0 +1,195 @@
+@startuml Singleton Pattern - Commission Calculator Implementations
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Singleton Pattern - Commission Calculator Implementations
+
+' Basic Singleton
+class BasicSingleton <<Singleton>> {
+  {static} -instance: BasicSingleton
+  -commissionCalculation: CommissionCalculation
+  -BasicSingleton()
+  {static} +getInstance(): BasicSingleton
+  +getCommissionCalculation(): CommissionCalculation
+  +calculateCommission(dealId, salesRepId, amount): CommissionCalculation
+}
+
+' Thread-Safe Singleton - Synchronized Method
+class ThreadSafeSingletonSynchronizedMethod <<Singleton>> {
+  {static} -instance: ThreadSafeSingletonSynchronizedMethod
+  -commissionCalculation: CommissionCalculation
+  -ThreadSafeSingletonSynchronizedMethod()
+  {static} +«synchronized» getInstance(): ThreadSafeSingletonSynchronizedMethod
+  +getCommissionCalculation(): CommissionCalculation
+  +calculateCommission(dealId, salesRepId, amount): CommissionCalculation
+}
+
+' Thread-Safe Singleton - Double-Checked Locking
+class ThreadSafeSingletonDoubleCheckedLocking <<Singleton>> {
+  {static} -«volatile» instance: ThreadSafeSingletonDoubleCheckedLocking
+  -commissionCalculation: CommissionCalculation
+  -ThreadSafeSingletonDoubleCheckedLocking()
+  {static} +getInstance(): ThreadSafeSingletonDoubleCheckedLocking
+  +getCommissionCalculation(): CommissionCalculation
+  +calculateCommission(dealId, salesRepId, amount): CommissionCalculation
+}
+
+' Thread-Safe Singleton - Eager Initialization
+class ThreadSafeSingletonEagerInitialization <<Singleton>> {
+  {static} -instance: ThreadSafeSingletonEagerInitialization = new ...
+  -commissionCalculation: CommissionCalculation
+  -ThreadSafeSingletonEagerInitialization()
+  {static} +getInstance(): ThreadSafeSingletonEagerInitialization
+  +getCommissionCalculation(): CommissionCalculation
+  +calculateCommission(dealId, salesRepId, amount): CommissionCalculation
+}
+
+' Thread-Safe Singleton - Initialization-on-Demand
+class ThreadSafeSingletonInitializationOnDemand <<Singleton>> {
+  -commissionCalculation: CommissionCalculation
+  -ThreadSafeSingletonInitializationOnDemand()
+  {static} +getInstance(): ThreadSafeSingletonInitializationOnDemand
+  +getCommissionCalculation(): CommissionCalculation
+  +calculateCommission(dealId, salesRepId, amount): CommissionCalculation
+}
+
+class Holder <<StaticHolder>> {
+  {static} +INSTANCE: ThreadSafeSingletonInitializationOnDemand
+}
+
+' Enum Singleton
+enum EnumSingleton <<Singleton>> {
+  INSTANCE
+  -commissionCalculation: CommissionCalculation
+  +getCommissionCalculation(): CommissionCalculation
+  +calculateCommission(dealId, salesRepId, amount): CommissionCalculation
+}
+
+' Domain Model
+class CommissionCalculation <<DomainModel>> {
+  -id: String
+  -calculatedBy: String
+  -dealId: String
+  -salesRepId: String
+  -baseCommission: BigDecimal
+  +recalculate(): void
+}
+
+' Relationships
+ThreadSafeSingletonInitializationOnDemand +-- Holder : contains >
+Holder --> ThreadSafeSingletonInitializationOnDemand : holds instance
+
+BasicSingleton --> CommissionCalculation : manages
+ThreadSafeSingletonSynchronizedMethod --> CommissionCalculation : manages
+ThreadSafeSingletonDoubleCheckedLocking --> CommissionCalculation : manages
+ThreadSafeSingletonEagerInitialization --> CommissionCalculation : manages
+ThreadSafeSingletonInitializationOnDemand --> CommissionCalculation : manages
+EnumSingleton --> CommissionCalculation : manages
+
+' Pattern component notes
+note bottom of BasicSingleton
+  <b>Basic Singleton (NOT Thread-Safe)</b>
+  • Private constructor prevents instantiation
+  • Static instance variable
+  • Static getInstance() creates instance lazily
+  • Simple but NOT thread-safe
+
+  <b>Problem:</b>
+  Multiple threads can create multiple instances
+  if getInstance() is called simultaneously.
+end note
+
+note bottom of ThreadSafeSingletonSynchronizedMethod
+  <b>Synchronized Method (Thread-Safe)</b>
+  • Entire getInstance() method is synchronized
+  • Guarantees thread safety
+  • Simple to implement
+
+  <b>Trade-off:</b>
+  Performance overhead - synchronization
+  on EVERY call, even after initialization.
+end note
+
+note bottom of ThreadSafeSingletonDoubleCheckedLocking
+  <b>Double-Checked Locking (Thread-Safe)</b>
+  • Uses volatile keyword for instance
+  • Checks instance twice (before and after lock)
+  • Synchronizes only during initialization
+
+  <b>Advantage:</b>
+  Minimal synchronization overhead -
+  only locks when instance is null.
+end note
+
+note bottom of ThreadSafeSingletonEagerInitialization
+  <b>Eager Initialization (Thread-Safe)</b>
+  • Instance created at class loading time
+  • No synchronization needed
+  • JVM guarantees thread safety
+
+  <b>Trade-off:</b>
+  Instance created even if never used.
+  Not suitable for resource-heavy objects.
+end note
+
+note bottom of ThreadSafeSingletonInitializationOnDemand
+  <b>Initialization-on-Demand Holder (Thread-Safe)</b>
+  • Uses static inner class (Holder)
+  • JVM handles synchronization
+  • Lazy initialization without explicit locking
+
+  <b>Advantage:</b>
+  Best of both worlds - lazy initialization
+  AND thread safety without synchronization.
+  Recommended approach for most cases.
+end note
+
+note bottom of EnumSingleton
+  <b>Enum Singleton (Thread-Safe)</b>
+  • Uses Java enum type
+  • JVM guarantees single instance
+  • Serialization-safe by default
+  • Cannot be instantiated via reflection
+
+  <b>Advantage:</b>
+  Simplest and safest implementation.
+  Joshua Bloch recommendation in
+  "Effective Java".
+end note
+
+note bottom of CommissionCalculation
+  <b>Domain Model</b>
+  The object managed by singleton.
+  Contains commission calculation logic.
+end note
+
+' Legend
+note bottom of EnumSingleton
+  <b>Singleton Pattern Components:</b>
+
+  <b>Private Constructor:</b> Prevents
+  external instantiation of the class.
+
+  <b>Static Instance Variable:</b> Holds
+  the single instance of the class.
+
+  <b>Static getInstance() Method:</b>
+  Provides global access point to
+  the singleton instance.
+
+  <b>Key Considerations:</b>
+  • Thread safety requirements
+  • Lazy vs. Eager initialization
+  • Performance impact
+  • Serialization handling
+  • Reflection attacks
+end note
+
+@enduml

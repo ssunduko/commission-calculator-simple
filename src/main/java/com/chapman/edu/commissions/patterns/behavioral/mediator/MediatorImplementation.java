@@ -1,14 +1,11 @@
 package com.chapman.edu.commissions.patterns.behavioral.mediator;
 
 import com.chapman.edu.commissions.model.*;
+import com.chapman.edu.commissions.patterns.behavioral.mediator.MediatorStructure.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * MEDIATOR PATTERN - COMMISSION SYSTEM IMPLEMENTATION
@@ -39,125 +36,8 @@ import java.util.Map;
  * 4. Can modify workflow without changing components
  * 5. Reduces dependencies between subsystems
  *
- * @author Commission Calculator Educational Project
  */
 public class MediatorImplementation {
-
-    /**
-     * COMMISSION EVENT
-     *
-     * Represents events that occur in the commission system.
-     * Events are passed through the mediator to interested components.
-     */
-    public static class CommissionEvent {
-        private final String eventType;
-        private final String sourceComponent;
-        private final Map<String, Object> data;
-        private final LocalDateTime timestamp;
-
-        public CommissionEvent(String eventType, String sourceComponent) {
-            this.eventType = eventType;
-            this.sourceComponent = sourceComponent;
-            this.data = new HashMap<>();
-            this.timestamp = LocalDateTime.now();
-        }
-
-        public CommissionEvent addData(String key, Object value) {
-            data.put(key, value);
-            return this;
-        }
-
-        public String getEventType() {
-            return eventType;
-        }
-
-        public String getSourceComponent() {
-            return sourceComponent;
-        }
-
-        public Object getData(String key) {
-            return data.get(key);
-        }
-
-        public Map<String, Object> getAllData() {
-            return new HashMap<>(data);
-        }
-
-        public LocalDateTime getTimestamp() {
-            return timestamp;
-        }
-
-        @Override
-        public String toString() {
-            return "CommissionEvent{" +
-                   "type='" + eventType + '\'' +
-                   ", source='" + sourceComponent + '\'' +
-                   ", data=" + data +
-                   '}';
-        }
-    }
-
-    /**
-     * COMMISSION SYSTEM MEDIATOR INTERFACE
-     *
-     * Defines the interface for coordinating commission system components.
-     */
-    public interface CommissionSystemMediator {
-        void registerComponent(SystemComponent component);
-        void notify(SystemComponent sender, CommissionEvent event);
-        void unregisterComponent(SystemComponent component);
-    }
-
-    /**
-     * SYSTEM COMPONENT (Colleague Base Class)
-     *
-     * Base class for all components in the commission system.
-     * Each component knows the mediator but not other components.
-     */
-    public static abstract class SystemComponent {
-        protected CommissionSystemMediator mediator;
-        protected String componentName;
-        protected boolean enabled = true;
-
-        public SystemComponent(String componentName) {
-            this.componentName = componentName;
-        }
-
-        public void setMediator(CommissionSystemMediator mediator) {
-            this.mediator = mediator;
-        }
-
-        public String getComponentName() {
-            return componentName;
-        }
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        /**
-         * Send an event through the mediator.
-         */
-        protected void sendEvent(CommissionEvent event) {
-            if (mediator != null && enabled) {
-                mediator.notify(this, event);
-            }
-        }
-
-        /**
-         * Handle an event received from the mediator.
-         */
-        public abstract void handleEvent(CommissionEvent event);
-
-        /**
-         * Check if this component is interested in the given event type.
-         */
-        public abstract boolean isInterestedIn(String eventType);
-    }
 
     /**
      * CONCRETE MEDIATOR - Commission Coordination Hub
@@ -573,86 +453,5 @@ public class MediatorImplementation {
             System.out.println("Approvals Required: " + approvalsRequired);
             System.out.println("=".repeat(60));
         }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows how the Mediator pattern coordinates commission system components.
-     */
-    public static void main(String[] args) {
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║     MEDIATOR PATTERN - COMMISSION SYSTEM DEMO             ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
-
-        // Create mediator
-        CommissionCoordinationHub hub = new CommissionCoordinationHub();
-
-        // Create and register components
-        System.out.println("Setting up commission system components...\n");
-
-        DealTrackerComponent dealTracker = new DealTrackerComponent();
-        CommissionCalculatorComponent calculator = new CommissionCalculatorComponent();
-        ApprovalWorkflowComponent approvalWorkflow = new ApprovalWorkflowComponent();
-        NotificationComponent notifications = new NotificationComponent();
-        AuditLogComponent auditLog = new AuditLogComponent();
-        DisputeTrackerComponent disputeTracker = new DisputeTrackerComponent();
-        AnalyticsComponent analytics = new AnalyticsComponent();
-
-        hub.registerComponent(dealTracker);
-        hub.registerComponent(calculator);
-        hub.registerComponent(approvalWorkflow);
-        hub.registerComponent(notifications);
-        hub.registerComponent(auditLog);
-        hub.registerComponent(disputeTracker);
-        hub.registerComponent(analytics);
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-
-        // Scenario 1: Low-value deal (auto-approved)
-        System.out.println("SCENARIO 1: Low-Value Deal ($25,000)\n");
-        Deal deal1 = new Deal("Small Software License", new BigDecimal("25000"), "REP-001");
-        deal1.setId("DEAL-001");
-        deal1.setStatus(DealStatus.WON);
-        deal1.setCloseDate(LocalDate.now());
-
-        dealTracker.onDealWon(deal1);
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-
-        // Scenario 2: High-value deal (requires approval)
-        System.out.println("SCENARIO 2: High-Value Deal ($100,000)\n");
-        Deal deal2 = new Deal("Enterprise Software Suite", new BigDecimal("100000"), "REP-002");
-        deal2.setId("DEAL-002");
-        deal2.setStatus(DealStatus.WON);
-        deal2.setCloseDate(LocalDate.now());
-
-        dealTracker.onDealWon(deal2);
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-
-        // Display results
-        auditLog.printAuditTrail();
-        System.out.println();
-        analytics.printStatistics();
-
-        System.out.println("\n📧 Notifications Sent: " + notifications.getSentNotifications().size());
-        System.out.println("⚠️  Disputes Flagged: " + disputeTracker.getFlaggedDisputes().size());
-
-        System.out.println("\n\n╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                         SUMMARY                           ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println();
-        System.out.println("The mediator coordinated 7 components without them knowing");
-        System.out.println("about each other:");
-        System.out.println("  • Deal Tracker → Commission Calculator → Approval");
-        System.out.println("  • All events → Notifications → Audit Log → Analytics");
-        System.out.println();
-        System.out.println("Benefits demonstrated:");
-        System.out.println("  ✓ Loose coupling between components");
-        System.out.println("  ✓ Centralized coordination logic");
-        System.out.println("  ✓ Easy to add/remove components");
-        System.out.println("  ✓ Complete audit trail automatically created");
-        System.out.println();
     }
 }

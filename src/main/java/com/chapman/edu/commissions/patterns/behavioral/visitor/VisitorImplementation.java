@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import com.chapman.edu.commissions.patterns.behavioral.visitor.VisitorStructure.*;
+
 /**
  * VISITOR PATTERN - COMMISSION SYSTEM IMPLEMENTATION
  *
@@ -37,34 +39,8 @@ import java.util.*;
  * 4. Operations can maintain state across multiple visits
  * 5. Easy to create complex multi-object reports and analyses
  *
- * @author Commission Calculator Educational Project
  */
 public class VisitorImplementation {
-
-    /**
-     * COMMISSION ENTITY VISITOR INTERFACE
-     *
-     * Defines visit methods for each type of commission-related entity.
-     * Each method represents the ability to perform an operation on that specific entity type.
-     */
-    public interface CommissionEntityVisitor {
-        void visitDeal(CommissionDeal deal);
-        void visitCommissionPlan(CommissionPlanEntity plan);
-        void visitUser(UserEntity user);
-        void visitDispute(DisputeEntity dispute);
-    }
-
-    /**
-     * COMMISSION ENTITY INTERFACE
-     *
-     * All visitable commission entities implement this interface.
-     * The accept method enables the double-dispatch mechanism.
-     */
-    public interface CommissionEntity {
-        void accept(CommissionEntityVisitor visitor);
-        String getId();
-        String getEntityType();
-    }
 
     /**
      * COMMISSION DEAL - Visitable Element
@@ -761,119 +737,5 @@ public class VisitorImplementation {
         public String getCsvData() {
             return csvData.toString();
         }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows how the Visitor pattern works with commission entities.
-     */
-    public static void main(String[] args) {
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║      VISITOR PATTERN - COMMISSION SYSTEM DEMO             ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
-
-        // Create sample entities
-        List<CommissionEntity> entities = createSampleEntities();
-
-        System.out.println("Created " + entities.size() + " commission entities\n");
-        System.out.println("=".repeat(60) + "\n");
-
-        // Operation 1: Generate Report
-        System.out.println("OPERATION 1: Generating Comprehensive Report\n");
-        ReportVisitor reportVisitor = new ReportVisitor();
-        for (CommissionEntity entity : entities) {
-            entity.accept(reportVisitor);
-        }
-        System.out.println(reportVisitor.getReport());
-
-        // Operation 2: Validate Entities
-        System.out.println("\nOPERATION 2: Validating All Entities\n");
-        ValidationVisitor validationVisitor = new ValidationVisitor();
-        for (CommissionEntity entity : entities) {
-            entity.accept(validationVisitor);
-        }
-        System.out.println(validationVisitor.getValidationReport());
-
-        // Operation 3: Collect Statistics
-        System.out.println("\nOPERATION 3: Collecting Statistics\n");
-        StatisticsVisitor statsVisitor = new StatisticsVisitor();
-        for (CommissionEntity entity : entities) {
-            entity.accept(statsVisitor);
-        }
-        System.out.println(statsVisitor.getStatisticsReport());
-
-        // Operation 4: Export to CSV
-        System.out.println("\nOPERATION 4: Exporting to CSV\n");
-        CsvExportVisitor csvVisitor = new CsvExportVisitor();
-        for (CommissionEntity entity : entities) {
-            entity.accept(csvVisitor);
-        }
-        System.out.println("CSV Export:");
-        System.out.println(csvVisitor.getCsvData());
-
-        System.out.println("\n═══════════════════════════════════════════════════════════");
-        System.out.println("KEY BENEFIT: Added 4 operations without modifying domain models!");
-        System.out.println("═══════════════════════════════════════════════════════════\n");
-    }
-
-    /**
-     * Helper method to create sample entities for demonstration
-     */
-    private static List<CommissionEntity> createSampleEntities() {
-        List<CommissionEntity> entities = new ArrayList<>();
-
-        // Create deals
-        Deal deal1 = new Deal("Enterprise Software License", new BigDecimal("150000"), "REP-001");
-        deal1.setId("DEAL-001");
-        deal1.setStatus(DealStatus.WON);
-        deal1.setCloseDate(LocalDate.of(2024, 3, 15));
-        entities.add(new CommissionDeal(deal1));
-
-        Deal deal2 = new Deal("Hardware Upgrade", new BigDecimal("85000"), "REP-002");
-        deal2.setId("DEAL-002");
-        deal2.setStatus(DealStatus.OPEN);
-        entities.add(new CommissionDeal(deal2));
-
-        Deal deal3 = new Deal("Consulting Services", new BigDecimal("120000"), "REP-001");
-        deal3.setId("DEAL-003");
-        deal3.setStatus(DealStatus.WON);
-        deal3.setCloseDate(LocalDate.of(2024, 4, 20));
-        entities.add(new CommissionDeal(deal3));
-
-        // Create commission plan
-        CommissionPlan plan = new CommissionPlan("Q2 2024 Sales Plan", java.util.Currency.getInstance("USD"));
-        plan.setId("PLAN-001");
-        plan.setStatus(PlanStatus.ACTIVE);
-        plan.setEffectiveStartDate(LocalDate.of(2024, 4, 1));
-        plan.setEffectiveEndDate(LocalDate.of(2024, 6, 30));
-        plan.addRule(new CommissionRule("Base Rate", new BigDecimal("0.10"), CommissionRule.RuleType.STANDARD));
-        plan.addTier(new CommissionTier("Tier 1", BigDecimal.ZERO, new BigDecimal("100000"), new BigDecimal("10")));
-        entities.add(new CommissionPlanEntity(plan));
-
-        // Create users
-        User user1 = new User();
-        user1.setId("REP-001");
-        user1.setFirstName("John");
-        user1.setLastName("Smith");
-        user1.setEmail("john.smith@example.com");
-        user1.addRole(UserRole.SALES_REP);
-        entities.add(new UserEntity(user1));
-
-        User user2 = new User();
-        user2.setId("REP-002");
-        user2.setFirstName("Jane");
-        user2.setLastName("Doe");
-        user2.setEmail("jane.doe@example.com");
-        user2.addRole(UserRole.SALES_REP);
-        entities.add(new UserEntity(user2));
-
-        // Create dispute
-        Dispute dispute = new Dispute("CALC-001", "REP-001", "Commission Discrepancy", "Amount calculated does not match expected");
-        dispute.setId("DISP-001");
-        dispute.setStatus(DisputeStatus.UNDER_REVIEW);
-        entities.add(new DisputeEntity(dispute));
-
-        return entities;
     }
 }

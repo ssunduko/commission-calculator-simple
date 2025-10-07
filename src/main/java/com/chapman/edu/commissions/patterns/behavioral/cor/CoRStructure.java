@@ -1,5 +1,13 @@
 package com.chapman.edu.commissions.patterns.behavioral.cor;
 
+import com.chapman.edu.commissions.model.Deal;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * CHAIN OF RESPONSIBILITY PATTERN - STRUCTURAL DEMONSTRATION
  *
@@ -39,372 +47,169 @@ package com.chapman.edu.commissions.patterns.behavioral.cor;
 public class CoRStructure {
 
     /**
-     * REQUEST CLASS
+     * APPROVAL HANDLER INTERFACE
      *
-     * Represents a request that needs to be processed by the chain.
-     * Contains data and metadata about what needs to be handled.
+     * Defines the interface for commission approval handlers.
      */
-    public static class Request {
-        private final String type;
-        private final int priority;
-        private final String data;
-        private boolean handled = false;
-
-        public Request(String type, int priority, String data) {
-            this.type = type;
-            this.priority = priority;
-            this.data = data;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public int getPriority() {
-            return priority;
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public boolean isHandled() {
-            return handled;
-        }
-
-        public void markAsHandled() {
-            this.handled = true;
-        }
-
-        @Override
-        public String toString() {
-            return "Request{type='" + type + "', priority=" + priority +
-                   ", data='" + data + "', handled=" + handled + "}";
-        }
+    public interface ApprovalHandler {
+        ApprovalHandler setNext(ApprovalHandler handler);
+        void approve(CommissionApprovalRequest request);
+        String getHandlerName();
     }
 
     /**
-     * HANDLER INTERFACE
+     * BASE APPROVAL HANDLER
      *
-     * Defines the interface for handling requests.
-     * Can be an interface or abstract class.
-     *
-     * KEY RESPONSIBILITIES:
-     * - Define method for handling requests
-     * - Maintain reference to next handler in chain
-     * - Provide mechanism to set the next handler
+     * Provides common chain management logic for all approval handlers.
      */
-    public interface Handler {
-        /**
-         * Set the next handler in the chain.
-         *
-         * @param handler The next handler
-         * @return The next handler (for fluent chain building)
-         */
-        Handler setNext(Handler handler);
-
-        /**
-         * Handle the request.
-         * Each handler decides whether to process the request, pass it along, or both.
-         *
-         * @param request The request to handle
-         */
-        void handle(Request request);
-    }
-
-    /**
-     * BASE HANDLER (Abstract Implementation)
-     *
-     * Provides default implementation of chain behavior.
-     * Concrete handlers extend this to inherit chain management logic.
-     *
-     * KEY BENEFIT: Handlers only need to implement their specific logic,
-     * not the chain management code.
-     */
-    public static abstract class AbstractHandler implements Handler {
-        private Handler nextHandler;
+    public static abstract class BaseApprovalHandler implements ApprovalHandler {
+        private ApprovalHandler nextHandler;
 
         @Override
-        public Handler setNext(Handler handler) {
+        public ApprovalHandler setNext(ApprovalHandler handler) {
             this.nextHandler = handler;
-            return handler;  // Allows fluent chaining: h1.setNext(h2).setNext(h3)
+            return handler;
         }
 
         @Override
-        public void handle(Request request) {
-            if (canHandle(request)) {
-                // This handler can process the request
-                processRequest(request);
+        public void approve(CommissionApprovalRequest request) {
+            // Check if request already processed
+            if (request.isProcessed()) {
+                passToNext(request);
+                return;
+            }
 
-                // Optionally continue chain even after processing
+            // Check if this handler can process
+            if (canApprove(request)) {
+                processApproval(request);
+
+                // Continue chain if needed (e.g., for audit trail)
                 if (shouldContinueChain(request)) {
                     passToNext(request);
                 }
             } else {
-                // This handler cannot process, pass to next
+                // This handler cannot approve, pass to next
+                request.addToHistory("→ Forwarded to " +
+                        (nextHandler != null ? nextHandler.getHandlerName() : "next level"));
                 passToNext(request);
             }
         }
 
-        /**
-         * Pass the request to the next handler in the chain.
-         * If there's no next handler, the request ends here.
-         *
-         * @param request The request to pass
-         */
-        protected void passToNext(Request request) {
+        protected void passToNext(CommissionApprovalRequest request) {
             if (nextHandler != null) {
-                nextHandler.handle(request);
+                nextHandler.approve(request);
             } else {
-                // End of chain - request not handled
-                if (!request.isHandled()) {
-                    System.out.println("⚠️  End of chain reached - Request not handled: " + request);
+                // End of chain
+                if (!request.isProcessed()) {
+                    request.reject("System", "No approver available at this level");
+                    System.out.println("⚠️  End of approval chain - Request requires higher authority");
                 }
             }
         }
 
-        /**
-         * Determine if this handler can process the request.
-         * Subclasses override this to define their handling criteria.
-         *
-         * @param request The request to check
-         * @return true if this handler can process the request
-         */
-        protected abstract boolean canHandle(Request request);
+        protected abstract boolean canApprove(CommissionApprovalRequest request);
+        protected abstract void processApproval(CommissionApprovalRequest request);
 
-        /**
-         * Process the request.
-         * Subclasses override this to define their specific processing logic.
-         *
-         * @param request The request to process
-         */
-        protected abstract void processRequest(Request request);
-
-        /**
-         * Determine if the chain should continue after this handler processes the request.
-         * Default is false (stop after handling), but subclasses can override.
-         *
-         * @param request The request being processed
-         * @return true if the chain should continue
-         */
-        protected boolean shouldContinueChain(Request request) {
-            return false;  // Default: stop chain after handling
+        protected boolean shouldContinueChain(CommissionApprovalRequest request) {
+            return false;  // Default: stop after approval
         }
     }
-
     /**
-     * CONCRETE HANDLER 1 - Low Priority Handler
+     * COMMISSION APPROVAL REQUEST
      *
-     * Handles requests with priority 1-3.
+     * Represents a commission that needs approval.
+     * Contains all necessary information for approval decision.
      */
-    public static class LowPriorityHandler extends AbstractHandler {
-        @Override
-        protected boolean canHandle(Request request) {
-            return request.getPriority() >= 1 && request.getPriority() <= 3;
+    public static class CommissionApprovalRequest {
+        private final String requestId;
+        private final Deal deal;
+        private final String salesRepId;
+        private final String salesRepName;
+        private final BigDecimal commissionAmount;
+        private final LocalDate requestDate;
+        private final List<String> approvalHistory;
+        private boolean approved = false;
+        private boolean rejected = false;
+        private String rejectionReason;
+
+        public CommissionApprovalRequest(String requestId, Deal deal, String salesRepId,
+                                         String salesRepName, BigDecimal commissionAmount) {
+            this.requestId = requestId;
+            this.deal = deal;
+            this.salesRepId = salesRepId;
+            this.salesRepName = salesRepName;
+            this.commissionAmount = commissionAmount.setScale(2, RoundingMode.HALF_UP);
+            this.requestDate = LocalDate.now();
+            this.approvalHistory = new ArrayList<>();
+        }
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public Deal getDeal() {
+            return deal;
+        }
+
+        public String getSalesRepId() {
+            return salesRepId;
+        }
+
+        public String getSalesRepName() {
+            return salesRepName;
+        }
+
+        public BigDecimal getCommissionAmount() {
+            return commissionAmount;
+        }
+
+        public LocalDate getRequestDate() {
+            return requestDate;
+        }
+
+        public List<String> getApprovalHistory() {
+            return new ArrayList<>(approvalHistory);
+        }
+
+        public void addToHistory(String entry) {
+            approvalHistory.add(entry);
+        }
+
+        public boolean isApproved() {
+            return approved;
+        }
+
+        public void approve(String approver, String comments) {
+            this.approved = true;
+            addToHistory("✓ APPROVED by " + approver + ": " + comments);
+        }
+
+        public boolean isRejected() {
+            return rejected;
+        }
+
+        public void reject(String rejector, String reason) {
+            this.rejected = true;
+            this.rejectionReason = reason;
+            addToHistory("✗ REJECTED by " + rejector + ": " + reason);
+        }
+
+        public String getRejectionReason() {
+            return rejectionReason;
+        }
+
+        public boolean isProcessed() {
+            return approved || rejected;
         }
 
         @Override
-        protected void processRequest(Request request) {
-            System.out.println("✓ LowPriorityHandler: Processing " + request.getType() +
-                             " (Priority: " + request.getPriority() + ")");
-            System.out.println("  → Standard processing: " + request.getData());
-            request.markAsHandled();
+        public String toString() {
+            return "CommissionApprovalRequest{" +
+                    "id='" + requestId + '\'' +
+                    ", salesRep='" + salesRepName + '\'' +
+                    ", amount=$" + commissionAmount +
+                    ", dealTitle='" + deal.getTitle() + '\'' +
+                    '}';
         }
-    }
-
-    /**
-     * CONCRETE HANDLER 2 - Medium Priority Handler
-     *
-     * Handles requests with priority 4-6.
-     */
-    public static class MediumPriorityHandler extends AbstractHandler {
-        @Override
-        protected boolean canHandle(Request request) {
-            return request.getPriority() >= 4 && request.getPriority() <= 6;
-        }
-
-        @Override
-        protected void processRequest(Request request) {
-            System.out.println("✓ MediumPriorityHandler: Processing " + request.getType() +
-                             " (Priority: " + request.getPriority() + ")");
-            System.out.println("  → Enhanced processing: " + request.getData());
-            request.markAsHandled();
-        }
-    }
-
-    /**
-     * CONCRETE HANDLER 3 - High Priority Handler
-     *
-     * Handles requests with priority 7-10.
-     */
-    public static class HighPriorityHandler extends AbstractHandler {
-        @Override
-        protected boolean canHandle(Request request) {
-            return request.getPriority() >= 7 && request.getPriority() <= 10;
-        }
-
-        @Override
-        protected void processRequest(Request request) {
-            System.out.println("✓ HighPriorityHandler: Processing " + request.getType() +
-                             " (Priority: " + request.getPriority() + ")");
-            System.out.println("  → URGENT processing: " + request.getData());
-            request.markAsHandled();
-        }
-    }
-
-    /**
-     * CONCRETE HANDLER 4 - Logging Handler (Decorator-style)
-     *
-     * Demonstrates a handler that processes AND continues the chain.
-     * Acts like a decorator/interceptor in the chain.
-     */
-    public static class LoggingHandler extends AbstractHandler {
-        @Override
-        protected boolean canHandle(Request request) {
-            return true;  // Log all requests
-        }
-
-        @Override
-        protected void processRequest(Request request) {
-            System.out.println("📝 LoggingHandler: Logging request - " + request);
-            // Don't mark as handled - this is just logging
-        }
-
-        @Override
-        protected boolean shouldContinueChain(Request request) {
-            return true;  // Always continue - this is a cross-cutting concern
-        }
-    }
-
-    /**
-     * CONCRETE HANDLER 5 - Validation Handler
-     *
-     * Another decorator-style handler that validates and continues.
-     */
-    public static class ValidationHandler extends AbstractHandler {
-        @Override
-        protected boolean canHandle(Request request) {
-            return true;  // Validate all requests
-        }
-
-        @Override
-        protected void processRequest(Request request) {
-            System.out.println("🔍 ValidationHandler: Validating request...");
-
-            // Perform validation
-            if (request.getData() == null || request.getData().isEmpty()) {
-                System.out.println("  ✗ Validation failed: Empty data");
-                request.markAsHandled();  // Stop chain on validation failure
-                return;
-            }
-
-            System.out.println("  ✓ Validation passed");
-            // Don't mark as handled - let other handlers process
-        }
-
-        @Override
-        protected boolean shouldContinueChain(Request request) {
-            // Continue only if validation passed (not marked as handled)
-            return !request.isHandled();
-        }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows how the Chain of Responsibility pattern works.
-     */
-    public static void main(String[] args) {
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║   CHAIN OF RESPONSIBILITY PATTERN - DEMONSTRATION         ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
-
-        System.out.println("SCENARIO 1: Simple Chain (Priority-based routing)\n");
-        System.out.println("Chain: Low → Medium → High\n");
-        System.out.println("=".repeat(60));
-
-        // Build the chain
-        Handler lowHandler = new LowPriorityHandler();
-        Handler mediumHandler = new MediumPriorityHandler();
-        Handler highHandler = new HighPriorityHandler();
-
-        lowHandler.setNext(mediumHandler).setNext(highHandler);
-
-        // Send requests through the chain
-        Request req1 = new Request("Task A", 2, "Low priority task");
-        Request req2 = new Request("Task B", 5, "Medium priority task");
-        Request req3 = new Request("Task C", 9, "High priority task");
-
-        System.out.println("\n→ Sending low priority request:");
-        lowHandler.handle(req1);
-
-        System.out.println("\n→ Sending medium priority request:");
-        lowHandler.handle(req2);
-
-        System.out.println("\n→ Sending high priority request:");
-        lowHandler.handle(req3);
-
-        // Request that no handler can process
-        System.out.println("\n→ Sending invalid priority request:");
-        Request req4 = new Request("Task D", 15, "Out of range priority");
-        lowHandler.handle(req4);
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-
-        // Scenario 2: Chain with interceptors
-        System.out.println("SCENARIO 2: Chain with Interceptors (Cross-cutting concerns)\n");
-        System.out.println("Chain: Logging → Validation → Low → Medium → High\n");
-        System.out.println("=".repeat(60));
-
-        // Build chain with interceptors
-        Handler loggingHandler = new LoggingHandler();
-        Handler validationHandler = new ValidationHandler();
-        Handler lowHandler2 = new LowPriorityHandler();
-        Handler mediumHandler2 = new MediumPriorityHandler();
-        Handler highHandler2 = new HighPriorityHandler();
-
-        loggingHandler.setNext(validationHandler)
-                     .setNext(lowHandler2)
-                     .setNext(mediumHandler2)
-                     .setNext(highHandler2);
-
-        // Send requests
-        System.out.println("\n→ Sending valid request:");
-        Request req5 = new Request("Task E", 3, "Valid low priority task");
-        loggingHandler.handle(req5);
-
-        System.out.println("\n→ Sending invalid request (empty data):");
-        Request req6 = new Request("Task F", 5, "");
-        loggingHandler.handle(req6);
-
-        System.out.println("\n" + "=".repeat(60) + "\n");
-
-        // Summary
-        System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                      KEY OBSERVATIONS                     ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println();
-        System.out.println("1. DECOUPLING");
-        System.out.println("   → Client doesn't know which handler will process request");
-        System.out.println("   → Handlers don't know about each other, only their successor");
-        System.out.println();
-        System.out.println("2. DYNAMIC CHAIN");
-        System.out.println("   → Chain can be assembled at runtime");
-        System.out.println("   → Easy to add/remove handlers without affecting client");
-        System.out.println();
-        System.out.println("3. FLEXIBLE PROCESSING");
-        System.out.println("   → Handler can: process and stop, process and continue, or just pass");
-        System.out.println("   → Enables interceptors and cross-cutting concerns");
-        System.out.println();
-        System.out.println("4. SINGLE RESPONSIBILITY");
-        System.out.println("   → Each handler has one responsibility");
-        System.out.println("   → No complex if-else chains in client code");
-        System.out.println();
-        System.out.println("5. OPEN/CLOSED PRINCIPLE");
-        System.out.println("   → Easy to add new handler types");
-        System.out.println("   → Existing handlers don't need modification");
-        System.out.println();
-        System.out.println("═══════════════════════════════════════════════════════════");
-        System.out.println();
     }
 }

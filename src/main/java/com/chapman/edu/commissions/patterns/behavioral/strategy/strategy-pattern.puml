@@ -1,0 +1,257 @@
+@startuml Strategy Pattern - Commission Calculator
+
+' Define the styles (matching state pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Strategy Pattern - Commission Calculator
+
+' Strategy Interfaces
+interface CommissionStrategy <<Strategy>> {
+  +calculateCommission(deal: Deal): BigDecimal
+  +getStrategyDescription(): String
+}
+
+interface BonusStrategy <<Strategy>> {
+  +calculateBonus(baseCommission: BigDecimal, deal: Deal): BigDecimal
+  +appliesTo(deal: Deal): boolean
+  +getStrategyName(): String
+}
+
+interface PaymentTermsStrategy <<Strategy>> {
+  +adjustForPaymentTerms(baseCommission: BigDecimal, paymentTermsInDays: int): BigDecimal
+  +getAdjustmentDescription(): String
+}
+
+' Concrete Commission Strategies
+class StandardRateStrategy <<ConcreteStrategy>> {
+  -rate: BigDecimal
+  +calculateCommission(deal: Deal): BigDecimal
+  +getStrategyDescription(): String
+}
+
+class TieredRateStrategy <<ConcreteStrategy>> {
+  +calculateCommission(deal: Deal): BigDecimal
+  +getStrategyDescription(): String
+}
+
+class FlatFeeStrategy <<ConcreteStrategy>> {
+  -flatFee: BigDecimal
+  +calculateCommission(deal: Deal): BigDecimal
+  +getStrategyDescription(): String
+}
+
+class GrossProfitStrategy <<ConcreteStrategy>> {
+  -rate: BigDecimal
+  -costPercentage: BigDecimal
+  +calculateCommission(deal: Deal): BigDecimal
+  +getStrategyDescription(): String
+}
+
+' Concrete Bonus Strategies
+class QuotaAchievementBonusStrategy <<ConcreteStrategy>> {
+  -quotaThreshold: BigDecimal
+  -bonusPercentage: BigDecimal
+  +calculateBonus(baseCommission: BigDecimal, deal: Deal): BigDecimal
+  +appliesTo(deal: Deal): boolean
+  +getStrategyName(): String
+}
+
+class EarlyCloseBonusStrategy <<ConcreteStrategy>> {
+  -bonusAmount: BigDecimal
+  +calculateBonus(baseCommission: BigDecimal, deal: Deal): BigDecimal
+  +appliesTo(deal: Deal): boolean
+  +getStrategyName(): String
+}
+
+class NewCustomerBonusStrategy <<ConcreteStrategy>> {
+  -bonusPercentage: BigDecimal
+  +calculateBonus(baseCommission: BigDecimal, deal: Deal): BigDecimal
+  +appliesTo(deal: Deal): boolean
+  +getStrategyName(): String
+}
+
+' Concrete Payment Terms Strategies
+class ImmediatePaymentStrategy <<ConcreteStrategy>> {
+  +adjustForPaymentTerms(baseCommission: BigDecimal, paymentTermsInDays: int): BigDecimal
+  +getAdjustmentDescription(): String
+}
+
+class DeferredPaymentStrategy <<ConcreteStrategy>> {
+  -discountRatePerMonth: BigDecimal
+  +adjustForPaymentTerms(baseCommission: BigDecimal, paymentTermsInDays: int): BigDecimal
+  +getAdjustmentDescription(): String
+}
+
+class SplitPaymentStrategy <<ConcreteStrategy>> {
+  -immediatePercentage: BigDecimal
+  +adjustForPaymentTerms(baseCommission: BigDecimal, paymentTermsInDays: int): BigDecimal
+  +getAdjustmentDescription(): String
+}
+
+' Context
+class CommissionCalculator <<Context>> {
+  -commissionStrategy: CommissionStrategy
+  -bonusStrategy: BonusStrategy
+  -paymentTermsStrategy: PaymentTermsStrategy
+  +setCommissionStrategy(strategy: CommissionStrategy): void
+  +setBonusStrategy(strategy: BonusStrategy): void
+  +setPaymentTermsStrategy(strategy: PaymentTermsStrategy): void
+  +calculateTotalCommission(deal: Deal, paymentTermsInDays: int): BigDecimal
+  +getStrategySummary(): String
+}
+
+' Deal class (from domain model)
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+}
+
+' Relationships - Commission Strategies
+CommissionStrategy <|.. StandardRateStrategy
+CommissionStrategy <|.. TieredRateStrategy
+CommissionStrategy <|.. FlatFeeStrategy
+CommissionStrategy <|.. GrossProfitStrategy
+
+' Relationships - Bonus Strategies
+BonusStrategy <|.. QuotaAchievementBonusStrategy
+BonusStrategy <|.. EarlyCloseBonusStrategy
+BonusStrategy <|.. NewCustomerBonusStrategy
+
+' Relationships - Payment Terms Strategies
+PaymentTermsStrategy <|.. ImmediatePaymentStrategy
+PaymentTermsStrategy <|.. DeferredPaymentStrategy
+PaymentTermsStrategy <|.. SplitPaymentStrategy
+
+' Context relationships
+CommissionCalculator o--> "1" CommissionStrategy
+CommissionCalculator o--> "0..1" BonusStrategy
+CommissionCalculator o--> "0..1" PaymentTermsStrategy
+
+CommissionCalculator ..> Deal : calculates for >
+CommissionStrategy ..> Deal : uses >
+BonusStrategy ..> Deal : uses >
+
+' Pattern component notes
+note right of CommissionStrategy
+  <b>Strategy Interface</b>
+  Defines algorithm contract for
+  commission calculation.
+  All concrete strategies must
+  implement this interface.
+end note
+
+note bottom of StandardRateStrategy
+  <b>Concrete Strategy</b>
+  Applies fixed percentage rate
+  to deal value.
+  Example: 10% of $100,000 = $10,000
+end note
+
+note bottom of TieredRateStrategy
+  <b>Concrete Strategy</b>
+  Uses tiered rates based on deal size:
+  • <$10k: 8%
+  • $10k-$50k: 10%
+  • $50k-$100k: 12%
+  • >=$100k: 15%
+end note
+
+note bottom of GrossProfitStrategy
+  <b>Concrete Strategy</b>
+  Calculates commission based
+  on profit margin instead of
+  revenue, encouraging profitable deals.
+end note
+
+note right of BonusStrategy
+  <b>Bonus Strategy Interface</b>
+  Separate family of algorithms
+  for bonus calculations.
+  Can be combined with commission
+  strategies for total compensation.
+end note
+
+note bottom of QuotaAchievementBonusStrategy
+  <b>Conditional Strategy</b>
+  Only applies when deal value
+  exceeds quota threshold.
+  Uses appliesTo() to determine
+  eligibility.
+end note
+
+note right of PaymentTermsStrategy
+  <b>Adjustment Strategy Interface</b>
+  Modifies commission based on
+  payment terms to account for
+  collection risk and timing.
+end note
+
+note bottom of SplitPaymentStrategy
+  <b>Split Payment</b>
+  Pays portion immediately,
+  remainder upon customer payment.
+  Balances cash flow and risk.
+end note
+
+note left of CommissionCalculator
+  <b>Context</b>
+  Maintains references to strategy objects
+  and delegates algorithm execution to them.
+  Can combine multiple strategies:
+  1. Base commission (required)
+  2. Bonus (optional)
+  3. Payment adjustment (optional)
+
+  <b>Key Method:</b>
+  calculateTotalCommission() orchestrates
+  all strategies to produce final result.
+end note
+
+note bottom of Deal
+  <b>Domain Model</b>
+  The object being operated on
+  by strategies. Contains all
+  data needed for calculations.
+end note
+
+' Legend
+legend right
+  <b>Strategy Pattern Components:</b>
+
+  <b>Strategy (Interface):</b> Declares interface
+  common to all supported algorithms.
+
+  <b>ConcreteStrategy:</b> Implements specific
+  algorithm using the Strategy interface.
+
+  <b>Context:</b> Maintains reference to Strategy
+  object and delegates algorithm execution.
+  Can be configured with different strategies
+  at runtime.
+
+  <b>Key Benefits:</b>
+  • Eliminates conditional statements
+  • Algorithms are interchangeable
+  • Easy to add new strategies
+  • Strategies are independently testable
+  • Follows Open/Closed Principle
+  • Enables runtime algorithm selection
+
+  <b>Pattern Variations:</b>
+  • Multiple strategy families (commission,
+    bonus, payment) work together
+  • Strategies can be composed for
+    complex calculations
+endlegend
+
+@enduml

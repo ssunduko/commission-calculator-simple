@@ -1,12 +1,12 @@
 package com.chapman.edu.commissions.patterns.behavioral.iterator;
 
+import com.chapman.edu.commissions.patterns.behavioral.iterator.IteratorStructure.*;
+
 import com.chapman.edu.commissions.model.*;
 import com.chapman.edu.commissions.patterns.behavioral.iterator.IteratorImplementation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ITERATOR PATTERN - PRACTICAL USAGE EXAMPLES
@@ -29,7 +29,6 @@ import java.util.List;
  * - Support for multiple simultaneous traversals
  * - Easy to extend with new iteration types
  *
- * @author Commission Calculator Educational Project
  */
 public class IteratorUsage {
 
@@ -40,7 +39,7 @@ public class IteratorUsage {
      */
     public static void exampleReportGeneration() {
         System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║     EXAMPLE 1: Report Generation with Filters            ║");
+        System.out.println("║     EXAMPLE 1: Report Generation with Filters             ║");
         System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
 
         System.out.println("Scenario: Generate different sales reports from same dataset\\n");
@@ -160,7 +159,7 @@ public class IteratorUsage {
      */
     public static void examplePagination() {
         System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║          EXAMPLE 3: Pagination                           ║");
+        System.out.println("║          EXAMPLE 3: Pagination                            ║");
         System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
 
         System.out.println("Scenario: Display deals in pages (5 per page)\\n");

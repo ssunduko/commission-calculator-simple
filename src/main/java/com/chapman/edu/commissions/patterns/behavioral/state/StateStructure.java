@@ -1,8 +1,8 @@
 package com.chapman.edu.commissions.patterns.behavioral.state;
 
+import java.math.BigDecimal;
 /**
  * STATE PATTERN - STRUCTURAL DEMONSTRATION
- *
  * PURPOSE:
  * The State Pattern allows an object to alter its behavior when its internal state changes.
  * The object will appear to change its class. This pattern encapsulates state-specific behavior
@@ -21,198 +21,73 @@ package com.chapman.edu.commissions.patterns.behavioral.state;
  * - You want to avoid duplicate code across similar states
  *
  * COMPONENTS:
- * 1. Context: Maintains a reference to the current State and delegates state-specific requests
- * 2. State (Interface): Defines the interface for encapsulating state-specific behavior
- * 3. ConcreteState: Implements behavior associated with a particular state of the Context
+ * 1. DisputeState (Interface): Defines the interface for encapsulating state-specific behavior
+ * 2. Concrete States (in StateImplementation): SubmittedState, UnderReviewState, EscalatedState, ResolvedState, ClosedState
+ * 3. DisputeContext (in StateImplementation): Maintains current state and delegates actions to state object
  *
- * @author Commission Calculator Educational Project
+ * STATE TRANSITIONS:
+ * SUBMITTED → UNDER_REVIEW (when reviewer assigned)
+ * SUBMITTED → ESCALATED (when escalated)
+ * UNDER_REVIEW → RESOLVED (when approved/rejected)
+ * UNDER_REVIEW → ESCALATED (when escalated)
+ * ESCALATED → UNDER_REVIEW (when reassigned to reviewer)
+ * ESCALATED → RESOLVED (when approved/rejected by management)
+ * RESOLVED → ESCALATED (when re-escalated)
+ * RESOLVED → CLOSED (when closed)
  */
 public class StateStructure {
 
     /**
-     * STATE INTERFACE
+     * DISPUTE STATE INTERFACE
      *
-     * Defines the common interface for all concrete states.
-     * Each method represents an action that can be performed, and the behavior
-     * varies depending on the current state.
-     *
-     * KEY CHARACTERISTICS:
-     * - Declares methods for all state-specific behaviors
-     * - All concrete states must implement this interface
-     * - Methods typically receive the Context as a parameter to allow state transitions
+     * Defines all possible actions that can be taken on a dispute.
+     * Not all actions are valid in all states - each state decides what's allowed.
      */
-    public interface State {
+    public interface DisputeState {
         /**
-         * Handle a request in a state-specific manner.
-         * Different states will implement this differently.
-         *
-         * @param context The context object to allow state transitions
+         * Add a comment to the dispute.
+         * Some states may restrict who can comment.
          */
-        void handle(Context context);
+        void addComment(StateImplementation.DisputeContext context, String comment, String author);
 
         /**
-         * Get the name of the current state for display/logging purposes.
-         *
-         * @return The state name
+         * Assign the dispute to a reviewer.
+         * Only valid in certain states.
+         */
+        void assignReviewer(StateImplementation.DisputeContext context, String reviewerName);
+
+        /**
+         * Approve the dispute and adjust the commission.
+         * Only valid when the dispute is being reviewed.
+         */
+        void approve(StateImplementation.DisputeContext context, BigDecimal adjustedAmount);
+
+        /**
+         * Reject the dispute with a reason.
+         * Only valid when the dispute is being reviewed.
+         */
+        void reject(StateImplementation.DisputeContext context, String reason);
+
+        /**
+         * Escalate the dispute to higher management.
+         * May be done from multiple states.
+         */
+        void escalate(StateImplementation.DisputeContext context, String reason);
+
+        /**
+         * Close the dispute.
+         * Only valid in terminal states.
+         */
+        void close(StateImplementation.DisputeContext context);
+
+        /**
+         * Get the name of the current state.
          */
         String getStateName();
-    }
-
-    /**
-     * CONCRETE STATE A
-     *
-     * Implements behavior associated with State A.
-     * Each concrete state knows which state(s) can follow it.
-     *
-     * KEY RESPONSIBILITIES:
-     * - Implement state-specific behavior
-     * - Determine when to transition to another state
-     * - Trigger state transitions by calling context.setState()
-     */
-    public static class ConcreteStateA implements State {
-        @Override
-        public void handle(Context context) {
-            System.out.println("ConcreteStateA: Handling request in State A");
-            System.out.println("ConcreteStateA: Transitioning to State B");
-            // State transition logic - this state knows it transitions to StateB
-            context.setState(new ConcreteStateB());
-        }
-
-        @Override
-        public String getStateName() {
-            return "State A";
-        }
-    }
-
-    /**
-     * CONCRETE STATE B
-     *
-     * Implements behavior associated with State B.
-     * Demonstrates that each state can have completely different behavior
-     * and different transition logic.
-     */
-    public static class ConcreteStateB implements State {
-        @Override
-        public void handle(Context context) {
-            System.out.println("ConcreteStateB: Handling request in State B");
-            System.out.println("ConcreteStateB: Transitioning to State C");
-            // Different transition logic
-            context.setState(new ConcreteStateC());
-        }
-
-        @Override
-        public String getStateName() {
-            return "State B";
-        }
-    }
-
-    /**
-     * CONCRETE STATE C
-     *
-     * Implements behavior associated with State C.
-     * This state transitions back to State A, creating a state cycle.
-     */
-    public static class ConcreteStateC implements State {
-        @Override
-        public void handle(Context context) {
-            System.out.println("ConcreteStateC: Handling request in State C");
-            System.out.println("ConcreteStateC: Transitioning back to State A");
-            // Cycle back to State A
-            context.setState(new ConcreteStateA());
-        }
-
-        @Override
-        public String getStateName() {
-            return "State C";
-        }
-    }
-
-    /**
-     * CONTEXT
-     *
-     * Maintains a reference to a ConcreteState instance that defines the current state.
-     * The Context delegates state-specific behavior to the current State object.
-     *
-     * KEY RESPONSIBILITIES:
-     * - Maintain a reference to the current state
-     * - Provide an interface for clients to request operations
-     * - Delegate state-specific requests to the current state object
-     * - Allow states to change the current state (via setState method)
-     *
-     * IMPORTANT: The Context doesn't know which concrete state it has - it only
-     * knows it has a State that conforms to the State interface. This is the
-     * Dependency Inversion Principle in action.
-     */
-    public static class Context {
-        private State currentState;
 
         /**
-         * Initialize the context with an initial state.
-         * Every context must start in some state.
-         *
-         * @param initialState The starting state
+         * Get help text showing what actions are available in this state.
          */
-        public Context(State initialState) {
-            this.currentState = initialState;
-            System.out.println("Context: Initialized with " + currentState.getStateName());
-        }
-
-        /**
-         * Allow the current state to be changed.
-         * This is typically called by State objects to trigger transitions.
-         *
-         * @param state The new state to transition to
-         */
-        public void setState(State state) {
-            System.out.println("Context: Transitioning from " + currentState.getStateName() +
-                             " to " + state.getStateName());
-            this.currentState = state;
-        }
-
-        /**
-         * Client-facing method that delegates to the current state.
-         * The behavior of this method changes based on the current state.
-         */
-        public void request() {
-            System.out.println("\nContext: Delegating request to " + currentState.getStateName());
-            currentState.handle(this);
-        }
-
-        /**
-         * Get the current state name (useful for testing and debugging).
-         *
-         * @return The name of the current state
-         */
-        public String getCurrentStateName() {
-            return currentState.getStateName();
-        }
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows how the State pattern works with a simple state machine.
-     * Notice how the Context's behavior changes as it moves through different states.
-     */
-    public static void main(String[] args) {
-        System.out.println("=== STATE PATTERN DEMONSTRATION ===\n");
-
-        // Create context with initial state A
-        Context context = new Context(new ConcreteStateA());
-
-        // Make several requests - watch how behavior changes with each state
-        System.out.println("\n--- Request 1 (Should be in State A) ---");
-        context.request();  // State A -> transitions to State B
-
-        System.out.println("\n--- Request 2 (Should be in State B) ---");
-        context.request();  // State B -> transitions to State C
-
-        System.out.println("\n--- Request 3 (Should be in State C) ---");
-        context.request();  // State C -> transitions back to State A
-
-        System.out.println("\n--- Request 4 (Back to State A) ---");
-        context.request();  // Cycle continues...
-
-        System.out.println("\n=== END DEMONSTRATION ===");
+        String getAvailableActions();
     }
 }

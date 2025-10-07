@@ -1,0 +1,163 @@
+@startuml Basic Factory Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Factory Pattern - Core Structure
+
+' Factory class
+class Factory <<Factory>> {
+  +createProduct(type: String): Product
+}
+
+' Product interface/base class
+interface Product <<Product>> {
+  +operation(): void
+}
+
+' Concrete Products
+class ConcreteProductA <<ConcreteProduct>> {
+  +operation(): void
+}
+
+class ConcreteProductB <<ConcreteProduct>> {
+  +operation(): void
+}
+
+class ConcreteProductC <<ConcreteProduct>> {
+  +operation(): void
+}
+
+' Relationships
+Factory ..> Product : creates >
+Product <|.. ConcreteProductA
+Product <|.. ConcreteProductB
+Product <|.. ConcreteProductC
+
+' Client
+class Client <<Client>> {
+  -product: Product
+  +useProduct(): void
+}
+
+Client ..> Factory : uses >
+Client o--> Product : depends on >
+
+' Pattern component notes
+note right of Factory
+  <b>Factory (Creator)</b>
+
+  Responsible for creating product objects.
+  Centralizes object creation logic and
+  shields clients from instantiation details.
+
+  <b>Key Method:</b>
+  createProduct(type) uses conditional
+  logic to determine which concrete
+  product to instantiate:
+
+  <i>if (type == "A") return new ConcreteProductA()</i>
+  <i>else if (type == "B") return new ConcreteProductB()</i>
+  <i>else if (type == "C") return new ConcreteProductC()</i>
+
+  Returns Product interface, not
+  concrete types.
+end note
+
+note left of Product
+  <b>Product (Abstract Product)</b>
+
+  Common interface for all objects the
+  factory can create. Defines operations
+  that all concrete products must implement.
+
+  Clients depend on this abstraction,
+  not on concrete product classes.
+
+  Can be an interface or abstract class.
+end note
+
+note left of ConcreteProductA
+  <b>Concrete Product A</b>
+
+  Implements the Product interface
+  with specific behavior.
+
+  Created by Factory when client
+  requests type "A".
+
+  Each concrete product represents
+  a different variant or implementation.
+end note
+
+note right of Client
+  <b>Client</b>
+
+  Uses Factory to create products
+  instead of instantiating them directly.
+
+  Depends only on Product interface,
+  not on concrete implementations.
+
+  <b>Usage Pattern:</b>
+  product = factory.createProduct("A")
+  product.operation()
+
+  Benefits from loose coupling and
+  doesn't need to know which concrete
+  class is being used.
+end note
+
+' Pattern flow note
+note right of Product
+  <b>Factory Pattern Flow:</b>
+
+  1. Client calls factory.createProduct(type)
+  2. Factory examines the type parameter
+  3. Factory instantiates appropriate ConcreteProduct
+  4. Factory returns object as Product interface
+  5. Client uses product through interface methods
+
+  <b>Key Advantage:</b>
+  Client code remains unchanged when new
+  product types are added to the factory.
+end note
+
+' Legend
+note right of Product
+  <b>Factory Pattern Core Components:</b>
+
+  <b>Factory:</b> Creates product objects based
+  on input parameters or conditions. Encapsulates
+  instantiation logic.
+
+  <b>Product (Interface):</b> Common interface
+  for all objects that factory creates.
+
+  <b>ConcreteProduct:</b> Specific implementations
+  of the Product interface. Each represents a
+  different type or variant.
+
+  <b>Client:</b> Uses factory to obtain products.
+  Depends on Product interface, not concrete classes.
+
+  <b>Key Benefits:</b>
+  • Encapsulates object creation
+  • Reduces coupling (client doesn't know concrete types)
+  • Centralizes instantiation logic
+  • Provides meaningful names for creation operations
+  • Makes code easier to test (can mock factory)
+
+  <b>Intent:</b>
+  Define an interface for creating objects, but
+  let the factory decide which class to instantiate.
+  Encapsulates object creation to promote loose coupling.
+end note
+
+@enduml

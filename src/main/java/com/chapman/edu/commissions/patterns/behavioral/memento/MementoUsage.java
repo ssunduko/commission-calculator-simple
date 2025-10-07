@@ -27,7 +27,6 @@ import java.time.LocalDate;
  * - Perfect for complex editing workflows
  * - Supports transactional operations
  *
- * @author Commission Calculator Educational Project
  */
 public class MementoUsage {
 
@@ -38,7 +37,7 @@ public class MementoUsage {
      */
     public static void exampleBasicUndoRedo() {
         System.out.println("╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║        EXAMPLE 1: Basic Undo/Redo Operations             ║");
+        System.out.println("║        EXAMPLE 1: Basic Undo/Redo Operations              ║");
         System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
 
         System.out.println("Scenario: User makes several edits, then undoes and redoes\\n");
@@ -94,7 +93,6 @@ public class MementoUsage {
 
     /**
      * EXAMPLE 2: Named Checkpoints
-     *
      * Shows using named checkpoints for major milestones.
      */
     public static void exampleNamedCheckpoints() {
@@ -103,7 +101,6 @@ public class MementoUsage {
         System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
 
         System.out.println("Scenario: User creates checkpoints at important stages\\n");
-
         CommissionPlan plan = createBasicPlan("Q1 Plan");
         CommissionPlanEditor editor = new CommissionPlanEditor(plan, "bob");
         VersionHistoryManager versionManager = new VersionHistoryManager(editor);

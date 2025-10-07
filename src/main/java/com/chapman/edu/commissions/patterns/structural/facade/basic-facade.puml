@@ -1,0 +1,173 @@
+@startuml Basic Facade Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Facade Pattern - Core Structure
+
+' Facade class
+class Facade <<Facade>> {
+  -subsystemA: SubsystemA
+  -subsystemB: SubsystemB
+  -subsystemC: SubsystemC
+  +operation1(): void
+  +operation2(): void
+}
+
+' Subsystem Classes
+class SubsystemA <<SubsystemClass>> {
+  +operationA1(): void
+  +operationA2(): void
+  +operationA3(): void
+}
+
+class SubsystemB <<SubsystemClass>> {
+  +operationB1(): void
+  +operationB2(): void
+  +operationB3(): void
+}
+
+class SubsystemC <<SubsystemClass>> {
+  +operationC1(): void
+  +operationC2(): void
+  +operationC3(): void
+}
+
+' Client
+class Client <<Client>> {
+  -facade: Facade
+  +doWork(): void
+}
+
+' Relationships
+Facade o--> SubsystemA : uses
+Facade o--> SubsystemB : uses
+Facade o--> SubsystemC : uses
+
+Client --> Facade : uses
+
+' Pattern component notes
+note right of Facade
+  <b>Facade</b>
+
+  Provides a unified, simplified interface
+  to a set of interfaces in a subsystem.
+
+  <b>Responsibilities:</b>
+  • Knows which subsystem classes are
+    responsible for a request
+  • Delegates client requests to appropriate
+    subsystem objects
+  • Provides high-level methods that combine
+    multiple subsystem operations
+
+  <b>Key Method Example:</b>
+  operation1() might internally call:
+    subsystemA.operationA1()
+    subsystemB.operationB2()
+    subsystemC.operationC1()
+
+  This hides complexity from the client.
+end note
+
+note left of SubsystemA
+  <b>Subsystem Class A</b>
+
+  Implements subsystem functionality.
+  Performs actual work but is complex
+  to use directly.
+
+  <b>Characteristics:</b>
+  • Handles a portion of the work
+  • Has no knowledge of the facade
+  • Can be used independently if needed
+  • Often has many methods and dependencies
+
+  Multiple subsystem classes work together
+  to provide complete functionality.
+end note
+
+note right of Client
+  <b>Client</b>
+
+  Uses the facade instead of interacting
+  directly with subsystem classes.
+
+  <b>Benefits:</b>
+  • Simplified interface to complex subsystem
+  • Reduced dependencies on subsystem classes
+  • Easier to use and understand
+  • Loosely coupled to subsystem
+
+  <b>Usage Pattern:</b>
+  client.facade.operation1()
+
+  Instead of:
+  subsystemA.operationA1()
+  subsystemB.operationB2()
+  subsystemC.operationC1()
+end note
+
+' Pattern flow note
+note bottom of Facade
+  <b>Facade Pattern Flow:</b>
+
+  1. Client calls facade.operation1()
+  2. Facade delegates to SubsystemA.operationA1()
+  3. Facade delegates to SubsystemB.operationB2()
+  4. Facade delegates to SubsystemC.operationC1()
+  5. Facade returns result to client
+
+  <b>Key Advantage:</b>
+  Client only needs to know about one class (Facade)
+  instead of three subsystem classes (A, B, C).
+
+  <b>Important:</b>
+  Subsystem classes remain accessible - clients can
+  still use them directly if they need fine-grained
+  control. The facade is an optional convenience.
+end note
+
+' Legend
+note right of SubsystemC
+  <b>Facade Pattern Core Components:</b>
+
+  <b>Facade:</b> Provides a simple interface to a
+  complex subsystem. Knows which subsystem classes
+  handle which requests and delegates accordingly.
+
+  <b>Subsystem Classes:</b> Implement subsystem
+  functionality. Handle work assigned by the facade.
+  Have no knowledge of the facade; they keep no
+  reference to it.
+
+  <b>Client:</b> Uses the facade for simplified
+  access. Can still access subsystem directly if
+  needed for advanced use cases.
+
+  <b>Key Benefits:</b>
+  • Simplifies complex subsystems
+  • Reduces coupling between clients and subsystems
+  • Provides a single entry point
+  • Doesn't prevent access to subsystem if needed
+  • Makes the subsystem easier to use
+  • Promotes loose coupling
+
+  <b>Intent:</b>
+  Provide a unified interface to a set of interfaces
+  in a subsystem. Facade defines a higher-level
+  interface that makes the subsystem easier to use.
+
+  <b>Real-World Analogy:</b>
+  Like a receptionist at a company who directs you
+  to the right departments instead of you having to
+  know the entire organizational structure.
+end note
+
+@enduml

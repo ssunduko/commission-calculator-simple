@@ -1,0 +1,108 @@
+@startuml Basic Strategy Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Strategy Pattern - Core Structure
+
+' Strategy Interface
+interface Strategy <<interface>> {
+  +execute(): void
+}
+
+' Concrete Strategies
+class ConcreteStrategyA <<ConcreteStrategy>> {
+  +execute(): void
+}
+
+class ConcreteStrategyB <<ConcreteStrategy>> {
+  +execute(): void
+}
+
+class ConcreteStrategyC <<ConcreteStrategy>> {
+  +execute(): void
+}
+
+' Context
+class Context <<Context>> {
+  -strategy: Strategy
+  +setStrategy(strategy: Strategy): void
+  +executeStrategy(): void
+}
+
+' Relationships
+Strategy <|.. ConcreteStrategyA
+Strategy <|.. ConcreteStrategyB
+Strategy <|.. ConcreteStrategyC
+
+Context o--> "1" Strategy : uses
+
+Context ..> Strategy : delegates to >
+
+' Pattern component notes
+note right of Strategy
+  <b>Strategy Interface</b>
+  Declares common interface for
+  all supported algorithms.
+
+  Context uses this interface to
+  call algorithm defined by
+  ConcreteStrategy.
+end note
+
+note left of ConcreteStrategyA
+  <b>Concrete Strategy A</b>
+  Implements algorithm using
+  Strategy interface.
+
+  Each concrete strategy provides
+  a different implementation of
+  the algorithm.
+end note
+
+note left of Context
+  <b>Context</b>
+  • Maintains reference to Strategy object
+  • Configured with ConcreteStrategy object
+  • Delegates algorithm to Strategy
+  • May define interface to let Strategy
+    access its data
+
+  <b>Key Method:</b>
+  executeStrategy() calls
+  strategy.execute()
+end note
+' Legend positioned to the right
+
+note right of Context
+  <b>Strategy Pattern Core Components:</b>
+
+  <b>Strategy:</b> Common interface for all
+  supported algorithms/behaviors.
+
+  <b>ConcreteStrategy:</b> Implements the
+  algorithm using Strategy interface.
+
+  <b>Context:</b> Configured with ConcreteStrategy
+  object and delegates to Strategy interface.
+
+  <b>Key Benefits:</b>
+  • Defines family of algorithms
+  • Encapsulates each algorithm
+  • Makes algorithms interchangeable
+  • Lets algorithm vary independently
+    from clients that use it
+
+  <b>Intent:</b>
+  Define a family of algorithms,
+  encapsulate each one, and make
+  them interchangeable.
+end note
+
+@enduml

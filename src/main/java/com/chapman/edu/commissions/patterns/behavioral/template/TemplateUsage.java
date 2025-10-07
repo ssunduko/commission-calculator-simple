@@ -3,6 +3,7 @@ package com.chapman.edu.commissions.patterns.behavioral.template;
 import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealStatus;
 import com.chapman.edu.commissions.patterns.behavioral.template.TemplateImplementation.*;
+import com.chapman.edu.commissions.patterns.behavioral.template.TemplateStructure.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,7 +30,6 @@ import java.util.Map;
  * - Hooks allow flexible customization without breaking the template
  * - Easy to add new calculator types without changing existing code
  *
- * @author Commission Calculator Educational Project
  */
 public class TemplateUsage {
 
@@ -228,7 +228,7 @@ public class TemplateUsage {
         try {
             calculator.calculateCommission(null);
             System.out.println("❌ Should have thrown exception!");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             System.out.println("✓ Correctly rejected: " + e.getMessage());
         }
 

@@ -1,5 +1,14 @@
 package com.chapman.edu.commissions.patterns.behavioral.template;
 
+import com.chapman.edu.commissions.model.Deal;
+import com.chapman.edu.commissions.model.DealStatus;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TEMPLATE METHOD PATTERN - STRUCTURAL DEMONSTRATION
  *
@@ -34,277 +43,263 @@ package com.chapman.edu.commissions.patterns.behavioral.template;
  * KEY PRINCIPLE:
  * "Hollywood Principle" - Don't call us, we'll call you.
  * The parent class calls the subclass methods, not the other way around.
- *
- * @author Commission Calculator Educational Project
  */
 public class TemplateStructure {
 
     /**
-     * ABSTRACT CLASS - TEMPLATE
+     * ABSTRACT COMMISSION CALCULATOR - TEMPLATE CLASS
      *
-     * Defines the skeleton of the algorithm in the template method.
-     * Contains the template method (final) and declares abstract/hook methods.
+     * Defines the template method for commission calculation and declares
+     * abstract/hook methods for customization points.
      *
-     * KEY CHARACTERISTICS:
-     * - Template method is final to prevent subclasses from changing the algorithm structure
-     * - Contains abstract methods that subclasses MUST implement
-     * - Contains hook methods that subclasses MAY override
-     * - Contains concrete methods with default behavior
+     * This is the "Abstract Class" in the Template Method pattern.
      */
-    public abstract static class AbstractClass {
+    public abstract static class CommissionCalculator {
+        protected List<String> calculationLog;
+        protected BigDecimal runningTotal;
 
         /**
-         * TEMPLATE METHOD
+         * TEMPLATE METHOD - Commission Calculation Workflow
          *
-         * This is the core of the Template Method Pattern.
-         * It defines the skeleton of the algorithm - the sequence of steps.
+         * This method defines the skeleton of the commission calculation algorithm.
+         * It cannot be overridden (final), ensuring all calculators follow the same process.
          *
-         * KEY CHARACTERISTICS:
-         * - Declared as final so subclasses cannot override it
-         * - Calls a series of methods that implement the algorithm steps
-         * - Some steps are concrete (defined here)
-         * - Some steps are abstract (must be implemented by subclasses)
-         * - Some steps are hooks (can be optionally overridden)
-         *
-         * This method orchestrates the entire algorithm.
+         * The workflow:
+         * 1. Validate the deal
+         * 2. Calculate base commission (varies by type)
+         * 3. Apply time-based modifiers if applicable (optional)
+         * 4. Apply performance bonuses (varies by type)
+         * 5. Apply caps/floors if applicable (optional)
+         * 6. Log the calculation details
          */
-        public final void templateMethod() {
-            System.out.println("=== TEMPLATE METHOD EXECUTION ===\n");
-            System.out.println("Starting algorithm execution...\n");
+        public final CommissionResult calculateCommission(Deal deal) {
+            // Initialize calculation tracking
+            calculationLog = new ArrayList<>();
+            runningTotal = BigDecimal.ZERO;
 
-            // Step 1: Concrete method - same for all subclasses
-            stepOne();
+            calculationLog.add("Starting commission calculation for: " + getCalculatorType());
+            calculationLog.add("Deal: " + deal.getTitle() + " | Value: $" + deal.getValue());
 
-            // Step 2: Abstract method - MUST be implemented by subclasses
-            stepTwo();
+            // Step 1: Validate deal (concrete method - same for all)
+            validateDeal(deal);
 
-            // Step 3: Hook method - CAN be overridden by subclasses (optional)
-            if (shouldExecuteStepThree()) {
-                stepThree();
+            // Step 2: Calculate base commission (abstract method - MUST be implemented)
+            BigDecimal baseCommission = calculateBaseCommission(deal);
+            runningTotal = baseCommission;
+            calculationLog.add("Base commission calculated: $" + baseCommission);
+
+            // Step 3: Apply time-based modifiers (hook - optional customization)
+            BigDecimal modifiers = BigDecimal.ZERO;
+            if (shouldApplyTimeBasedModifiers(deal)) {
+                modifiers = applyTimeBasedModifiers(deal, runningTotal);
+                runningTotal = runningTotal.add(modifiers);
+                calculationLog.add("Time-based modifiers applied: $" + modifiers +
+                        " | Running total: $" + runningTotal);
             }
 
-            // Step 4: Abstract method - MUST be implemented by subclasses
-            stepFour();
+            // Step 4: Apply performance bonuses (abstract method - MUST be implemented)
+            BigDecimal bonuses = applyPerformanceBonuses(deal, runningTotal);
+            runningTotal = runningTotal.add(bonuses);
+            calculationLog.add("Performance bonuses applied: $" + bonuses +
+                    " | Running total: $" + runningTotal);
 
-            // Step 5: Hook method with default behavior
-            stepFive();
+            // Step 5: Apply caps and floors (hook - optional customization)
+            BigDecimal adjustments = BigDecimal.ZERO;
+            if (shouldApplyCapsAndFloors()) {
+                BigDecimal beforeCaps = runningTotal;
+                runningTotal = applyCapsAndFloors(deal, runningTotal);
+                adjustments = runningTotal.subtract(beforeCaps);
+                if (adjustments.compareTo(BigDecimal.ZERO) != 0) {
+                    calculationLog.add("Caps/floors applied: $" + adjustments +
+                            " | Running total: $" + runningTotal);
+                }
+            }
 
-            // Step 6: Concrete method - same for all subclasses
-            stepSix();
+            // Step 6: Finalize and log (concrete method - same for all)
+            BigDecimal finalCommission = finalizeCalculation(runningTotal);
+            logCalculation(deal, finalCommission);
 
-            System.out.println("\nAlgorithm execution completed!");
-            System.out.println("=== END TEMPLATE METHOD ===\n");
+            return new CommissionResult(baseCommission, modifiers, bonuses,
+                    adjustments, finalCommission, calculationLog);
         }
 
         /**
-         * CONCRETE METHOD - Invariant Step
+         * CONCRETE METHOD - Deal Validation
          *
-         * This step has the same implementation for all subclasses.
-         * Subclasses cannot override this (could be final if needed).
+         * Validates that the deal is eligible for commission calculation.
+         * Same validation logic for all calculator types.
          */
-        protected void stepOne() {
-            System.out.println("[Step 1] Common initialization (concrete method)");
-            System.out.println("         → Same for all subclasses");
+        protected void validateDeal(Deal deal) {
+            if (deal == null) {
+                throw new IllegalArgumentException("Deal cannot be null");
+            }
+            if (deal.getStatus() != DealStatus.WON) {
+                throw new IllegalStateException("Commission can only be calculated for WON deals. " +
+                        "Current status: " + deal.getStatus());
+            }
+            if (deal.getValue() == null || deal.getValue().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Deal value must be positive");
+            }
+            calculationLog.add("✓ Deal validation passed");
         }
 
         /**
-         * ABSTRACT METHOD - Required Variation Point
+         * ABSTRACT METHOD - Calculate Base Commission
          *
-         * Subclasses MUST provide an implementation for this step.
-         * This is a variation point where different subclasses provide different behavior.
+         * Each calculator type must implement its own base commission calculation.
+         * This is where the main calculation logic varies.
          */
-        protected abstract void stepTwo();
+        protected abstract BigDecimal calculateBaseCommission(Deal deal);
 
         /**
-         * HOOK METHOD - Conditional Execution
+         * HOOK METHOD - Should Apply Time-Based Modifiers
          *
-         * This hook determines whether step three should be executed.
-         * Default returns true, but subclasses can override to customize.
-         *
-         * KEY: This is a HOOK because it has a default implementation but can be overridden.
+         * Determines whether time-based modifiers should be applied.
+         * Default is true, but subclasses can override.
          */
-        protected boolean shouldExecuteStepThree() {
-            return true; // Default: execute step three
+        protected boolean shouldApplyTimeBasedModifiers(Deal deal) {
+            return true; // Default: apply modifiers
         }
 
         /**
-         * HOOK METHOD - Optional Variation Point
+         * HOOK METHOD - Apply Time-Based Modifiers
          *
-         * This step has a default implementation but can be overridden.
-         * If a subclass doesn't override it, the default behavior is used.
-         *
-         * KEY: This is a HOOK because it's optional to override.
+         * Applies modifiers based on when the deal closed (quarter-end bonuses, etc.).
+         * Default implementation provides basic quarter-end bonus.
+         * Subclasses can override for custom logic.
          */
-        protected void stepThree() {
-            System.out.println("[Step 3] Default optional processing (hook method)");
-            System.out.println("         → Can be overridden, or skip by returning false from shouldExecuteStepThree()");
+        protected BigDecimal applyTimeBasedModifiers(Deal deal, BigDecimal currentCommission) {
+            // Default: 5% bonus if deal closed in last week of quarter
+            if (deal.getCloseDate() != null && isLastWeekOfQuarter(deal.getCloseDate())) {
+                BigDecimal bonus = currentCommission.multiply(new BigDecimal("0.05"));
+                calculationLog.add("  → Quarter-end bonus (5%): $" + bonus);
+                return bonus;
+            }
+            return BigDecimal.ZERO;
         }
 
         /**
-         * ABSTRACT METHOD - Required Variation Point
-         *
-         * Another step that MUST be implemented by subclasses.
+         * Helper method to check if date is in last week of quarter
          */
-        protected abstract void stepFour();
-
-        /**
-         * HOOK METHOD - Optional Variation Point with Default
-         *
-         * Has a meaningful default implementation, but subclasses can customize.
-         */
-        protected void stepFive() {
-            System.out.println("[Step 5] Default finalization (hook method)");
-            System.out.println("         → Has default behavior, can be customized");
+        private boolean isLastWeekOfQuarter(LocalDate date) {
+            int month = date.getMonthValue();
+            int day = date.getDayOfMonth();
+            // Check if it's the last week of Q1, Q2, Q3, or Q4
+            return (month == 3 || month == 6 || month == 9 || month == 12) && day >= 24;
         }
 
         /**
-         * CONCRETE METHOD - Invariant Step
+         * ABSTRACT METHOD - Apply Performance Bonuses
          *
-         * Final cleanup that's the same for all subclasses.
+         * Each calculator type must implement its own bonus logic.
+         * Bonuses might be based on quota attainment, deal size, etc.
          */
-        protected void stepSix() {
-            System.out.println("[Step 6] Common cleanup (concrete method)");
-            System.out.println("         → Same for all subclasses");
+        protected abstract BigDecimal applyPerformanceBonuses(Deal deal, BigDecimal currentCommission);
+
+        /**
+         * HOOK METHOD - Should Apply Caps and Floors
+         *
+         * Determines whether caps and floors should be applied.
+         * Default is true, but subclasses can disable.
+         */
+        protected boolean shouldApplyCapsAndFloors() {
+            return true; // Default: apply caps and floors
         }
+
+        /**
+         * HOOK METHOD - Apply Caps and Floors
+         *
+         * Applies minimum and maximum commission limits.
+         * Default implementation provides basic limits.
+         * Subclasses can override for custom limits.
+         */
+        protected BigDecimal applyCapsAndFloors(Deal deal, BigDecimal commission) {
+            // Default caps and floors
+            BigDecimal minCommission = new BigDecimal("100.00");
+            BigDecimal maxCommission = deal.getValue().multiply(new BigDecimal("0.50")); // Max 50% of deal
+
+            if (commission.compareTo(minCommission) < 0) {
+                calculationLog.add("  → Applied floor: $" + minCommission + " (was $" + commission + ")");
+                return minCommission;
+            }
+            if (commission.compareTo(maxCommission) > 0) {
+                calculationLog.add("  → Applied cap: $" + maxCommission + " (was $" + commission + ")");
+                return maxCommission;
+            }
+            return commission;
+        }
+
+        /**
+         * CONCRETE METHOD - Finalize Calculation
+         *
+         * Rounds the final commission to 2 decimal places.
+         * Same for all calculator types.
+         */
+        protected BigDecimal finalizeCalculation(BigDecimal commission) {
+            return commission.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        /**
+         * CONCRETE METHOD - Log Calculation
+         *
+         * Logs the calculation for audit purposes.
+         * Same logging format for all calculator types.
+         */
+        protected void logCalculation(Deal deal, BigDecimal finalCommission) {
+            calculationLog.add("✓ Calculation completed");
+            calculationLog.add("Deal ID: " + deal.getId() + " | Final Commission: $" + finalCommission);
+        }
+
+        /**
+         * Get the type name of this calculator (for logging).
+         */
+        protected abstract String getCalculatorType();
     }
 
     /**
-     * CONCRETE SUBCLASS A
+     * COMMISSION CALCULATION RESULT
      *
-     * Implements the abstract methods and optionally overrides hook methods.
-     * Provides specific behavior for steps 2 and 4.
+     * Value object to hold the result of a commission calculation.
      */
-    public static class ConcreteClassA extends AbstractClass {
+    public static class CommissionResult {
+        private final BigDecimal baseCommission;
+        private final BigDecimal modifiers;
+        private final BigDecimal bonuses;
+        private final BigDecimal adjustments;
+        private final BigDecimal finalCommission;
+        private final List<String> calculationSteps;
 
-        @Override
-        protected void stepTwo() {
-            System.out.println("[Step 2] ConcreteClassA specific processing (implemented abstract method)");
-            System.out.println("         → Implementation A: Processing type A data");
+        public CommissionResult(BigDecimal baseCommission, BigDecimal modifiers,
+                                BigDecimal bonuses, BigDecimal adjustments,
+                                BigDecimal finalCommission, List<String> calculationSteps) {
+            this.baseCommission = baseCommission;
+            this.modifiers = modifiers;
+            this.bonuses = bonuses;
+            this.adjustments = adjustments;
+            this.finalCommission = finalCommission;
+            this.calculationSteps = new ArrayList<>(calculationSteps);
         }
 
-        @Override
-        protected void stepFour() {
-            System.out.println("[Step 4] ConcreteClassA specific validation (implemented abstract method)");
-            System.out.println("         → Implementation A: Validating with rules A");
+        public BigDecimal getFinalCommission() {
+            return finalCommission;
         }
 
-        // Note: stepThree, stepFive use default implementations (hooks not overridden)
-        // Note: shouldExecuteStepThree returns true (default), so stepThree will execute
-    }
-
-    /**
-     * CONCRETE SUBCLASS B
-     *
-     * Implements the abstract methods AND overrides some hook methods.
-     * Demonstrates customizing optional steps.
-     */
-    public static class ConcreteClassB extends AbstractClass {
-
-        @Override
-        protected void stepTwo() {
-            System.out.println("[Step 2] ConcreteClassB specific processing (implemented abstract method)");
-            System.out.println("         → Implementation B: Processing type B data");
+        public void displayReport() {
+            System.out.println("\n" + "=".repeat(60));
+            System.out.println("COMMISSION CALCULATION REPORT");
+            System.out.println("=".repeat(60));
+            System.out.println("Base Commission:    $" + baseCommission);
+            System.out.println("Modifiers:          $" + modifiers);
+            System.out.println("Bonuses:            $" + bonuses);
+            System.out.println("Adjustments:        $" + adjustments);
+            System.out.println("-".repeat(60));
+            System.out.println("FINAL COMMISSION:   $" + finalCommission);
+            System.out.println("=".repeat(60));
+            System.out.println("\nCalculation Steps:");
+            for (int i = 0; i < calculationSteps.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + calculationSteps.get(i));
+            }
+            System.out.println();
         }
-
-        @Override
-        protected void stepFour() {
-            System.out.println("[Step 4] ConcreteClassB specific validation (implemented abstract method)");
-            System.out.println("         → Implementation B: Validating with rules B");
-        }
-
-        // Override hook method to customize behavior
-        @Override
-        protected void stepThree() {
-            System.out.println("[Step 3] ConcreteClassB CUSTOM optional processing (overridden hook)");
-            System.out.println("         → Implementation B: Custom preprocessing");
-        }
-
-        // Override hook method to customize behavior
-        @Override
-        protected void stepFive() {
-            System.out.println("[Step 5] ConcreteClassB CUSTOM finalization (overridden hook)");
-            System.out.println("         → Implementation B: Custom cleanup");
-        }
-    }
-
-    /**
-     * CONCRETE SUBCLASS C
-     *
-     * Implements the abstract methods and uses the hook to skip step three.
-     * Demonstrates conditional step execution.
-     */
-    public static class ConcreteClassC extends AbstractClass {
-
-        @Override
-        protected void stepTwo() {
-            System.out.println("[Step 2] ConcreteClassC specific processing (implemented abstract method)");
-            System.out.println("         → Implementation C: Fast-path processing");
-        }
-
-        @Override
-        protected void stepFour() {
-            System.out.println("[Step 4] ConcreteClassC specific validation (implemented abstract method)");
-            System.out.println("         → Implementation C: Minimal validation");
-        }
-
-        // Override hook to SKIP step three
-        @Override
-        protected boolean shouldExecuteStepThree() {
-            System.out.println("[Hook]   ConcreteClassC skipping step 3 (hook returns false)");
-            return false; // Skip step three for this implementation
-        }
-
-        // Step three won't be called because shouldExecuteStepThree() returns false
-    }
-
-    /**
-     * DEMONSTRATION
-     *
-     * Shows how the Template Method Pattern works with different implementations.
-     */
-    public static void main(String[] args) {
-        System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║     TEMPLATE METHOD PATTERN - STRUCTURE DEMONSTRATION     ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝\n");
-
-        System.out.println("SCENARIO 1: ConcreteClassA (uses default hooks)\n");
-        System.out.println("-".repeat(60));
-        AbstractClass objectA = new ConcreteClassA();
-        objectA.templateMethod();
-
-        System.out.println("\n\nSCENARIO 2: ConcreteClassB (overrides hook methods)\n");
-        System.out.println("-".repeat(60));
-        AbstractClass objectB = new ConcreteClassB();
-        objectB.templateMethod();
-
-        System.out.println("\n\nSCENARIO 3: ConcreteClassC (skips optional step)\n");
-        System.out.println("-".repeat(60));
-        AbstractClass objectC = new ConcreteClassC();
-        objectC.templateMethod();
-
-        System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║                      KEY OBSERVATIONS                     ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════╝");
-        System.out.println();
-        System.out.println("1. ALGORITHM STRUCTURE");
-        System.out.println("   → All three classes follow the same algorithm sequence");
-        System.out.println("   → Steps 1 and 6 are identical across all implementations");
-        System.out.println();
-        System.out.println("2. REQUIRED CUSTOMIZATION");
-        System.out.println("   → Steps 2 and 4 are different for each class (abstract methods)");
-        System.out.println("   → Each subclass MUST provide these implementations");
-        System.out.println();
-        System.out.println("3. OPTIONAL CUSTOMIZATION");
-        System.out.println("   → ClassA uses default behavior for steps 3 and 5 (hooks)");
-        System.out.println("   → ClassB customizes steps 3 and 5 (overrides hooks)");
-        System.out.println("   → ClassC skips step 3 entirely (overrides shouldExecuteStepThree)");
-        System.out.println();
-        System.out.println("4. INVERSION OF CONTROL");
-        System.out.println("   → Parent class (AbstractClass) controls the algorithm flow");
-        System.out.println("   → Child classes provide implementations but don't control flow");
-        System.out.println("   → \"Don't call us, we'll call you\" (Hollywood Principle)");
-        System.out.println();
-        System.out.println("═══════════════════════════════════════════════════════════");
-        System.out.println();
     }
 }
