@@ -1,0 +1,428 @@
+@startuml BDD Structure - Commission Calculator with JBehave
+
+' Define the styles (matching existing patterns)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+skinparam noteBorderColor #6c757d
+skinparam noteBackgroundColor #fff3cd
+
+' Title
+title Behavior-Driven Development (BDD) with JBehave
+
+' Story Files
+class "commission_calculation.story" as Story1 <<StoryFile>> {
+  Narrative: As a sales manager...
+  --
+  Scenario: Calculate basic commission
+  Scenario: Tiered commission rates
+  Scenario: Apply performance bonus
+  Scenario: Full commission pipeline
+}
+
+class "deal_validation.story" as Story2 <<StoryFile>> {
+  Narrative: As a system admin...
+  --
+  Scenario: Validate required fields
+  Scenario: Validate positive value
+  Scenario: Validate close date
+  Scenario: Boundary testing
+}
+
+class "commission_plan.story" as Story3 <<StoryFile>> {
+  Narrative: As a sales ops manager...
+  --
+  Scenario: Create commission plan
+  Scenario: Activate commission plan
+  Scenario: Check plan applicability
+  Scenario: Add commission tiers
+}
+
+' Step Definitions
+class CommissionCalculationSteps <<StepsDefinition>> {
+  -commissionService: BDD
+  -currentDeal: Deal
+  -calculatedCommission: BigDecimal
+  --
+  <b>@Given Steps (Setup)</b>
+  +givenSalesRepresentative(name, id)
+  +givenDealWithValue(value, product)
+  +givenDealStatus(status)
+  +givenDealClosedDaysAgo(days)
+  +givenCommissionPlan(planName)
+  --
+  <b>@When Steps (Actions)</b>
+  +whenCalculateCommission(rate)
+  +whenApplyBonus(bonus)
+  +whenProcessDeals(table)
+  +whenValidateDeal()
+  +whenActivatePlan()
+  --
+  <b>@Then Steps (Verification)</b>
+  +thenCommissionShouldBe(amount)
+  +thenSystemShouldReject()
+  +thenValidationShouldFail()
+  +thenPlanStatusShouldBe(status)
+}
+
+' BDD Service Implementation
+class BDD <<Implementation>> {
+  -calculationCount: int
+  -commissionPlans: Map<String, Plan>
+  --
+  <b>Commission Calculation</b>
+  +calculateBasicCommission(value, rate): BigDecimal
+  +calculateTieredCommission(value): BigDecimal
+  +calculateCommissionWithBonus(base, bonus): BigDecimal
+  +calculateFullCommission(deal, bonus): BigDecimal
+  --
+  <b>Validation (Business Rules)</b>
+  +isDealEligibleForCommission(deal): boolean
+  +getIneligibilityReason(deal): String
+  --
+  <b>Commission Plan Management</b>
+  +storeCommissionPlan(plan): void
+  +activateCommissionPlan(name): void
+  +isPlanApplicableOn(name, date): boolean
+  +getCommissionPlan(name): CommissionPlan
+  --
+  <b>Observability</b>
+  +getCalculationCount(): int
+  +resetCalculationCount(): void
+  +reset(): void
+}
+
+' Domain Models
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +getCloseDate(): LocalDate
+}
+
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -name: String
+  -status: PlanStatus
+  -effectiveStartDate: LocalDate
+  -effectiveEndDate: LocalDate
+  +isActiveOn(date): boolean
+}
+
+enum DealStatus <<Enum>> {
+  OPEN
+  CLOSED
+  LOST
+  PENDING
+}
+
+enum PlanStatus <<Enum>> {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+' JBehave Runner
+class CommissionCalculationStoriesTest <<TestRunner>> {
+  +configuration(): Configuration
+  +stepsFactory(): InjectableStepsFactory
+  --
+  Configures JBehave framework
+  Loads story files
+  Maps steps to Java classes
+  Generates reports
+}
+
+' JBehave Framework
+class "JBehave Framework" as JBehave <<Framework>> {
+  <b>Core Components:</b>
+  • Story Loader
+  • Step Matcher
+  • Report Generator
+  • Table Parser
+}
+
+' Relationships
+Story1 -down-> CommissionCalculationSteps : mapped to
+Story2 -down-> CommissionCalculationSteps : mapped to
+Story3 -down-> CommissionCalculationSteps : mapped to
+
+CommissionCalculationSteps -right-> BDD : uses
+BDD -down-> Deal : validates & calculates
+BDD -down-> CommissionPlan : manages
+Deal --> DealStatus : has
+CommissionPlan --> PlanStatus : has
+
+CommissionCalculationStoriesTest -up-> Story1 : runs
+CommissionCalculationStoriesTest -up-> Story2 : runs
+CommissionCalculationStoriesTest -up-> Story3 : runs
+CommissionCalculationStoriesTest --> CommissionCalculationSteps : provides
+CommissionCalculationStoriesTest ..> JBehave : uses
+
+' Component Notes
+
+note top of Story1
+  <b>Story Files (Gherkin)</b>
+
+  Written in natural language using
+  Given-When-Then format.
+
+  <b>Structure:</b>
+  • Narrative: User story
+  • Scenarios: Concrete examples
+  • Steps: Given/When/Then
+
+  <b>Example:</b>
+  Given a deal worth $100,000
+  When I calculate commission at 10%
+  Then commission should be $10,000
+
+  <b>Purpose:</b>
+  Executable specifications readable
+  by business stakeholders.
+end note
+
+note bottom of CommissionCalculationSteps
+  <b>Step Definitions (Glue Code)</b>
+
+  Maps Gherkin steps to Java code using
+  JBehave annotations.
+
+  <b>Key Annotations:</b>
+  • @Given: Setup context
+  • @When: Perform action
+  • @Then: Verify outcome
+  • @BeforeScenario: Initialize
+  • @AfterScenario: Cleanup
+
+  <b>Features:</b>
+  • Parameter extraction: $variable
+  • Table support: ExamplesTable
+  • Regular expressions
+  • Scenario state management
+
+  <b>Purpose:</b>
+  Bridge between natural language
+  and implementation.
+end note
+
+note right of BDD
+  <b>BDD Implementation</b>
+
+  Business logic implementing
+  scenarios from story files.
+
+  <b>BDD Principles:</b>
+  • Ubiquitous language
+  • Business-focused methods
+  • Clear error messages
+  • Testable business rules
+  • Scenario independence
+
+  <b>Business Rules:</b>
+  • Only CLOSED deals eligible
+  • 90-day eligibility window
+  • Tiered rates: 8%, 10%, 12%
+  • Performance bonuses
+
+  <b>Purpose:</b>
+  Implement behavior described
+  in scenarios.
+end note
+
+note left of Deal
+  <b>Domain Models</b>
+
+  Business entities used in
+  BDD scenarios.
+
+  Models represent real-world
+  concepts that business
+  stakeholders understand:
+  • Deals
+  • Commission Plans
+  • Sales Representatives
+
+  <b>BDD Principle:</b>
+  Use domain terminology
+  that everyone understands.
+end note
+
+note bottom of CommissionCalculationStoriesTest
+  <b>JBehave Runner</b>
+
+  JUnit test class that:
+  • Configures JBehave
+  • Finds story files
+  • Maps steps to classes
+  • Runs scenarios
+  • Generates reports
+
+  <b>Execution:</b>
+  mvn test -Dtest=CommissionCalculationStoriesTest
+
+  <b>Reports Generated:</b>
+  • Console output
+  • HTML reports
+  • XML for CI/CD
+end note
+
+note right of JBehave
+  <b>JBehave Framework</b>
+
+  BDD framework for Java that:
+  • Parses Gherkin syntax
+  • Matches steps to methods
+  • Executes scenarios
+  • Generates reports
+
+  <b>Key Features:</b>
+  • Story file support (.story)
+  • Annotation-based steps
+  • Parameter extraction
+  • Table-driven tests
+  • Lifecycle hooks
+  • Multiple report formats
+
+  <b>Benefits:</b>
+  • Natural language specs
+  • Stakeholder collaboration
+  • Living documentation
+  • Automated testing
+end note
+
+' BDD Workflow
+note as BDDWorkflow
+  <b>BDD Workflow: Discovery → Formulation → Automation</b>
+
+  <b>1. DISCOVERY (Collaborative)</b>
+  Team discusses feature with examples
+  Product owner, developers, QA collaborate
+  Identify scenarios and edge cases
+  → Result: Shared understanding
+
+  <b>2. FORMULATION (Write Scenarios)</b>
+  Convert examples to Gherkin format
+  Write .story files with Given-When-Then
+  Review scenarios with stakeholders
+  → Result: Executable specifications
+
+  <b>3. AUTOMATION (Implement Steps)</b>
+  Create @Given/@When/@Then methods
+  Implement business logic in BDD class
+  Run scenarios to verify behavior
+  → Result: Working feature + tests
+
+  <b>4. LIVING DOCUMENTATION</b>
+  Scenarios run in CI/CD pipeline
+  Reports show current behavior
+  Documentation stays up-to-date
+  → Result: Continuous verification
+end note
+
+' BDD vs TDD
+note as Comparison
+  <b>BDD vs TDD Comparison</b>
+
+  <b>TDD (Test-Driven Development):</b>
+  • Developer-focused
+  • Technical test code
+  • Implementation details
+  • Example: testCalculate()
+
+  <b>BDD (Behavior-Driven Development):</b>
+  • Stakeholder-focused
+  • Natural language scenarios
+  • Business behavior
+  • Example: Given-When-Then
+
+  <b>When to Use Each:</b>
+  • TDD: Low-level algorithms, utilities
+  • BDD: Business features, workflows
+
+  <b>Best Practice:</b>
+  Use both! BDD for features,
+  TDD for implementation.
+end note
+
+' Key Benefits
+note as Benefits
+  <b>BDD Benefits</b>
+
+  ✅ <b>Shared Understanding</b>
+     Everyone speaks same language
+
+  ✅ <b>Clearer Requirements</b>
+     Examples eliminate ambiguity
+
+  ✅ <b>Living Documentation</b>
+     Specs that stay up-to-date
+
+  ✅ <b>Better Collaboration</b>
+     Bridge business and tech
+
+  ✅ <b>Reduced Waste</b>
+     Build right thing first time
+
+  ✅ <b>Executable Specifications</b>
+     Requirements that can be tested
+
+  ✅ <b>Business Value Focus</b>
+     Test what matters to users
+
+  ✅ <b>Confidence</b>
+     Know system does what it should
+end note
+
+' Position notes
+BDDWorkflow -[hidden]- Comparison
+Comparison -[hidden]- Benefits
+
+' Legend
+legend right
+  <b>BDD with JBehave - Component Summary</b>
+
+  <b>Story Files (.story):</b>
+  Natural language scenarios using Gherkin
+  syntax. Written in Given-When-Then format.
+  Readable by non-technical stakeholders.
+
+  <b>Step Definitions:</b>
+  Java classes with @Given/@When/@Then
+  annotations. Map steps to code.
+  Bridge between language and implementation.
+
+  <b>BDD Implementation:</b>
+  Business logic that implements
+  behavior described in scenarios.
+  Focus on business value.
+
+  <b>Domain Models:</b>
+  Business entities (Deal, Plan, etc.)
+  used in scenarios. Reflect real-world
+  concepts.
+
+  <b>JBehave Runner:</b>
+  Configures and executes stories.
+  Generates test reports.
+
+  <b>JBehave Framework:</b>
+  Parses Gherkin, matches steps,
+  executes scenarios, generates reports.
+
+  <b>Key Insight:</b>
+  BDD is about communication and
+  collaboration, not just testing.
+  Scenarios facilitate discussions
+  that build shared understanding.
+endlegend
+
+@enduml

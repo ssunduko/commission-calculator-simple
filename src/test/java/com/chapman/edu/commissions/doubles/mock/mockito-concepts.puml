@@ -1,0 +1,333 @@
+@startuml Mockito Mocking Concepts
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Mockito Mocking Concepts - Commission Calculator
+
+' Real Domain Objects
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +setStatus(status: DealStatus): void
+  +calculateTotalValue(): BigDecimal
+}
+
+class User <<DomainModel>> {
+  -id: String
+  -username: String
+  -email: String
+  -firstName: String
+  -lastName: String
+  -roles: Set<UserRole>
+  +getFullName(): String
+  +hasRole(role: UserRole): boolean
+  +isActive(): boolean
+}
+
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -name: String
+  -status: PlanStatus
+  -effectiveStartDate: LocalDate
+  -effectiveEndDate: LocalDate
+  +isActiveOn(date: LocalDate): boolean
+  +setStatus(status: PlanStatus): void
+}
+
+' Mockito Framework Classes
+class MockitoAnnotations <<MockitoCore>> {
+  +openMocks(testClass: Object): AutoCloseable
+  +initMocks(testClass: Object): void
+}
+
+class Mockito <<MockitoCore>> {
+  +mock(classToMock: Class<T>): T
+  +spy(realObject: T): T
+  +when(methodCall: T): OngoingStubbing<T>
+  +verify(mock: T): T
+  +verify(mock: T, mode: VerificationMode): T
+  +reset(mocks: Object...): void
+  +times(wantedNumberOfInvocations: int): VerificationMode
+  +never(): VerificationMode
+  +atLeast(minNumberOfInvocations: int): VerificationMode
+  +atMost(maxNumberOfInvocations: int): VerificationMode
+  +timeout(millis: long): VerificationMode
+  +inOrder(mocks: Object...): InOrder
+}
+
+class BDDMockito <<BDD Style>> {
+  +given(methodCall: T): BDDOngoingStubbing<T>
+  +then(mock: T): Then<T>
+  +willReturn(value: T): BDDStubber
+  +willThrow(throwable: Throwable): BDDStubber
+}
+
+' Stubbing Classes
+interface OngoingStubbing {
+  +thenReturn(value: T): OngoingStubbing<T>
+  +thenThrow(throwable: Throwable): OngoingStubbing<T>
+  +thenAnswer(answer: Answer): OngoingStubbing<T>
+  +thenCallRealMethod(): OngoingStubbing<T>
+}
+
+interface Answer {
+  +answer(invocation: InvocationOnMock): Object
+}
+
+class InvocationOnMock {
+  +getArgument(index: int): Object
+  +getArguments(): Object[]
+  +getMock(): Object
+  +getMethod(): Method
+}
+
+' Verification Classes
+interface VerificationMode {
+  +verify(data: VerificationData): void
+}
+
+class InOrder {
+  +verify(mock: T): T
+  +verify(mock: T, mode: VerificationMode): T
+}
+
+' Argument Handling
+class ArgumentMatchers <<Matchers>> {
+  +any(): T
+  +any(type: Class<T>): T
+  +anyString(): String
+  +anyInt(): int
+  +anyBoolean(): boolean
+  +eq(value: T): T
+  +isNull(): T
+  +isNotNull(): T
+}
+
+class ArgumentCaptor <<Captor>> {
+  +forClass(clazz: Class<T>): ArgumentCaptor<T>
+  +capture(): T
+  +getValue(): T
+  +getAllValues(): List<T>
+}
+
+' Test Class
+class MockitoMockTest <<TestClass>> {
+  -mockDeal: Deal
+  -mockUser: User
+  -mockCommissionPlan: CommissionPlan
+  +testBasicStubbing(): void
+  +testMethodVerification(): void
+  +testArgumentMatchers(): void
+  +testArgumentCaptors(): void
+  +testSpyObjects(): void
+  +testInOrderVerification(): void
+  +testBDDStyle(): void
+}
+
+' Mocking Relationships
+MockitoMockTest ..> Mockito : uses
+MockitoMockTest ..> BDDMockito : uses
+MockitoMockTest ..> ArgumentMatchers : uses
+MockitoMockTest ..> ArgumentCaptor : uses
+MockitoMockTest ..> MockitoAnnotations : initializes mocks
+
+MockitoMockTest --> Deal : mocks
+MockitoMockTest --> User : mocks
+MockitoMockTest --> CommissionPlan : mocks
+
+Mockito ..> OngoingStubbing : returns
+Mockito ..> InOrder : creates
+BDDMockito ..> OngoingStubbing : returns
+
+OngoingStubbing ..> Answer : uses
+Answer ..> InvocationOnMock : receives
+
+' Component Notes
+note right of Deal
+  <b>Domain Model - Real Object</b>
+  The actual business entity that
+  will be mocked in tests.
+
+  Contains business logic and
+  state that we want to control
+  during testing.
+end note
+
+note left of Mockito
+  <b>Core Mocking API</b>
+  Central class providing static
+  methods for:
+  • Creating mocks
+  • Stubbing behavior
+  • Verifying interactions
+  • Resetting mocks
+
+  <b>Key Method Pattern:</b>
+  when(mock.method()).thenReturn(value)
+  verify(mock).method()
+end note
+
+note bottom of OngoingStubbing
+  <b>Fluent Stubbing Interface</b>
+  Allows chaining of return values:
+
+  when(mock.getValue())
+    .thenReturn(100)
+    .thenReturn(200)
+    .thenThrow(new Exception())
+
+  Provides different stubbing options:
+  • thenReturn - static value
+  • thenThrow - exception
+  • thenAnswer - dynamic behavior
+  • thenCallRealMethod - spy behavior
+end note
+
+note right of ArgumentCaptor
+  <b>Argument Capture</b>
+  Captures arguments passed to
+  mock methods for detailed
+  verification:
+
+  ArgumentCaptor<BigDecimal> captor
+    = ArgumentCaptor.forClass(BigDecimal.class);
+  verify(mock).setValue(captor.capture());
+
+  BigDecimal captured = captor.getValue();
+  assertTrue(captured.compareTo(
+    new BigDecimal("1000")) > 0);
+end note
+
+note bottom of InOrder
+  <b>Sequential Verification</b>
+  Verifies methods were called
+  in specific order:
+
+  InOrder inOrder = inOrder(mock);
+  inOrder.verify(mock).setStatus(OPEN);
+  inOrder.verify(mock).setStatus(WON);
+
+  Critical for state machines
+  and workflow validation.
+end note
+
+note bottom of BDDMockito
+  <b>BDD Style Testing</b>
+  Behavior-Driven Development syntax
+  makes tests read like specifications:
+
+  <b>Given-When-Then:</b>
+  given(mock.method()).willReturn(value);
+  // when - execute behavior
+  then(mock).should().method();
+
+  More readable for stakeholders.
+end note
+
+note bottom of ArgumentMatchers
+  <b>Flexible Matching</b>
+  Matches arguments without exact values:
+
+  • any() - any object
+  • anyString() - any String
+  • eq(value) - exact match
+  • isNull() / isNotNull()
+
+  <b>Rule:</b> If using matchers,
+  ALL arguments must use matchers!
+
+  when(mock.add(eq(0), any(Deal.class)))
+end note
+
+note right of MockitoMockTest
+  <b>Test Class</b>
+  Demonstrates all Mockito features:
+
+  <b>@Mock</b> - Auto-create mocks
+  <b>@Spy</b> - Partial mocking
+  <b>@Captor</b> - Argument captors
+  <b>@InjectMocks</b> - Inject mocks
+
+  Uses @BeforeEach to initialize
+  mocks with MockitoAnnotations.openMocks()
+end note
+
+note bottom of Answer
+  <b>Custom Behavior</b>
+  Implements dynamic mock responses:
+
+  when(mock.calculate()).thenAnswer(
+    invocation -> {
+      int arg = invocation.getArgument(0);
+      return arg * 2;
+    }
+  );
+
+  Access to:
+  • Method arguments
+  • Mock object
+  • Method metadata
+end note
+
+' Legend
+legend right
+  <b>Mockito Mocking Concepts:</b>
+
+  <b>Mock:</b> Empty shell object that returns
+  default values (null, 0, false) unless stubbed.
+  Created with @Mock or mock(Class).
+
+  <b>Spy:</b> Wraps real object. Calls real
+  methods unless explicitly stubbed. Created
+  with @Spy or spy(Object).
+
+  <b>Stubbing:</b> Defining what mocks return
+  when methods are called:
+  when(mock.method()).thenReturn(value)
+
+  <b>Verification:</b> Checking that methods
+  were called with expected arguments:
+  verify(mock).method(args)
+
+  <b>Argument Matchers:</b> Flexible matching
+  in stubbing/verification: any(), eq(), etc.
+
+  <b>Argument Captors:</b> Capture arguments
+  for detailed inspection after method calls.
+
+  <b>InOrder:</b> Verify method call sequence
+  matters for state machines and workflows.
+
+  <b>Key Benefits:</b>
+  • Isolate unit tests from dependencies
+  • Control behavior of collaborators
+  • Verify interactions occurred
+  • Test error scenarios easily
+  • Speed up tests (no real I/O)
+  • Test code before dependencies exist
+
+  <b>When to Use:</b>
+  ✓ Testing business logic with dependencies
+  ✓ Verifying method interactions
+  ✓ Simulating error conditions
+  ✓ Isolating from slow/external resources
+
+  <b>When to Avoid:</b>
+  ✗ Simple POJOs without dependencies
+  ✗ Integration tests (use real objects)
+  ✗ Over-mocking (test behavior, not impl)
+endlegend
+
+@enduml

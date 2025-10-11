@@ -1,0 +1,359 @@
+@startuml TDD Cycle - Commission Calculator
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+skinparam noteBorderColor #6c757d
+skinparam noteBackgroundColor #fff3cd
+
+' Title
+title Test-Driven Development (TDD) - RED-GREEN-REFACTOR Cycle
+
+' Test Class
+class TDDTest <<TestClass>> {
+  -commissionService: TDD
+  -testDeal: Deal
+  -testPlan: CommissionPlan
+  +setUp(): void
+  +testBasicCommissionCalculation_RedPhase(): void
+  +testDealValidation_RedPhase(): void
+  +testTieredCommissionCalculation_RedPhase(): void
+  +testCommissionWithBonus_RedPhase(): void
+  +testFullCommissionPipeline_RedPhase(): void
+  +testEdgeCasesAndValidation_RedPhase(): void
+  +testCommissionHistoryTracking_RedPhase(): void
+  +testRefactoredMethodsMaintainCorrectness(): void
+  +testFirstPrinciples(): void
+  +tearDown(): void
+}
+
+' Implementation Class
+class TDD <<Implementation>> {
+  -calculationCount: int
+  +calculateBasicCommission(dealValue: BigDecimal, rate: BigDecimal): BigDecimal
+  +isDealEligibleForCommission(deal: Deal): boolean
+  +calculateTieredCommission(dealValue: BigDecimal): BigDecimal
+  +calculateCommissionWithBonus(baseCommission: BigDecimal, bonusPercentage: BigDecimal): BigDecimal
+  +calculateFullCommission(deal: Deal, bonusRate: BigDecimal): BigDecimal
+  +getCalculationCount(): int
+  +resetCalculationCount(): int
+  +getServiceSummary(): String
+  -incrementCalculationCount(): void
+}
+
+' Domain Models
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -closeDate: LocalDate
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+}
+
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -name: String
+  -status: PlanStatus
+  -effectiveStartDate: LocalDate
+  -effectiveEndDate: LocalDate
+}
+
+enum DealStatus <<Enum>> {
+  OPEN
+  CLOSED
+  LOST
+  PENDING
+}
+
+enum PlanStatus <<Enum>> {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+' TDD Cycle Representation
+class "RED Phase" as RED <<TDDPhase>> {
+  **Write Failing Test**
+  --
+  • Write test first
+  • Test must fail
+  • Defines requirement
+  • Proves test works
+}
+
+class "GREEN Phase" as GREEN <<TDDPhase>> {
+  **Make Test Pass**
+  --
+  • Write minimal code
+  • Make test green
+  • Don't over-engineer
+  • Keep it simple
+}
+
+class "REFACTOR Phase" as REFACTOR <<TDDPhase>> {
+  **Improve Code Quality**
+  --
+  • Clean up code
+  • Remove duplication
+  • Improve names
+  • Tests stay green
+}
+
+' Relationships
+TDDTest ..> TDD : tests >
+TDD ..> Deal : uses >
+TDDTest ..> Deal : uses >
+TDDTest ..> CommissionPlan : uses >
+Deal --> DealStatus : has status
+CommissionPlan --> PlanStatus : has status
+
+' TDD Cycle Flow
+RED -right-> GREEN : test fails
+GREEN -right-> REFACTOR : test passes
+REFACTOR -down-> RED : next feature
+
+' Component Notes
+
+note top of TDDTest
+  <b>Test Class (RED Phase)</b>
+
+  Tests are written FIRST, before implementation.
+  Each test defines expected behavior:
+
+  <b>Cycle 1:</b> Basic commission (10% rate)
+  <b>Cycle 2:</b> Deal validation (CLOSED status)
+  <b>Cycle 3:</b> Tiered rates (8%, 10%, 12%)
+  <b>Cycle 4:</b> Bonus calculation (15% bonus)
+  <b>Cycle 5:</b> Full pipeline integration
+  <b>Cycle 6:</b> Edge cases and validation
+  <b>Cycle 7:</b> Calculation tracking
+
+  Tests drive the implementation!
+end note
+
+note bottom of TDD
+  <b>Implementation Class (GREEN Phase)</b>
+
+  Code written to make tests pass.
+  Started simple, evolved through cycles:
+
+  • Minimal code first (GREEN)
+  • Refactored for quality (REFACTOR)
+  • Added features incrementally
+  • Tests guide design decisions
+
+  <b>Key Features:</b>
+  • Basic commission calculation
+  • Deal eligibility validation
+  • Progressive tier rates
+  • Bonus application
+  • Calculation tracking
+  • Error handling
+end note
+
+note right of Deal
+  <b>Domain Model</b>
+
+  Represents a sales deal.
+  Used by commission calculator.
+
+  Key fields:
+  • value: Deal amount
+  • status: Deal state
+  • salesRepId: Rep identifier
+
+  Only CLOSED deals are
+  eligible for commission.
+end note
+
+note left of RED
+  <b>RED Phase: Write Failing Test</b>
+
+  1. Write test for desired feature
+  2. Run test - it MUST fail
+  3. Failure proves:
+     • Test can detect problems
+     • Feature doesn't exist yet
+     • Test is actually running
+
+  <b>Example:</b>
+  @Test
+  void testBasicCommission() {
+    BigDecimal result =
+      service.calculate(100000, 0.10);
+    assertEquals(10000, result);
+  }
+
+  Result: ❌ FAIL
+  (Method doesn't exist)
+end note
+
+note top of GREEN
+  <b>GREEN Phase: Make It Pass</b>
+
+  1. Write minimal code to pass test
+  2. Don't worry about perfection
+  3. Just make it work
+  4. Run test - it should pass
+
+  <b>Example:</b>
+  public BigDecimal calculate(
+      BigDecimal value,
+      BigDecimal rate) {
+    return value.multiply(rate)
+      .setScale(2, HALF_UP);
+  }
+
+  Result: ✅ PASS
+end note
+
+note bottom of REFACTOR
+  <b>REFACTOR Phase: Improve Quality</b>
+
+  1. Clean up the code
+  2. Remove duplication
+  3. Improve naming
+  4. Extract constants
+  5. Run tests continuously
+
+  <b>Example:</b>
+  Before: new BigDecimal("0.10")
+  After:  STANDARD_RATE
+
+  Tests stay: ✅ GREEN
+
+  Refactoring is SAFE because
+  tests protect against regressions.
+end note
+
+' TDD Principles Box
+note as TDDPrinciples
+  <b>TDD Core Principles</b>
+
+  <b>1. Test First</b>
+     Write tests before implementation
+
+  <b>2. Incremental Development</b>
+     Build features in small steps
+
+  <b>3. Design Through Tests</b>
+     Tests drive better design
+
+  <b>4. Immediate Feedback</b>
+     Know instantly if code works
+
+  <b>5. Refactoring Confidence</b>
+     Tests enable safe changes
+
+  <b>FIRST Principles:</b>
+  • <b>F</b>ast: Tests run quickly
+  • <b>I</b>ndependent: No dependencies
+  • <b>R</b>epeatable: Consistent results
+  • <b>S</b>elf-validating: Clear pass/fail
+  • <b>T</b>imely: Written at right time
+end note
+
+' TDD Benefits Box
+note as TDDBenefits
+  <b>Benefits of TDD</b>
+
+  ✅ <b>Better Design</b>
+     Tests force good interfaces
+
+  ✅ <b>Higher Quality</b>
+     Bugs caught early
+
+  ✅ <b>Living Documentation</b>
+     Tests show how to use code
+
+  ✅ <b>Refactoring Safety</b>
+     Change code without fear
+
+  ✅ <b>Reduced Debugging</b>
+     Fewer production bugs
+
+  ✅ <b>Increased Confidence</b>
+     Know code works correctly
+
+  ✅ <b>Better Coverage</b>
+     All code has tests
+end note
+
+' TDD Example Flow
+note as ExampleFlow
+  <b>Example TDD Flow: Tiered Commission</b>
+
+  <b>RED:</b> Write test for tiered rates
+  @Test
+  void testTieredCommission() {
+    assertEquals(2400, // 8% of 30000
+      service.calculateTiered(30000));
+    assertEquals(7500, // 10% of 75000
+      service.calculateTiered(75000));
+    assertEquals(18000, // 12% of 150000
+      service.calculateTiered(150000));
+  }
+
+  Result: ❌ FAIL (Method doesn't exist)
+
+  <b>GREEN:</b> Implement tier logic
+  public BigDecimal calculateTiered(BigDecimal value) {
+    if (value <= 50000) return value * 0.08;
+    if (value <= 100000) return value * 0.10;
+    return value * 0.12;
+  }
+
+  Result: ✅ PASS
+
+  <b>REFACTOR:</b> Extract magic numbers
+  final BigDecimal TIER_1_MAX = new BigDecimal("50000");
+  final BigDecimal TIER_1_RATE = new BigDecimal("0.08");
+  // ... use constants instead of magic numbers
+
+  Result: ✅ PASS (Tests still green!)
+end note
+
+' Position notes
+TDDPrinciples -[hidden]- TDDBenefits
+TDDBenefits -[hidden]- ExampleFlow
+
+' Legend
+legend right
+  <b>TDD Workflow Summary</b>
+
+  <b>Step 1: RED Phase</b>
+  • Write a failing test
+  • Test defines requirement
+  • Proves test can fail
+
+  <b>Step 2: GREEN Phase</b>
+  • Write minimal code
+  • Make test pass
+  • Don't over-engineer
+
+  <b>Step 3: REFACTOR Phase</b>
+  • Improve code quality
+  • Tests stay green
+  • Safe to change
+
+  <b>Step 4: Repeat</b>
+  • Return to RED for next feature
+  • Build incrementally
+  • Always have working code
+
+  <b>Key Insight:</b>
+  TDD is not just testing—it's a
+  design methodology that produces
+  better code with higher confidence.
+
+  <b>Mantra:</b> RED → GREEN → REFACTOR
+endlegend
+
+@enduml

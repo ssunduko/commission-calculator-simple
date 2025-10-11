@@ -1,0 +1,360 @@
+@startuml Mockito Spy Concepts
+
+' Define styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Mockito Spy Concepts - Partial Mocking
+
+' Real Domain Objects (that get spied on)
+class Deal <<RealObject>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +setStatus(status: DealStatus): void
+  +calculateTotalValue(): BigDecimal
+  +addProduct(product: DealProduct): void
+}
+
+class User <<RealObject>> {
+  -id: String
+  -username: String
+  -email: String
+  -firstName: String
+  -lastName: String
+  -active: boolean
+  -roles: Set<UserRole>
+  +getFullName(): String
+  +hasRole(role: UserRole): boolean
+  +isActive(): boolean
+  +setActive(active: boolean): void
+}
+
+class CommissionPlan <<RealObject>> {
+  -id: String
+  -name: String
+  -status: PlanStatus
+  -effectiveStartDate: LocalDate
+  -effectiveEndDate: LocalDate
+  -commissionRate: BigDecimal
+  +isActiveOn(date: LocalDate): boolean
+  +getCommissionRate(): BigDecimal
+  +setStatus(status: PlanStatus): void
+}
+
+' Mockito Core Classes
+class Mockito <<Framework>> {
+  +spy(realObject: T): T
+  +mock(classToMock: Class<T>): T
+  +when(methodCall: T): OngoingStubbing<T>
+  +doReturn(toBeReturned: Object): Stubber
+  +doNothing(): Stubber
+  +doThrow(toBeThrown: Throwable): Stubber
+  +verify(mock: T): T
+  +reset(mocks: Object...): void
+}
+
+class MockitoAnnotations <<Framework>> {
+  +openMocks(testClass: Object): AutoCloseable
+}
+
+' Spy-specific concepts
+class SpyWrapper <<Concept>> {
+  -realObject: Object
+  -stubbings: Map<Method, Object>
+  +callRealMethod(): Object
+  +callStubbedMethod(): Object
+  +isStubbed(method: Method): boolean
+}
+
+interface Stubber <<Framework>> {
+  +when(mock: T): T
+  +doReturn(toBeReturned: Object): Stubber
+  +doThrow(toBeThrown: Throwable): Stubber
+  +doNothing(): Stubber
+  +doAnswer(answer: Answer): Stubber
+}
+
+' Test class
+class MockitoSpyTest <<TestClass>> {
+  -spyUser: User
+  +testCreatingSpies(): void
+  +testRealMethodCalls(): void
+  +testStateSharing(): void
+  +testSelectiveStubbing(): void
+  +testDoReturnVsWhen(): void
+  +testVerification(): void
+  +testSpyVsMock(): void
+  +testPartialMocking(): void
+  +testSpyOnCollections(): void
+  +testLimitations(): void
+  +testRealWorldScenario(): void
+}
+
+' Mock vs Spy comparison
+class MockObject <<Concept>> {
+  -noImplementation: true
+  -defaultBehavior: "returns null/0/false"
+  +anyMethod(): null
+}
+
+class SpyObject <<Concept>> {
+  -wrapsRealObject: true
+  -defaultBehavior: "calls real method"
+  +anyMethod(): realResult
+}
+
+' Relationships
+MockitoSpyTest ..> Mockito : uses
+MockitoSpyTest ..> MockitoAnnotations : initializes
+MockitoSpyTest --> Deal : spies on
+MockitoSpyTest --> User : spies on
+MockitoSpyTest --> CommissionPlan : spies on
+
+Mockito ..> SpyWrapper : creates
+Mockito ..> Stubber : returns
+Mockito ..> MockObject : creates mocks
+Mockito ..> SpyObject : creates spies
+
+SpyWrapper --> Deal : wraps
+SpyWrapper --> User : wraps
+SpyWrapper --> CommissionPlan : wraps
+
+SpyObject ..> Deal : delegates to
+MockObject ..|> Deal : mimics
+
+' Component Notes
+note right of Deal
+  <b>Real Domain Object</b>
+  Concrete class with actual
+  implementation that can be
+  spied upon.
+
+  Spies wrap real objects and
+  delegate to real methods by
+  default, allowing selective
+  stubbing of specific methods.
+end note
+
+note left of Mockito
+  <b>Spy Creation</b>
+  spy(realObject) creates a wrapper
+  that delegates to real methods
+  unless explicitly stubbed.
+
+  <b>Key Methods:</b>
+  • spy() - Create spy wrapper
+  • doReturn() - Stub without calling
+  • when() - Stub (but calls method)
+  • verify() - Verify interactions
+
+  <b>Spy vs Mock:</b>
+  spy() requires real object
+  mock() creates empty shell
+end note
+
+note bottom of SpyWrapper
+  <b>Spy Wrapper Mechanism</b>
+  Wraps real object and intercepts calls:
+
+  1. Check if method is stubbed
+  2. If stubbed: return stubbed value
+  3. If not: delegate to real method
+
+  <b>State Sharing:</b>
+  Spy and real object share state!
+  Changes in spy affect real object.
+
+  <b>Method Delegation:</b>
+  • Stubbed methods → return stub
+  • Real methods → execute actual code
+end note
+
+note right of Stubber
+  <b>Safe Stubbing for Spies</b>
+  Use doReturn().when() pattern:
+
+  doReturn("value").when(spy).method();
+
+  <b>Why not when().thenReturn()?</b>
+  when(spy.method()).thenReturn("value")
+  calls method FIRST, then stubs it.
+  This can trigger unwanted side effects!
+
+  <b>Best Practice:</b>
+  Always use doReturn() for spies
+  to avoid calling real method during
+  stubbing.
+end note
+
+note bottom of MockObject
+  <b>Mock (Empty Shell)</b>
+  No real implementation.
+  All methods return defaults:
+  • Objects: null
+  • Numbers: 0
+  • Booleans: false
+  • Collections: empty
+
+  <b>Use When:</b>
+  • Need complete control
+  • Pure unit tests
+  • Fast execution required
+end note
+
+note bottom of SpyObject
+  <b>Spy (Real Object Wrapper)</b>
+  Wraps real implementation.
+  Methods call actual code:
+  • Real logic executes
+  • Real state changes
+  • Real return values
+
+  <b>Use When:</b>
+  • Need partial mocking
+  • Testing legacy code
+  • Semi-integration tests
+  • Most behavior should be real
+end note
+
+note right of MockitoSpyTest
+  <b>Test Class Structure</b>
+  Demonstrates spy capabilities:
+
+  <b>Creation:</b>
+  • spy(object)
+  • @Spy annotation
+  • Inline creation
+
+  <b>Behavior:</b>
+  • Real method calls
+  • Selective stubbing
+  • State sharing
+
+  <b>Stubbing:</b>
+  • doReturn().when()
+  • doNothing() for void
+  • doThrow() for exceptions
+
+  <b>Verification:</b>
+  • verify() real calls
+  • verify() stubbed calls
+  • InOrder verification
+end note
+
+' Comparison Table
+note top of MockObject
+  <b>MOCK vs SPY Comparison</b>
+
+  ┌─────────────┬──────────────┬──────────────┐
+  │ Aspect      │ Mock         │ Spy          │
+  ├─────────────┼──────────────┼──────────────┤
+  │ Base        │ Empty shell  │ Real object  │
+  │ Default     │ null/0/false │ Real methods │
+  │ State       │ No state     │ Real state   │
+  │ Speed       │ Fast         │ Slower       │
+  │ Control     │ Complete     │ Partial      │
+  │ Use Case    │ Unit tests   │ Integration  │
+  └─────────────┴──────────────┴──────────────┘
+end note
+
+' Legend
+legend right
+  <b>Mockito Spy Concepts:</b>
+
+  <b>What is a Spy?</b>
+  A spy is a wrapper around a REAL object
+  that delegates to actual method implementations
+  by default, but allows selective stubbing of
+  specific methods.
+
+  <b>Key Characteristics:</b>
+  • Wraps real object (not empty shell)
+  • Calls real methods by default
+  • Allows selective method stubbing
+  • Shares state with real object
+  • Supports verification like mocks
+
+  <b>Creating Spies:</b>
+  1. spy(realObject)
+  2. @Spy annotation on field
+  3. spy(new Class())
+
+  <b>Stubbing Spies - IMPORTANT:</b>
+  ✓ Use: doReturn(value).when(spy).method()
+  ✗ Avoid: when(spy.method()).thenReturn(value)
+
+  Reason: when() calls real method first,
+  can trigger unwanted side effects!
+
+  <b>When to Use Spies:</b>
+  ✓ Legacy code with complex dependencies
+  ✓ Partial mocking (mostly real, some stubbed)
+  ✓ Verifying real object behavior
+  ✓ Testing abstract class concrete methods
+  ✓ Semi-integration tests
+
+  <b>When NOT to Use Spies:</b>
+  ✗ Pure unit tests (use mocks)
+  ✗ Methods with side effects you want to avoid
+  ✗ Final classes (requires special config)
+  ✗ Simple objects without dependencies
+
+  <b>Spy Limitations:</b>
+  • Cannot spy on final classes (default)
+  • Cannot spy on null objects
+  • Cannot spy on primitives
+  • Cannot spy on interfaces (need implementation)
+  • Side effects are REAL
+
+  <b>Real vs Stubbed Methods:</b>
+  Real method: Executes actual implementation
+  Stubbed method: Returns stubbed value
+
+  <b>State Sharing:</b>
+  Spy and real object share the SAME state.
+  Changes through spy affect real object!
+
+  <b>Example:</b>
+  User real = new User("jdoe", "john@test.com");
+  User spy = spy(real);
+
+  // Real method called
+  spy.getEmail();  // returns "john@test.com"
+
+  // Stub specific method
+  doReturn("fake@test.com").when(spy).getEmail();
+  spy.getEmail();  // returns "fake@test.com"
+
+  // Other methods still real
+  spy.getUsername();  // returns "jdoe"
+
+  <b>Best Practices:</b>
+  1. Use doReturn() instead of when() for spies
+  2. Be aware of state sharing
+  3. Use spies sparingly (design smell?)
+  4. Verify both stubbed and real calls
+  5. Consider if design could be improved
+  6. Prefer mocks for pure unit tests
+
+  <b>Verification:</b>
+  verify(spy).method();  // Works for all calls
+  verify(spy, times(2)).method();
+  verify(spy, never()).method();
+
+  InOrder inOrder = inOrder(spy);
+  inOrder.verify(spy).method1();
+  inOrder.verify(spy).method2();
+endlegend
+
+@enduml
