@@ -93,6 +93,10 @@ class DummyTest {
         // dealService.createDeal(deal, dummyCreator);
         // But the service only logs the creator, never calls methods on it
 
+        //Create another dummy with no data
+        DealProduct dummyProduct = new DealProduct();
+        deal.addProduct(dummyProduct);
+
         // ASSERT: Verify deal creation (dummy was never used)
         assertNotNull(deal);
         assertEquals("Test Deal", deal.getTitle());

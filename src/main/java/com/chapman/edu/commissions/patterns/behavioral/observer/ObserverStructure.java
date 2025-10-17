@@ -51,23 +51,6 @@ public class ObserverStructure {
     public interface DealSubject {
 
         /**
-         * Attaches an observer to receive notifications.
-         *
-         * OBSERVER PATTERN CONCEPT:
-         * This method allows observers to "subscribe" to the subject. Once attached,
-         * the observer will receive all future notifications until it is detached.
-         *
-         * IMPLEMENTATION CONSIDERATIONS:
-         * - Should prevent duplicate observers (same observer attached multiple times)
-         * - Should validate that observer is not null
-         * - May need to be thread-safe in concurrent environments
-         * - Order of attachment may determine notification order
-         *
-         * @param observer the observer to attach (must not be null)
-         */
-        void attach(DealObserver observer);
-
-        /**
          * Detaches an observer so it no longer receives notifications.
          *
          * OBSERVER PATTERN CONCEPT:
@@ -117,6 +100,23 @@ public class ObserverStructure {
          * prevent concurrent modification of the observer list during iteration.
          */
         void notifyObservers();
+
+        /**
+         * Attaches an observer to receive notifications.
+         *
+         * OBSERVER PATTERN CONCEPT:
+         * This method allows observers to "subscribe" to the subject. Once attached,
+         * the observer will receive all future notifications until it is detached.
+         *
+         * IMPLEMENTATION CONSIDERATIONS:
+         * - Should prevent duplicate observers (same observer attached multiple times)
+         * - Should validate that observer is not null
+         * - May need to be thread-safe in concurrent environments
+         * - Order of attachment may determine notification order
+         *
+         * @param observer the observer to attach (must not be null)
+         */
+        void attach(DealObserver observer);
     }
 
     /**
