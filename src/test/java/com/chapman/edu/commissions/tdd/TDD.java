@@ -118,7 +118,7 @@ public class TDD {
     /**
      * RED PHASE (Cycle 1):
      * - Test written first in TDDTest.testBasicCommissionCalculation_RedPhase()
-     * - Test fails because this method doesn't exist
+     * - Test fails because this method returns null
      *
      * GREEN PHASE (Cycle 1):
      * - Implement the minimum code to make the test pass

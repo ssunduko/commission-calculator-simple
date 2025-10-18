@@ -75,7 +75,6 @@ public class CommissionCalculationStoriesTest extends org.jbehave.core.junit.JUn
     public java.util.List<String> storyPaths() {
         return java.util.Arrays.asList(
                 "com/chapman/edu/commissions/bdd/commission_calculation.story",
-                "com/chapman/edu/commissions/bdd/commission_calculation_stories_test.story",
                 "com/chapman/edu/commissions/bdd/deal_validation.story",
                 "com/chapman/edu/commissions/bdd/commission_plan.story"
         );

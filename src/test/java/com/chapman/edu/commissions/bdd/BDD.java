@@ -166,7 +166,6 @@ public class BDD {
     // ═══════════════════════════════════════════════════════════════════════
     // DEAL VALIDATION - Business Rules
     // ═══════════════════════════════════════════════════════════════════════
-
     /**
      * BDD SCENARIO: Commission calculation requires closed deal status
      *
@@ -189,7 +188,6 @@ public class BDD {
      */
     public boolean isDealEligibleForCommission(Deal deal) {
         // BDD: Each validation represents a business rule
-
         if (deal == null) {
             return false;
         }

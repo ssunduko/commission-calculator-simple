@@ -110,11 +110,13 @@ class TDDTest {
         BigDecimal smallDealValue = new BigDecimal("30000");  // 8% tier
         BigDecimal mediumDealValue = new BigDecimal("75000"); // 10% tier
         BigDecimal largeDealValue = new BigDecimal("150000"); // 12% tier
+        BigDecimal largerDealValue = new BigDecimal("170000"); // 12% tier
 
         // ACT: Calculate commissions
         BigDecimal smallCommission = commissionService.calculateTieredCommission(smallDealValue);
         BigDecimal mediumCommission = commissionService.calculateTieredCommission(mediumDealValue);
         BigDecimal largeCommission = commissionService.calculateTieredCommission(largeDealValue);
+        BigDecimal largerCommission = commissionService.calculateTieredCommission(largerDealValue);
 
         // ASSERT: Verify correct tier rates applied
         assertEquals(new BigDecimal("2400.00"), smallCommission.setScale(2),
@@ -123,6 +125,8 @@ class TDDTest {
                 "Medium deal should use 10% rate: 75000 * 0.10 = 7500");
         assertEquals(new BigDecimal("18000.00"), largeCommission.setScale(2),
                 "Large deal should use 12% rate: 150000 * 0.12 = 18000");
+        assertEquals(new BigDecimal("20400.00"), largerCommission.setScale(2),
+                "Even Larger deal should use 12% rate: 170000 * 0.12 = 20400");
     }
 
     /**
