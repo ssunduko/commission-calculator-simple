@@ -1,0 +1,146 @@
+{
+	"info": {
+		"name": "Commission Calculator GraphQL API",
+		"description": "GraphQL API for Commission Calculator system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8081/graphql",
+			"type": "string"
+		},
+		{
+			"key": "dealId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Deals",
+			"item": [
+				{
+					"name": "Get All Deals",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  deals {\n    id\n    title\n    value\n    status\n    salesRep {\n      firstName\n      lastName\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				},
+				{
+					"name": "Get Deal by ID",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetDeal($id: ID!) {\n  deal(id: $id) {\n    id\n    title\n    value\n    status\n    salesRep {\n      fullName\n    }\n  }\n}",
+								"variables": "{\"id\":\"DEAL-001\"}"
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				},
+				{
+					"name": "Create Deal",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateDeal($input: CreateDealInput!) {\n  createDeal(input: $input) {\n    id\n    title\n    value\n    salesRepId\n  }\n}",
+								"variables": "{\"input\":{\"title\":\"New Deal\",\"value\":\"100000.00\",\"salesRepId\":\"USER-001\"}}"
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				},
+				{
+					"name": "Update Deal",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateDeal($id: ID!, $input: UpdateDealInput!) {\n  updateDeal(id: $id, input: $input) {\n    id\n    title\n    status\n  }\n}",
+								"variables": "{\"id\":\"DEAL-001\",\"input\":{\"status\":\"WON\"}}"
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  users {\n    id\n    username\n    fullName\n    roles\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				},
+				{
+					"name": "Get User with Deals",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetUserWithDeals($id: ID!) {\n  user(id: $id) {\n    id\n    fullName\n    deals {\n      id\n      title\n      value\n    }\n  }\n}",
+								"variables": "{\"id\":\"USER-001\"}"
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				}
+			]
+		},
+		{
+			"name": "Introspection",
+			"item": [
+				{
+					"name": "Get Schema Types",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  __schema {\n    types {\n      name\n      kind\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {"raw": "{{baseUrl}}"}
+					}
+				}
+			]
+		}
+	]
+}

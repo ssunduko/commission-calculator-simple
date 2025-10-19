@@ -1,0 +1,767 @@
+openapi: 3.0.3
+info:
+  title: Commission Calculator API
+  description: |
+    REST API for managing sales commissions, deals, users, and commission plans.
+    This API provides comprehensive CRUD operations for the commission calculator domain model.
+  version: 1.0.0
+  contact:
+    name: Sergey Sundukovskiy, Ph.D.
+    email: sundukovskiy@chapman.edu
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: Deals
+    description: Operations related to sales deals
+  - name: Users
+    description: Operations related to user management
+  - name: Commission Plans
+    description: Operations related to commission plan management
+  - name: Disputes
+    description: Operations related to commission disputes
+
+paths:
+  /deals:
+    get:
+      tags:
+        - Deals
+      summary: Get all deals
+      description: Retrieve a list of all deals in the system
+      operationId: getAllDeals
+      parameters:
+        - name: status
+          in: query
+          description: Filter deals by status
+          required: false
+          schema:
+            type: string
+            enum: [OPEN, WON, LOST, CANCELLED]
+        - name: salesRepId
+          in: query
+          description: Filter deals by sales representative ID
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deal'
+    post:
+      tags:
+        - Deals
+      summary: Create a new deal
+      description: Add a new deal to the system
+      operationId: createDeal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deal'
+      responses:
+        '201':
+          description: Deal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deal'
+        '400':
+          description: Invalid input
+
+  /deals/{dealId}:
+    get:
+      tags:
+        - Deals
+      summary: Get deal by ID
+      description: Retrieve a specific deal by its ID
+      operationId: getDealById
+      parameters:
+        - name: dealId
+          in: path
+          description: ID of the deal to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deal'
+        '404':
+          description: Deal not found
+    put:
+      tags:
+        - Deals
+      summary: Update an existing deal
+      description: Update deal information
+      operationId: updateDeal
+      parameters:
+        - name: dealId
+          in: path
+          description: ID of the deal to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Deal'
+      responses:
+        '200':
+          description: Deal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deal'
+        '404':
+          description: Deal not found
+    delete:
+      tags:
+        - Deals
+      summary: Delete a deal
+      description: Remove a deal from the system
+      operationId: deleteDeal
+      parameters:
+        - name: dealId
+          in: path
+          description: ID of the deal to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deal deleted successfully
+        '404':
+          description: Deal not found
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Retrieve a list of all users in the system
+      operationId: getAllUsers
+      parameters:
+        - name: role
+          in: query
+          description: Filter users by role
+          required: false
+          schema:
+            type: string
+            enum: [SALES_REP, SALES_MANAGER, FINANCE_ADMIN, SYSTEM_ADMIN]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Add a new user to the system
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      description: Retrieve a specific user by their ID
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      tags:
+        - Users
+      summary: Update an existing user
+      description: Update user information
+      operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      description: Remove a user from the system
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /commission-plans:
+    get:
+      tags:
+        - Commission Plans
+      summary: Get all commission plans
+      description: Retrieve a list of all commission plans
+      operationId: getAllCommissionPlans
+      parameters:
+        - name: status
+          in: query
+          description: Filter plans by status
+          required: false
+          schema:
+            type: string
+            enum: [DRAFT, ACTIVE, ARCHIVED]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommissionPlan'
+    post:
+      tags:
+        - Commission Plans
+      summary: Create a new commission plan
+      description: Add a new commission plan to the system
+      operationId: createCommissionPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionPlan'
+      responses:
+        '201':
+          description: Commission plan created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionPlan'
+        '400':
+          description: Invalid input
+
+  /commission-plans/{planId}:
+    get:
+      tags:
+        - Commission Plans
+      summary: Get commission plan by ID
+      description: Retrieve a specific commission plan by its ID
+      operationId: getCommissionPlanById
+      parameters:
+        - name: planId
+          in: path
+          description: ID of the commission plan to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionPlan'
+        '404':
+          description: Commission plan not found
+    put:
+      tags:
+        - Commission Plans
+      summary: Update an existing commission plan
+      description: Update commission plan information
+      operationId: updateCommissionPlan
+      parameters:
+        - name: planId
+          in: path
+          description: ID of the commission plan to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommissionPlan'
+      responses:
+        '200':
+          description: Commission plan updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionPlan'
+        '404':
+          description: Commission plan not found
+    delete:
+      tags:
+        - Commission Plans
+      summary: Delete a commission plan
+      description: Remove a commission plan from the system
+      operationId: deleteCommissionPlan
+      parameters:
+        - name: planId
+          in: path
+          description: ID of the commission plan to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Commission plan deleted successfully
+        '404':
+          description: Commission plan not found
+
+  /disputes:
+    get:
+      tags:
+        - Disputes
+      summary: Get all disputes
+      description: Retrieve a list of all disputes
+      operationId: getAllDisputes
+      parameters:
+        - name: status
+          in: query
+          description: Filter disputes by status
+          required: false
+          schema:
+            type: string
+            enum: [INITIATED, UNDER_REVIEW, ESCALATED, RESOLVED, APPROVED, REJECTED]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dispute'
+    post:
+      tags:
+        - Disputes
+      summary: Create a new dispute
+      description: Add a new dispute to the system
+      operationId: createDispute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dispute'
+      responses:
+        '201':
+          description: Dispute created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dispute'
+        '400':
+          description: Invalid input
+
+  /disputes/{disputeId}:
+    get:
+      tags:
+        - Disputes
+      summary: Get dispute by ID
+      description: Retrieve a specific dispute by its ID
+      operationId: getDisputeById
+      parameters:
+        - name: disputeId
+          in: path
+          description: ID of the dispute to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dispute'
+        '404':
+          description: Dispute not found
+    put:
+      tags:
+        - Disputes
+      summary: Update an existing dispute
+      description: Update dispute information
+      operationId: updateDispute
+      parameters:
+        - name: disputeId
+          in: path
+          description: ID of the dispute to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dispute'
+      responses:
+        '200':
+          description: Dispute updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dispute'
+        '404':
+          description: Dispute not found
+    delete:
+      tags:
+        - Disputes
+      summary: Delete a dispute
+      description: Remove a dispute from the system
+      operationId: deleteDispute
+      parameters:
+        - name: disputeId
+          in: path
+          description: ID of the dispute to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Dispute deleted successfully
+        '404':
+          description: Dispute not found
+
+components:
+  schemas:
+    Deal:
+      type: object
+      description: Represents a sales deal in the commission calculator system
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the deal
+          example: "DEAL-001"
+        title:
+          type: string
+          description: Title of the deal
+          example: "Enterprise Software License - Acme Corp"
+        value:
+          type: number
+          format: decimal
+          description: Total value of the deal
+          example: 100000.00
+        status:
+          type: string
+          enum: [OPEN, WON, LOST, CANCELLED]
+          description: Current status of the deal
+          example: "WON"
+        salesRepId:
+          type: string
+          description: ID of the sales representative
+          example: "USER-001"
+        products:
+          type: array
+          description: List of products in the deal
+          items:
+            $ref: '#/components/schemas/DealProduct'
+        closeDate:
+          type: string
+          format: date
+          description: Date when the deal was closed
+          example: "2024-01-15"
+        createdDate:
+          type: string
+          format: date
+          description: Date when the deal was created
+          example: "2024-01-01"
+        lastModifiedDate:
+          type: string
+          format: date
+          description: Date when the deal was last modified
+          example: "2024-01-15"
+      required:
+        - title
+        - value
+        - salesRepId
+
+    DealProduct:
+      type: object
+      description: Represents a product within a deal
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the deal product
+          example: "DP-001"
+        productId:
+          type: string
+          description: ID of the product
+          example: "PROD-001"
+        productName:
+          type: string
+          description: Name of the product
+          example: "Enterprise License"
+        quantity:
+          type: integer
+          description: Quantity of the product
+          example: 10
+        price:
+          type: number
+          format: decimal
+          description: Price per unit
+          example: 10000.00
+        discount:
+          type: number
+          format: decimal
+          description: Discount amount applied
+          example: 500.00
+        dealId:
+          type: string
+          description: ID of the parent deal
+          example: "DEAL-001"
+      required:
+        - productId
+        - productName
+        - quantity
+        - price
+
+    User:
+      type: object
+      description: Represents a user in the system
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+          example: "USER-001"
+        username:
+          type: string
+          description: Username for login
+          example: "jsmith"
+        email:
+          type: string
+          format: email
+          description: Email address
+          example: "jsmith@example.com"
+        firstName:
+          type: string
+          description: First name of the user
+          example: "John"
+        lastName:
+          type: string
+          description: Last name of the user
+          example: "Smith"
+        roles:
+          type: array
+          description: User roles in the system
+          items:
+            type: string
+            enum: [SALES_REP, SALES_MANAGER, FINANCE_ADMIN, SYSTEM_ADMIN]
+          example: ["SALES_REP"]
+        active:
+          type: boolean
+          description: Whether the user account is active
+          example: true
+        lastLogin:
+          type: string
+          format: date-time
+          description: Timestamp of last login
+          example: "2024-01-15T10:30:00Z"
+        createdDate:
+          type: string
+          format: date
+          description: Date when the user was created
+          example: "2024-01-01"
+        managerId:
+          type: string
+          description: ID of the user's manager
+          example: "USER-002"
+        department:
+          type: string
+          description: Department the user belongs to
+          example: "Sales"
+        territory:
+          type: string
+          description: Sales territory
+          example: "West Coast"
+      required:
+        - username
+        - email
+        - firstName
+        - lastName
+
+    CommissionPlan:
+      type: object
+      description: Represents a commission plan defining calculation rules
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the commission plan
+          example: "PLAN-001"
+        name:
+          type: string
+          description: Name of the commission plan
+          example: "Q1 2024 Standard Plan"
+        status:
+          type: string
+          enum: [DRAFT, ACTIVE, ARCHIVED]
+          description: Current status of the plan
+          example: "ACTIVE"
+        currency:
+          type: string
+          description: Currency code (ISO 4217)
+          example: "USD"
+        effectiveStartDate:
+          type: string
+          format: date
+          description: Date when the plan becomes effective
+          example: "2024-01-01"
+        effectiveEndDate:
+          type: string
+          format: date
+          description: Date when the plan expires
+          example: "2024-03-31"
+        createdDate:
+          type: string
+          format: date
+          description: Date when the plan was created
+          example: "2023-12-15"
+        lastModifiedDate:
+          type: string
+          format: date
+          description: Date when the plan was last modified
+          example: "2024-01-01"
+        createdBy:
+          type: string
+          description: ID of the user who created the plan
+          example: "USER-003"
+      required:
+        - name
+        - currency
+
+    Dispute:
+      type: object
+      description: Represents a commission dispute
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the dispute
+          example: "DISP-001"
+        calculationId:
+          type: string
+          description: ID of the commission calculation being disputed
+          example: "CALC-001"
+        salesRepId:
+          type: string
+          description: ID of the sales representative who initiated the dispute
+          example: "USER-001"
+        managerId:
+          type: string
+          description: ID of the manager handling the dispute
+          example: "USER-002"
+        title:
+          type: string
+          description: Brief title of the dispute
+          example: "Commission calculation incorrect for Q4 deal"
+        description:
+          type: string
+          description: Detailed description of the dispute
+          example: "The commission was calculated at 8% instead of the agreed 10%"
+        status:
+          type: string
+          enum: [INITIATED, UNDER_REVIEW, ESCALATED, RESOLVED, APPROVED, REJECTED]
+          description: Current status of the dispute
+          example: "UNDER_REVIEW"
+        createdDate:
+          type: string
+          format: date-time
+          description: Timestamp when the dispute was created
+          example: "2024-01-15T10:00:00Z"
+        lastUpdatedDate:
+          type: string
+          format: date-time
+          description: Timestamp when the dispute was last updated
+          example: "2024-01-16T14:30:00Z"
+        resolvedDate:
+          type: string
+          format: date-time
+          description: Timestamp when the dispute was resolved
+          example: "2024-01-17T09:00:00Z"
+        resolvedBy:
+          type: string
+          description: ID of the user who resolved the dispute
+          example: "USER-003"
+        resolution:
+          type: string
+          description: Resolution details
+          example: "Commission rate corrected to 10% and payment adjusted"
+        isEscalated:
+          type: boolean
+          description: Whether the dispute has been escalated
+          example: false
+      required:
+        - calculationId
+        - salesRepId
+        - title
+        - description

@@ -1,0 +1,716 @@
+# GraphQL Schema for Commission Calculator
+# This schema defines the GraphQL API for the Commission Calculator system
+# It demonstrates GraphQL concepts including types, queries, mutations, and custom scalars
+
+# ============================================================================
+# CUSTOM SCALARS
+# GraphQL has built-in scalar types (String, Int, Float, Boolean, ID)
+# We define custom scalars for domain-specific types
+# ============================================================================
+
+"""
+Custom scalar for LocalDate (ISO-8601 format: YYYY-MM-DD)
+Example: "2024-01-15"
+"""
+scalar Date
+
+"""
+Custom scalar for LocalDateTime (ISO-8601 format: YYYY-MM-DDTHH:mm:ss)
+Example: "2024-01-15T14:30:00"
+"""
+scalar DateTime
+
+"""
+Custom scalar for BigDecimal (precise decimal numbers)
+Example: "1234.56"
+"""
+scalar BigDecimal
+
+# ============================================================================
+# ENUMS
+# Enums define a set of possible values for a field
+# ============================================================================
+
+"""
+Status of a deal in the sales pipeline
+"""
+enum DealStatus {
+    OPEN
+    WON
+    LOST
+    CANCELLED
+}
+
+"""
+Status of a commission plan
+"""
+enum PlanStatus {
+    DRAFT
+    ACTIVE
+    ARCHIVED
+}
+
+"""
+Status of a dispute
+"""
+enum DisputeStatus {
+    INITIATED
+    UNDER_REVIEW
+    ESCALATED
+    RESOLVED
+    APPROVED
+    REJECTED
+}
+
+"""
+User roles in the system
+"""
+enum UserRole {
+    SALES_REP
+    SALES_MANAGER
+    FINANCE_ADMIN
+    SYSTEM_ADMIN
+}
+
+# ============================================================================
+# TYPES - CORE DOMAIN MODELS
+# These represent the main entities in our commission calculator domain
+# ============================================================================
+
+"""
+A product within a deal
+Represents individual line items that make up a deal's value
+"""
+type DealProduct {
+    id: ID
+    productId: String!
+    productName: String!
+    quantity: Int!
+    price: BigDecimal!
+    discount: BigDecimal
+    dealId: String
+    totalPrice: BigDecimal
+}
+
+"""
+A sales deal
+The primary entity for commission calculations
+"""
+type Deal {
+    """
+    Unique identifier for the deal
+    """
+    id: ID!
+
+    """
+    Deal title/name
+    """
+    title: String!
+
+    """
+    Total value of the deal
+    """
+    value: BigDecimal!
+
+    """
+    Current status of the deal
+    """
+    status: DealStatus!
+
+    """
+    ID of the sales representative who owns this deal
+    """
+    salesRepId: String!
+
+    """
+    Sales representative who owns this deal (resolved from salesRepId)
+    This demonstrates nested object resolution in GraphQL
+    """
+    salesRep: User
+
+    """
+    Products included in this deal
+    """
+    products: [DealProduct!]!
+
+    """
+    Date when the deal was closed (null if not closed)
+    """
+    closeDate: Date
+
+    """
+    Date when the deal was created
+    """
+    createdDate: Date!
+
+    """
+    Date when the deal was last modified
+    """
+    lastModifiedDate: Date!
+
+    """
+    Calculated total value based on products
+    This is a computed field, demonstrating GraphQL field resolvers
+    """
+    calculatedTotalValue: BigDecimal
+}
+
+"""
+A user in the system
+Can be a sales representative, manager, or administrator
+"""
+type User {
+    """
+    Unique identifier for the user
+    """
+    id: ID!
+
+    """
+    Username for login
+    """
+    username: String!
+
+    """
+    Email address
+    """
+    email: String!
+
+    """
+    First name
+    """
+    firstName: String!
+
+    """
+    Last name
+    """
+    lastName: String!
+
+    """
+    Full name (computed field)
+    Demonstrates field-level computation in GraphQL
+    """
+    fullName: String!
+
+    """
+    User roles (can have multiple)
+    """
+    roles: [UserRole!]!
+
+    """
+    Whether the user account is active
+    """
+    active: Boolean!
+
+    """
+    Last login timestamp
+    """
+    lastLogin: DateTime
+
+    """
+    Date when the user was created
+    """
+    createdDate: Date!
+
+    """
+    ID of the user who created this account
+    """
+    createdBy: String
+
+    """
+    ID of the user's manager
+    """
+    managerId: String
+
+    """
+    Department
+    """
+    department: String
+
+    """
+    Sales territory
+    """
+    territory: String
+
+    """
+    Deals owned by this user
+    This demonstrates one-to-many relationships in GraphQL
+    """
+    deals: [Deal!]
+}
+
+"""
+A commission plan
+Defines the rules and structure for calculating commissions
+"""
+type CommissionPlan {
+    """
+    Unique identifier for the plan
+    """
+    id: ID!
+
+    """
+    Plan name
+    """
+    name: String!
+
+    """
+    Currency code (e.g., USD, EUR)
+    """
+    currency: String!
+
+    """
+    Current status of the plan
+    """
+    status: PlanStatus!
+
+    """
+    Date when the plan becomes effective
+    """
+    effectiveStartDate: Date
+
+    """
+    Date when the plan expires
+    """
+    effectiveEndDate: Date
+
+    """
+    Date when the plan was created
+    """
+    createdDate: Date!
+
+    """
+    Date when the plan was last modified
+    """
+    lastModifiedDate: Date!
+
+    """
+    ID of the user who created the plan
+    """
+    createdBy: String
+}
+
+"""
+A comment on a dispute
+"""
+type DisputeComment {
+    id: ID
+    disputeId: String!
+    userId: String
+    userName: String
+    text: String!
+    isSystemComment: Boolean!
+    createdDate: DateTime!
+}
+
+"""
+A dispute regarding commission calculations
+Created when a sales rep contests their commission
+"""
+type Dispute {
+    """
+    Unique identifier for the dispute
+    """
+    id: ID!
+
+    """
+    ID of the commission calculation being disputed
+    """
+    calculationId: String!
+
+    """
+    ID of the sales representative who created the dispute
+    """
+    salesRepId: String!
+
+    """
+    Sales representative who created the dispute
+    """
+    salesRep: User
+
+    """
+    ID of the manager handling the dispute
+    """
+    managerId: String
+
+    """
+    Manager handling the dispute
+    """
+    manager: User
+
+    """
+    Dispute title
+    """
+    title: String!
+
+    """
+    Detailed description of the dispute
+    """
+    description: String!
+
+    """
+    Current status of the dispute
+    """
+    status: DisputeStatus!
+
+    """
+    Comments on the dispute
+    """
+    comments: [DisputeComment!]!
+
+    """
+    Date when the dispute was created
+    """
+    createdDate: DateTime!
+
+    """
+    Date when the dispute was last updated
+    """
+    lastUpdatedDate: DateTime!
+
+    """
+    Date when the dispute was resolved
+    """
+    resolvedDate: DateTime
+
+    """
+    ID of the user who resolved the dispute
+    """
+    resolvedBy: String
+
+    """
+    Resolution description
+    """
+    resolution: String
+
+    """
+    Whether the dispute has been escalated
+    """
+    escalated: Boolean!
+}
+
+# ============================================================================
+# INPUT TYPES
+# Input types are used for mutations (create/update operations)
+# They define the structure of data that can be sent to the server
+# ============================================================================
+
+"""
+Input for creating or updating a DealProduct
+"""
+input DealProductInput {
+    productId: String!
+    productName: String!
+    quantity: Int!
+    price: BigDecimal!
+    discount: BigDecimal
+}
+
+"""
+Input for creating a new deal
+"""
+input CreateDealInput {
+    title: String!
+    value: BigDecimal!
+    salesRepId: String!
+    products: [DealProductInput!]
+    closeDate: Date
+}
+
+"""
+Input for updating an existing deal
+"""
+input UpdateDealInput {
+    title: String
+    value: BigDecimal
+    status: DealStatus
+    salesRepId: String
+    products: [DealProductInput!]
+    closeDate: Date
+}
+
+"""
+Input for creating a new user
+"""
+input CreateUserInput {
+    username: String!
+    email: String!
+    firstName: String!
+    lastName: String!
+    roles: [UserRole!]!
+    department: String
+    territory: String
+    managerId: String
+}
+
+"""
+Input for updating an existing user
+"""
+input UpdateUserInput {
+    email: String
+    firstName: String
+    lastName: String
+    roles: [UserRole!]
+    active: Boolean
+    department: String
+    territory: String
+    managerId: String
+}
+
+"""
+Input for creating a new commission plan
+"""
+input CreateCommissionPlanInput {
+    name: String!
+    currency: String!
+    effectiveStartDate: Date
+    effectiveEndDate: Date
+}
+
+"""
+Input for updating an existing commission plan
+"""
+input UpdateCommissionPlanInput {
+    name: String
+    status: PlanStatus
+    effectiveStartDate: Date
+    effectiveEndDate: Date
+}
+
+"""
+Input for creating a new dispute
+"""
+input CreateDisputeInput {
+    calculationId: String!
+    salesRepId: String!
+    title: String!
+    description: String!
+}
+
+"""
+Input for updating an existing dispute
+"""
+input UpdateDisputeInput {
+    managerId: String
+    status: DisputeStatus
+    resolution: String
+    escalated: Boolean
+}
+
+"""
+Input for adding a comment to a dispute
+"""
+input AddDisputeCommentInput {
+    disputeId: String!
+    userId: String!
+    userName: String!
+    text: String!
+}
+
+# ============================================================================
+# QUERIES
+# Queries are read-only operations that fetch data
+# GraphQL allows clients to request exactly the fields they need
+# ============================================================================
+
+type Query {
+    """
+    Get all deals
+    Returns a list of all deals in the system
+    """
+    deals: [Deal!]!
+
+    """
+    Get a specific deal by ID
+    Returns null if the deal doesn't exist
+    """
+    deal(id: ID!): Deal
+
+    """
+    Get deals by status
+    Filter deals based on their current status
+    """
+    dealsByStatus(status: DealStatus!): [Deal!]!
+
+    """
+    Get deals by sales representative
+    Returns all deals owned by a specific sales rep
+    """
+    dealsBySalesRep(salesRepId: String!): [Deal!]!
+
+    """
+    Get all users
+    Returns a list of all users in the system
+    """
+    users: [User!]!
+
+    """
+    Get a specific user by ID
+    Returns null if the user doesn't exist
+    """
+    user(id: ID!): User
+
+    """
+    Get a user by username
+    Useful for login scenarios
+    """
+    userByUsername(username: String!): User
+
+    """
+    Get users by role
+    Filter users based on their role(s)
+    """
+    usersByRole(role: UserRole!): [User!]!
+
+    """
+    Get all commission plans
+    Returns a list of all commission plans
+    """
+    commissionPlans: [CommissionPlan!]!
+
+    """
+    Get a specific commission plan by ID
+    Returns null if the plan doesn't exist
+    """
+    commissionPlan(id: ID!): CommissionPlan
+
+    """
+    Get commission plans by status
+    Filter plans based on their status
+    """
+    commissionPlansByStatus(status: PlanStatus!): [CommissionPlan!]!
+
+    """
+    Get active commission plans on a specific date
+    Returns plans that are active on the given date
+    """
+    activeCommissionPlansOnDate(date: Date!): [CommissionPlan!]!
+
+    """
+    Get all disputes
+    Returns a list of all disputes
+    """
+    disputes: [Dispute!]!
+
+    """
+    Get a specific dispute by ID
+    Returns null if the dispute doesn't exist
+    """
+    dispute(id: ID!): Dispute
+
+    """
+    Get disputes by sales representative
+    Returns all disputes created by a specific sales rep
+    """
+    disputesBySalesRep(salesRepId: String!): [Dispute!]!
+
+    """
+    Get disputes by status
+    Filter disputes based on their status
+    """
+    disputesByStatus(status: DisputeStatus!): [Dispute!]!
+}
+
+# ============================================================================
+# MUTATIONS
+# Mutations are write operations that create, update, or delete data
+# Unlike REST, GraphQL uses a single endpoint with named operations
+# ============================================================================
+
+type Mutation {
+    # ========== Deal Mutations ==========
+
+    """
+    Create a new deal
+    Returns the created deal with its generated ID
+    """
+    createDeal(input: CreateDealInput!): Deal!
+
+    """
+    Update an existing deal
+    Returns the updated deal, or null if not found
+    """
+    updateDeal(id: ID!, input: UpdateDealInput!): Deal
+
+    """
+    Delete a deal by ID
+    Returns true if deleted, false if not found
+    """
+    deleteDeal(id: ID!): Boolean!
+
+    # ========== User Mutations ==========
+
+    """
+    Create a new user
+    Returns the created user with its generated ID
+    """
+    createUser(input: CreateUserInput!): User!
+
+    """
+    Update an existing user
+    Returns the updated user, or null if not found
+    """
+    updateUser(id: ID!, input: UpdateUserInput!): User
+
+    """
+    Delete a user by ID
+    Returns true if deleted, false if not found
+    """
+    deleteUser(id: ID!): Boolean!
+
+    # ========== Commission Plan Mutations ==========
+
+    """
+    Create a new commission plan
+    Returns the created plan with its generated ID
+    """
+    createCommissionPlan(input: CreateCommissionPlanInput!): CommissionPlan!
+
+    """
+    Update an existing commission plan
+    Returns the updated plan, or null if not found
+    """
+    updateCommissionPlan(id: ID!, input: UpdateCommissionPlanInput!): CommissionPlan
+
+    """
+    Delete a commission plan by ID
+    Returns true if deleted, false if not found
+    """
+    deleteCommissionPlan(id: ID!): Boolean!
+
+    # ========== Dispute Mutations ==========
+
+    """
+    Create a new dispute
+    Returns the created dispute with its generated ID
+    """
+    createDispute(input: CreateDisputeInput!): Dispute!
+
+    """
+    Update an existing dispute
+    Returns the updated dispute, or null if not found
+    """
+    updateDispute(id: ID!, input: UpdateDisputeInput!): Dispute
+
+    """
+    Delete a dispute by ID
+    Returns true if deleted, false if not found
+    """
+    deleteDispute(id: ID!): Boolean!
+
+    """
+    Add a comment to a dispute
+    Returns the updated dispute with the new comment
+    """
+    addDisputeComment(input: AddDisputeCommentInput!): Dispute
+}
+
+# ============================================================================
+# SCHEMA DEFINITION
+# The schema declares which types are available for queries and mutations
+# This is the entry point for all GraphQL operations
+# ============================================================================
+
+schema {
+    query: Query
+    mutation: Mutation
+}

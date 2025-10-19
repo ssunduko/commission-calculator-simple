@@ -1,0 +1,467 @@
+@startuml SOAP Web Services Architecture - Commission Calculator
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title SOAP Web Services Architecture - Commission Calculator
+
+' JAX-WS Annotations (Interfaces)
+interface "@WebService" <<JAX-WS Annotation>> {
+  name: String
+  targetNamespace: String
+  serviceName: String
+  portName: String
+}
+
+interface "@WebMethod" <<JAX-WS Annotation>> {
+  operationName: String
+  action: String
+}
+
+interface "@WebParam" <<JAX-WS Annotation>> {
+  name: String
+  mode: Mode
+}
+
+' JAXB Annotations (DTOs)
+interface "@XmlRootElement" <<JAXB Annotation>> {
+  name: String
+  namespace: String
+}
+
+interface "@XmlElement" <<JAXB Annotation>> {
+  name: String
+  required: boolean
+}
+
+interface "@XmlAccessorType" <<JAXB Annotation>> {
+  value: XmlAccessType
+}
+
+' Service Interfaces
+interface DealService <<@WebService>> {
+  +getAllDeals(): List<DealDTO>
+  +getDealById(id: String): DealDTO
+  +getDealsByStatus(status: String): List<DealDTO>
+  +getDealsBySalesRep(salesRepId: String): List<DealDTO>
+  +createDeal(deal: DealDTO): DealDTO
+  +updateDeal(id: String, deal: DealDTO): DealDTO
+  +deleteDeal(id: String): boolean
+}
+
+interface UserService <<@WebService>> {
+  +getAllUsers(): List<UserDTO>
+  +getUserById(id: String): UserDTO
+  +getUserByUsername(username: String): UserDTO
+  +getUsersByRole(role: String): List<UserDTO>
+  +createUser(user: UserDTO): UserDTO
+  +updateUser(id: String, user: UserDTO): UserDTO
+  +deleteUser(id: String): boolean
+}
+
+interface CommissionPlanService <<@WebService>> {
+  +getAllCommissionPlans(): List<CommissionPlanDTO>
+  +getCommissionPlanById(id: String): CommissionPlanDTO
+  +getCommissionPlansByStatus(status: String): List<CommissionPlanDTO>
+  +createCommissionPlan(plan: CommissionPlanDTO): CommissionPlanDTO
+  +updateCommissionPlan(id: String, plan: CommissionPlanDTO): CommissionPlanDTO
+  +deleteCommissionPlan(id: String): boolean
+}
+
+interface DisputeService <<@WebService>> {
+  +getAllDisputes(): List<DisputeDTO>
+  +getDisputeById(id: String): DisputeDTO
+  +getDisputesBySalesRep(salesRepId: String): List<DisputeDTO>
+  +getDisputesByStatus(status: String): List<DisputeDTO>
+  +createDispute(dispute: DisputeDTO): DisputeDTO
+  +updateDispute(id: String, dispute: DisputeDTO): DisputeDTO
+  +deleteDispute(id: String): boolean
+  +addDisputeComment(disputeId: String, userId: String, userName: String, text: String): DisputeDTO
+}
+
+' Service Implementations
+class DealServiceImpl <<@WebService Implementation>> {
+  -dealRepository: Repository<Deal>
+  +DealServiceImpl(dealRepository: Repository<Deal>)
+  +getAllDeals(): List<DealDTO>
+  +getDealById(id: String): DealDTO
+  +createDeal(deal: DealDTO): DealDTO
+  +updateDeal(id: String, deal: DealDTO): DealDTO
+  +deleteDeal(id: String): boolean
+}
+
+class UserServiceImpl <<@WebService Implementation>> {
+  -userRepository: Repository<User>
+  +UserServiceImpl(userRepository: Repository<User>)
+  +getAllUsers(): List<UserDTO>
+  +getUserById(id: String): UserDTO
+  +createUser(user: UserDTO): UserDTO
+}
+
+class CommissionPlanServiceImpl <<@WebService Implementation>> {
+  -planRepository: Repository<CommissionPlan>
+  +CommissionPlanServiceImpl(planRepository: Repository<CommissionPlan>)
+  +getAllCommissionPlans(): List<CommissionPlanDTO>
+  +getCommissionPlanById(id: String): CommissionPlanDTO
+}
+
+class DisputeServiceImpl <<@WebService Implementation>> {
+  -disputeRepository: Repository<Dispute>
+  +DisputeServiceImpl(disputeRepository: Repository<Dispute>)
+  +getAllDisputes(): List<DisputeDTO>
+  +getDisputeById(id: String): DisputeDTO
+  +addDisputeComment(...): DisputeDTO
+}
+
+' DTOs with JAXB Annotations
+class DealDTO <<@XmlRootElement>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: String
+  -salesRepId: String
+  -closeDate: String
+  -products: List<DealProductDTO>
+  -calculatedTotalValue: BigDecimal
+  +DealDTO()
+  +getId(): String
+  +setId(id: String): void
+}
+
+class UserDTO <<@XmlRootElement>> {
+  -id: String
+  -username: String
+  -email: String
+  -firstName: String
+  -lastName: String
+  -fullName: String
+  -roles: List<String>
+  -active: Boolean
+  -department: String
+  +UserDTO()
+  +getUsername(): String
+}
+
+class CommissionPlanDTO <<@XmlRootElement>> {
+  -id: String
+  -name: String
+  -currency: String
+  -status: String
+  -effectiveStartDate: String
+  -effectiveEndDate: String
+  +CommissionPlanDTO()
+  +getName(): String
+}
+
+class DisputeDTO <<@XmlRootElement>> {
+  -id: String
+  -calculationId: String
+  -salesRepId: String
+  -title: String
+  -description: String
+  -status: String
+  -comments: List<DisputeCommentDTO>
+  +DisputeDTO()
+  +getTitle(): String
+}
+
+' Domain Mapper
+class DomainMapper <<Mapper Pattern>> {
+  +{static} toDTO(deal: Deal): DealDTO
+  +{static} fromDTO(dto: DealDTO): Deal
+  +{static} toDTO(user: User): UserDTO
+  +{static} fromDTO(dto: UserDTO): User
+  +{static} toDTO(plan: CommissionPlan): CommissionPlanDTO
+  +{static} fromDTO(dto: CommissionPlanDTO): CommissionPlan
+  +{static} toDTO(dispute: Dispute): DisputeDTO
+  +{static} fromDTO(dto: DisputeDTO): Dispute
+  +{static} dealsToDTO(deals: List<Deal>): List<DealDTO>
+}
+
+' SOAP Server
+class SoapServer <<JAX-WS Publisher>> {
+  -port: int
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  -dealService: DealServiceImpl
+  -userService: UserServiceImpl
+  -commissionPlanService: CommissionPlanServiceImpl
+  -disputeService: DisputeServiceImpl
+  -publishedEndpoints: List<Endpoint>
+  +SoapServer(port: int)
+  +publishServices(): void
+  +start(): void
+  +stop(): void
+}
+
+' JAX-WS Endpoint
+class Endpoint <<JAX-WS>> {
+  +{static} publish(address: String, implementor: Object): Endpoint
+  +stop(): void
+  +isPublished(): boolean
+}
+
+' Repository Interface
+interface "Repository<T>" <<Generic Interface>> {
+  +save(entity: T): T
+  +findById(id: String): Optional<T>
+  +findAll(): List<T>
+  +deleteById(id: String): boolean
+}
+
+' Domain Models
+class Deal <<Domain Model>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  +calculateTotalValue(): BigDecimal
+}
+
+class User <<Domain Model>> {
+  -id: String
+  -username: String
+  -email: String
+  -roles: Set<UserRole>
+  +getFullName(): String
+}
+
+class CommissionPlan <<Domain Model>> {
+  -id: String
+  -name: String
+  -currency: Currency
+  -status: PlanStatus
+}
+
+class Dispute <<Domain Model>> {
+  -id: String
+  -calculationId: String
+  -salesRepId: String
+  -comments: List<DisputeComment>
+  +addUserComment(userId: String, userName: String, text: String): void
+}
+
+' Relationships - Service Interfaces to Implementations
+DealService <|.. DealServiceImpl
+UserService <|.. UserServiceImpl
+CommissionPlanService <|.. CommissionPlanServiceImpl
+DisputeService <|.. DisputeServiceImpl
+
+' Relationships - Services to Repositories
+DealServiceImpl o--> "Repository<Deal>"
+UserServiceImpl o--> "Repository<User>"
+CommissionPlanServiceImpl o--> "Repository<CommissionPlan>"
+DisputeServiceImpl o--> "Repository<Dispute>"
+
+' Relationships - Services to Mapper
+DealServiceImpl ..> DomainMapper : uses >
+UserServiceImpl ..> DomainMapper : uses >
+CommissionPlanServiceImpl ..> DomainMapper : uses >
+DisputeServiceImpl ..> DomainMapper : uses >
+
+' Relationships - Mapper to DTOs and Domain Models
+DomainMapper ..> DealDTO : creates >
+DomainMapper ..> UserDTO : creates >
+DomainMapper ..> CommissionPlanDTO : creates >
+DomainMapper ..> DisputeDTO : creates >
+DomainMapper ..> Deal : converts >
+DomainMapper ..> User : converts >
+DomainMapper ..> CommissionPlan : converts >
+DomainMapper ..> Dispute : converts >
+
+' Relationships - DTOs annotated with JAXB
+"@XmlRootElement" .. DealDTO
+"@XmlRootElement" .. UserDTO
+"@XmlRootElement" .. CommissionPlanDTO
+"@XmlRootElement" .. DisputeDTO
+
+"@XmlElement" .. DealDTO
+"@XmlAccessorType" .. DealDTO
+
+' Relationships - Services annotated with JAX-WS
+"@WebService" .. DealService
+"@WebService" .. UserService
+"@WebService" .. CommissionPlanService
+"@WebService" .. DisputeService
+
+"@WebMethod" .. DealService
+"@WebParam" .. DealService
+
+' Relationships - SOAP Server
+SoapServer o--> DealServiceImpl
+SoapServer o--> UserServiceImpl
+SoapServer o--> CommissionPlanServiceImpl
+SoapServer o--> DisputeServiceImpl
+SoapServer ..> Endpoint : publishes via >
+
+' Relationships - Repositories to Domain Models
+"Repository<Deal>" ..> Deal
+"Repository<User>" ..> User
+"Repository<CommissionPlan>" ..> CommissionPlan
+"Repository<Dispute>" ..> Dispute
+
+' Notes
+note right of "@WebService"
+  <b>JAX-WS Annotation</b>
+  Marks interface/class as a
+  SOAP web service.
+
+  Automatically generates WSDL
+  and handles XML marshalling.
+end note
+
+note right of "@XmlRootElement"
+  <b>JAXB Annotation</b>
+  Maps Java class to XML element.
+
+  Enables automatic conversion
+  between Java objects and XML.
+end note
+
+note top of DealService
+  <b>Service Interface</b>
+  Defines SOAP operations contract.
+
+  Each method becomes a
+  SOAP operation in the WSDL.
+
+  Namespace ensures uniqueness.
+end note
+
+note bottom of DealServiceImpl
+  <b>Service Implementation</b>
+  Implements business logic.
+
+  Uses Repository pattern for
+  data access.
+
+  Uses Mapper pattern for
+  DTO conversion.
+end note
+
+note right of DealDTO
+  <b>Data Transfer Object</b>
+  Simple POJO with JAXB annotations.
+
+  No business logic - only data.
+
+  All fields have getters/setters
+  for XML binding.
+
+  Dates stored as ISO-8601 strings.
+end note
+
+note left of DomainMapper
+  <b>Mapper Pattern</b>
+  Centralized conversion logic
+  between domain models and DTOs.
+
+  <b>Benefits:</b>
+  • Separates API from domain
+  • Handles date formatting
+  • Converts enums to strings
+  • Reusable across services
+end note
+
+note bottom of SoapServer
+  <b>SOAP Server</b>
+  Publishes all web services
+  via JAX-WS Endpoint.publish()
+
+  No servlet container needed!
+  JAX-WS creates built-in HTTP server.
+
+  <b>Startup Process:</b>
+  1. Initialize repositories
+  2. Create service implementations
+  3. Call publishServices()
+  4. Services listen on port 8082
+end note
+
+note right of Endpoint
+  <b>JAX-WS Endpoint</b>
+  Built-in HTTP server for SOAP.
+
+  Endpoint.publish() creates
+  standalone server automatically.
+
+  Generates WSDL at runtime:
+  http://host:port/path?wsdl
+end note
+
+note top of "Repository<T>"
+  <b>Repository Pattern</b>
+  Abstracts data access layer.
+
+  In-memory implementation
+  for this demo, but could be
+  database, REST API, etc.
+end note
+
+note bottom of Deal
+  <b>Domain Model</b>
+  Rich business objects with
+  behavior and validation.
+
+  Separate from DTOs to allow
+  domain to evolve independently
+  from API contract.
+end note
+
+' Legend
+legend right
+  <b>SOAP Web Services Architecture:</b>
+
+  <b>JAX-WS (Java API for XML Web Services):</b>
+  • Annotations-based SOAP framework
+  • Automatic WSDL generation
+  • Built-in HTTP server (no Tomcat needed)
+  • Type-safe service contracts
+
+  <b>JAXB (Java Architecture for XML Binding):</b>
+  • Marshals Java objects to XML
+  • Unmarshals XML to Java objects
+  • Annotation-driven configuration
+
+  <b>Layered Architecture:</b>
+  1. <b>Service Layer:</b> SOAP endpoints (@WebService)
+  2. <b>DTO Layer:</b> XML-bindable objects (@XmlRootElement)
+  3. <b>Mapper Layer:</b> Converts DTOs ↔ Domain models
+  4. <b>Repository Layer:</b> Data access abstraction
+  5. <b>Domain Layer:</b> Business logic and models
+
+  <b>Key Patterns:</b>
+  • <b>Service Interface:</b> Contract-first design
+  • <b>DTO Pattern:</b> Separate API from domain
+  • <b>Mapper Pattern:</b> Centralized conversion
+  • <b>Repository Pattern:</b> Data access abstraction
+  • <b>Dependency Injection:</b> Constructor injection
+
+  <b>SOAP Concepts Demonstrated:</b>
+  • WSDL auto-generation
+  • XML schema (XSD) from Java classes
+  • SOAP envelope handling (automatic)
+  • Multiple service endpoints
+  • Type-safe operations
+  • Fault handling
+
+  <b>Comparison to GraphQL:</b>
+  • SOAP: Multiple endpoints, one per service
+  • GraphQL: Single endpoint
+  • SOAP: WSDL defines contract
+  • GraphQL: SDL schema defines contract
+  • SOAP: Server defines available operations
+  • GraphQL: Client defines what data to fetch
+endlegend
+
+@enduml

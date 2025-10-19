@@ -1,0 +1,139 @@
+@startuml GraphQL API Architecture
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+
+title GraphQL API Architecture - Commission Calculator
+
+class GraphQLServer <<Main>> {
+  -tomcat: Tomcat
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  +main(args: String[]): void
+  +start(): void
+  +stop(): void
+}
+
+class GraphQLServlet <<HttpEndpoint>> {
+  -graphQL: GraphQL
+  -gson: Gson
+  +doPost(request, response): void
+  +doGet(request, response): void
+  -executeGraphQL(query, variables): ExecutionResult
+}
+
+class GraphQLProvider <<SchemaBuilder>> {
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  -graphQL: GraphQL
+  +init(): void
+  +getGraphQL(): GraphQL
+  -loadSchema(): TypeDefinitionRegistry
+  -buildRuntimeWiring(): RuntimeWiring
+}
+
+class DataFetchers <<Resolvers>> {
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  +getAllDeals(): DataFetcher
+  +getDealById(): DataFetcher
+  +createDeal(): DataFetcher
+  +updateDeal(): DataFetcher
+  +deleteDeal(): DataFetcher
+  ... (20+ more)
+}
+
+class ScalarTypes <<CustomTypes>> {
+  +DATE: GraphQLScalarType
+  +DATETIME: GraphQLScalarType
+  +BIGDECIMAL: GraphQLScalarType
+}
+
+class "schema.graphqls" <<SchemaFile>> {
+  Types: Deal, User, CommissionPlan, Dispute
+  Queries: deals, users, etc.
+  Mutations: createDeal, updateDeal, etc.
+  Scalars: Date, DateTime, BigDecimal
+}
+
+interface Repository<T> <<DataAccess>> {
+  +findAll(): List<T>
+  +findById(id): Optional<T>
+  +save(entity): T
+  +deleteById(id): boolean
+}
+
+class InMemoryRepository<T> <<Implementation>> {
+  -storage: ConcurrentHashMap
+  -idCounter: AtomicLong
+}
+
+class SampleDataLoader <<TestData>> {
+  +loadAllData(): void
+  +loadUsers(): void
+  +loadDeals(): void
+  +loadCommissionPlans(): void
+  +loadDisputes(): void
+}
+
+GraphQLServer *-- GraphQLServlet
+GraphQLServer *-- Repository
+GraphQLServer ..> SampleDataLoader
+
+GraphQLServlet *-- GraphQLProvider
+GraphQLProvider *-- DataFetchers
+GraphQLProvider ..> ScalarTypes
+GraphQLProvider ..> "schema.graphqls"
+
+DataFetchers *-- Repository
+Repository <|.. InMemoryRepository
+
+note right of GraphQLServer
+  <b>Entry Point</b>
+  - Embedded Tomcat on port 8081
+  - Loads sample data by default
+  - Single /graphql endpoint
+end note
+
+note right of GraphQLServlet
+  <b>HTTP Handler</b>
+  - Receives POST/GET requests
+  - Parses query & variables
+  - Executes GraphQL
+  - Returns JSON response
+end note
+
+note right of GraphQLProvider
+  <b>Schema Builder</b>
+  - Loads .graphqls file
+  - Wires resolvers
+  - Registers scalars
+  - Creates GraphQL engine
+end note
+
+note right of DataFetchers
+  <b>Resolvers</b>
+  - Query resolvers (read)
+  - Mutation resolvers (write)
+  - Field resolvers (nested)
+  - 30+ data fetchers
+end note
+
+note left of "schema.graphqls"
+  <b>GraphQL Schema (SDL)</b>
+  - Type definitions
+  - Query operations
+  - Mutation operations
+  - Custom scalars
+  - 716 lines
+end note
+
+@enduml

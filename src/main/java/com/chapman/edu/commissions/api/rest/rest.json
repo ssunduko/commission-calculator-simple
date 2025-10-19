@@ -1,0 +1,738 @@
+{
+	"info": {
+		"_postman_id": "commission-calculator-api",
+		"name": "Commission Calculator REST API",
+		"description": "Complete API collection for testing the Commission Calculator REST endpoints.\n\nThis collection demonstrates:\n- Full CRUD operations for all resources\n- Query parameter filtering\n- Error handling scenarios\n- Sample request bodies\n- Response validation\n\nBase URL: http://localhost:8080/api/v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "dealId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "planId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "disputeId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Deals",
+			"item": [
+				{
+					"name": "Create Deal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('dealId', jsonData.id);",
+									"});",
+									"",
+									"pm.test(\"Response has correct title\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.title).to.eql('Enterprise Software License');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Enterprise Software License\",\n    \"value\": 500000.00,\n    \"salesRepId\": \"USER-001\",\n    \"status\": \"OPEN\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/deals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals"
+							]
+						},
+						"description": "Create a new deal with required fields.\n\nRequired fields:\n- title: Deal name\n- value: Deal amount\n- salesRepId: ID of sales representative\n\nOptional fields:\n- status: OPEN, WON, LOST, CANCELLED (defaults to OPEN)\n- products: Array of deal products"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Deals",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/deals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals"
+							]
+						},
+						"description": "Retrieve all deals in the system.\n\nSupports filtering via query parameters:\n- status: Filter by deal status (OPEN, WON, LOST, CANCELLED)\n- salesRepId: Filter by sales representative ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deal by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has correct ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('dealId'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/deals/{{dealId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals",
+								"{{dealId}}"
+							]
+						},
+						"description": "Retrieve a specific deal by its ID.\n\nReturns 404 if deal not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Deal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Deal status updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('WON');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"{{dealId}}\",\n    \"title\": \"Enterprise Software License - Updated\",\n    \"value\": 550000.00,\n    \"salesRepId\": \"USER-001\",\n    \"status\": \"WON\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/deals/{{dealId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals",
+								"{{dealId}}"
+							]
+						},
+						"description": "Update an existing deal.\n\nRequires full deal object with ID matching path parameter.\nReturns 404 if deal not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Deal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/deals/{{dealId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals",
+								"{{dealId}}"
+							]
+						},
+						"description": "Delete a deal by ID.\n\nReturns 204 No Content on success.\nReturns 404 if deal not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Deals by Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All deals have WON status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(deal) {",
+									"        pm.expect(deal.status).to.eql('WON');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/deals?status=WON",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "WON"
+								}
+							]
+						},
+						"description": "Filter deals by status.\n\nValid status values:\n- OPEN\n- WON\n- LOST\n- CANCELLED"
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Deals by Sales Rep",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/deals?salesRepId=USER-001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals"
+							],
+							"query": [
+								{
+									"key": "salesRepId",
+									"value": "USER-001"
+								}
+							]
+						},
+						"description": "Filter deals by sales representative ID."
+					},
+					"response": []
+				}
+			],
+			"description": "Deal management endpoints.\n\nDeals represent sales opportunities with associated products and values."
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('userId', jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"jsmith\",\n    \"email\": \"jsmith@company.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Smith\",\n    \"active\": true,\n    \"department\": \"Sales\",\n    \"territory\": \"West Coast\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Create a new user.\n\nRequired fields:\n- username\n- email\n- firstName\n- lastName"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Retrieve all users.\n\nSupports filtering by role query parameter."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"{{userId}}\",\n    \"username\": \"jsmith\",\n    \"email\": \"john.smith@company.com\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Smith\",\n    \"active\": true,\n    \"department\": \"Sales\",\n    \"territory\": \"East Coast\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Commission Plans",
+			"item": [
+				{
+					"name": "Create Commission Plan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('planId', jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Q1 2024 Standard Plan\",\n    \"currency\": \"USD\",\n    \"status\": \"DRAFT\",\n    \"effectiveStartDate\": \"2024-01-01\",\n    \"effectiveEndDate\": \"2024-03-31\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/commission-plans",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Commission Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-plans",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Commission Plan by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-plans/{{planId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-plans",
+								"{{planId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Plans by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-plans?status=ACTIVE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-plans"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE",
+									"description": "DRAFT, ACTIVE, or ARCHIVED"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Disputes",
+			"item": [
+				{
+					"name": "Create Dispute",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('disputeId', jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"calculationId\": \"CALC-001\",\n    \"salesRepId\": \"USER-001\",\n    \"title\": \"Commission Calculation Error\",\n    \"description\": \"The commission for my Q1 deal was calculated incorrectly. Expected 10% but received 8%.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/disputes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"disputes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Disputes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/disputes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"disputes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dispute by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/disputes/{{disputeId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"disputes",
+								"{{disputeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Disputes by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/disputes?status=UNDER_REVIEW",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"disputes"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "UNDER_REVIEW",
+									"description": "INITIATED, UNDER_REVIEW, ESCALATED, RESOLVED, APPROVED, REJECTED"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error Handling Examples",
+			"item": [
+				{
+					"name": "404 - Deal Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/deals/DEAL-999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals",
+								"DEAL-999999"
+							]
+						},
+						"description": "Example of 404 Not Found error when resource doesn't exist."
+					},
+					"response": []
+				},
+				{
+					"name": "400 - Invalid JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Invalid Deal\",\n    \"value\": \"not a number\"\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/deals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"deals"
+							]
+						},
+						"description": "Example of 400 Bad Request error with invalid JSON."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

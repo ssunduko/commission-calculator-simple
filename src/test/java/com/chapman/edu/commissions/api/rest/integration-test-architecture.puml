@@ -1,0 +1,349 @@
+@startuml Integration Testing Architecture - REST API
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Integration Testing Architecture - REST API Testing
+
+' Test Base Class
+abstract class ApiIntegrationTestBase <<TestFixture>> {
+  #server: ApiServer
+  #httpClient: HttpClient
+  #TEST_PORT: int
+  #BASE_URL: String
+  +startServer(): void {static}
+  +stopServer(): void {static}
+  #get(path: String): HttpResponse<String>
+  #post(path: String, jsonBody: String): HttpResponse<String>
+  #put(path: String, jsonBody: String): HttpResponse<String>
+  #delete(path: String): HttpResponse<String>
+  #parseResponse(response: HttpResponse, clazz: Class): T
+  #assertStatus(response: HttpResponse, expectedStatus: int): void
+  #getBaseUrl(): String
+}
+
+' Concrete Test Classes
+class DealServletIntegrationTest <<ConcreteTest>> {
+  +createDeal_validData_returns201(): void
+  +getAllDeals_withData_returns200(): void
+  +getDealById_existingId_returns200(): void
+  +getDealById_nonExistentId_returns404(): void
+  +updateDeal_existingDeal_returns200(): void
+  +updateDeal_nonExistentDeal_returns404(): void
+  +deleteDeal_existingDeal_returns204(): void
+  +deleteDeal_nonExistentDeal_returns404(): void
+  +getDeals_filterByStatus_returnsFilteredResults(): void
+  +getDeals_filterBySalesRep_returnsFilteredResults(): void
+  +createDeal_invalidJson_returns400(): void
+}
+
+class UserServletIntegrationTest <<ConcreteTest>> {
+  +createUser_validData_returns201(): void
+  +getAllUsers_withData_returns200(): void
+  +getUserById_existingId_returns200(): void
+  +getUserById_nonExistentId_returns404(): void
+  +updateUser_existingUser_returns200(): void
+  +deleteUser_existingUser_returns204(): void
+}
+
+' System Under Test
+class ApiServer <<SystemUnderTest>> {
+  -tomcat: Tomcat
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  +ApiServer(port: int)
+  +start(): void
+  +stop(): void
+  +getDealRepository(): Repository<Deal>
+  +getUserRepository(): Repository<User>
+}
+
+' Servlets Being Tested
+class DealServlet <<ServletUnderTest>> {
+  -dealRepository: Repository<Deal>
+  +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  +doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+}
+
+class UserServlet <<ServletUnderTest>> {
+  -userRepository: Repository<User>
+  +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  +doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+}
+
+' Test Data Builder
+class SampleDataLoader <<TestDataBuilder>> {
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  +SampleDataLoader(repositories)
+  +loadAllData(): void
+  +loadUsers(): void
+  +loadCommissionPlans(): void
+  +loadDeals(): void
+  +loadDisputes(): void
+  -createUser(...): User
+  +clearAllData(): void
+}
+
+' HTTP Client
+class HttpClient <<JavaStandardLibrary>> {
+  +send(request: HttpRequest, handler: BodyHandler): HttpResponse
+  +newBuilder(): HttpClient.Builder
+}
+
+class HttpRequest <<JavaStandardLibrary>> {
+  +newBuilder(): HttpRequest.Builder
+  +uri(uri: URI): Builder
+  +GET(): Builder
+  +POST(bodyPublisher: BodyPublisher): Builder
+  +PUT(bodyPublisher: BodyPublisher): Builder
+  +DELETE(): Builder
+  +header(name: String, value: String): Builder
+  +build(): HttpRequest
+}
+
+class HttpResponse <<JavaStandardLibrary>> {
+  +statusCode(): int
+  +body(): T
+  +headers(): HttpHeaders
+}
+
+' JUnit Annotations
+class "@Test" <<Annotation>> {
+}
+
+class "@BeforeAll" <<Annotation>> {
+}
+
+class "@AfterAll" <<Annotation>> {
+}
+
+class "@DisplayName" <<Annotation>> {
+}
+
+class "@Order" <<Annotation>> {
+}
+
+' Relationships - Test Class Hierarchy
+ApiIntegrationTestBase <|-- DealServletIntegrationTest
+ApiIntegrationTestBase <|-- UserServletIntegrationTest
+
+' Relationships - Test Fixture to System Under Test
+ApiIntegrationTestBase *-- "1" ApiServer : starts/stops >
+ApiIntegrationTestBase *-- "1" HttpClient : uses >
+
+' Relationships - Server to Servlets
+ApiServer *-- DealServlet : hosts >
+ApiServer *-- UserServlet : hosts >
+
+' Relationships - Tests to HTTP Components
+DealServletIntegrationTest ..> HttpRequest : creates >
+DealServletIntegrationTest ..> HttpResponse : receives >
+UserServletIntegrationTest ..> HttpRequest : creates >
+UserServletIntegrationTest ..> HttpResponse : receives >
+
+' Relationships - Data Loader
+SampleDataLoader ..> ApiServer : populates repositories >
+
+' Relationships - Annotations
+ApiIntegrationTestBase ..> "@BeforeAll" : uses
+ApiIntegrationTestBase ..> "@AfterAll" : uses
+DealServletIntegrationTest ..> "@Test" : uses
+DealServletIntegrationTest ..> "@DisplayName" : uses
+DealServletIntegrationTest ..> "@Order" : uses
+
+' Component Notes
+note right of ApiIntegrationTestBase
+  <b>Test Fixture Pattern</b>
+
+  Base class providing shared test infrastructure.
+
+  <b>Responsibilities:</b>
+  • Server lifecycle management (@BeforeAll/@AfterAll)
+  • HTTP client configuration
+  • Helper methods for HTTP requests
+  • Response parsing and assertions
+
+  <b>Key Methods:</b>
+  • startServer(): Starts embedded Tomcat on test port
+  • stopServer(): Gracefully shuts down server
+  • get/post/put/delete(): HTTP request helpers
+  • assertStatus(): Response validation
+
+  <b>Benefits:</b>
+  • DRY: Shared setup across all test classes
+  • Consistent test environment
+  • Simplified test writing
+end note
+
+note bottom of DealServletIntegrationTest
+  <b>Concrete Test Class</b>
+
+  Tests all DealServlet endpoints end-to-end.
+
+  <b>Test Naming Convention:</b>
+  methodName_scenario_expectedResult
+
+  Examples:
+  • createDeal_validData_returns201
+  • getDealById_nonExistentId_returns404
+
+  <b>AAA Pattern:</b>
+  • Arrange: Set up test data
+  • Act: Make HTTP request
+  • Assert: Verify response
+
+  <b>Test Coverage:</b>
+  • Happy path (200, 201, 204)
+  • Error cases (400, 404)
+  • Filtering and querying
+  • Full CRUD cycle
+end note
+
+note bottom of SampleDataLoader
+  <b>Test Data Builder Pattern</b>
+
+  Generates realistic test data for demos and testing.
+
+  <b>Features:</b>
+  • Creates users with different roles
+  • Generates deals in various states
+  • Sets up commission plans
+  • Creates sample disputes
+
+  <b>Usage:</b>
+  Can be invoked from:
+  • ApiServer.main() with --load-sample-data flag
+  • Test setup methods
+  • Manual data population
+
+  <b>Data Characteristics:</b>
+  • Realistic business scenarios
+  • Diverse entity states
+  • Relational consistency
+end note
+
+note left of ApiServer
+  <b>System Under Test</b>
+
+  The actual REST API server being tested.
+
+  <b>Test Configuration:</b>
+  • Runs on separate port (9999)
+  • Isolated from production
+  • Fresh instance per test class
+  • In-memory repositories
+
+  <b>Lifecycle:</b>
+  1. @BeforeAll: Server started
+  2. Tests execute
+  3. @AfterAll: Server stopped
+
+  <b>Thread Model:</b>
+  Server runs in background thread
+  to avoid blocking test execution.
+end note
+
+note bottom of HttpClient
+  <b>Java HTTP Client (JDK 11+)</b>
+
+  Built-in HTTP client for making requests.
+
+  <b>Advantages over libraries:</b>
+  • No external dependencies
+  • Type-safe request builders
+  • Async support
+  • HTTP/2 support
+
+  <b>Usage in Tests:</b>
+  httpClient.send(
+      HttpRequest.newBuilder()
+          .uri(URI.create(url))
+          .POST(BodyPublishers.ofString(json))
+          .build(),
+      BodyHandlers.ofString()
+  )
+end note
+
+note right of DealServlet
+  <b>Servlet Under Test</b>
+
+  Integration tests verify:
+  • HTTP routing (GET /deals)
+  • Request parsing (JSON → Object)
+  • Business logic invocation
+  • Response generation (Object → JSON)
+  • Status code accuracy
+  • Error handling
+
+  Unlike unit tests, integration tests
+  exercise the full request/response cycle
+  through the actual HTTP stack.
+end note
+
+' Legend
+legend right
+  <b>Integration Testing Concepts:</b>
+
+  <b>Test Fixture:</b> Shared setup and teardown
+  for a group of tests. Provides common
+  infrastructure like server, client, helpers.
+
+  <b>Integration Test:</b> Tests multiple components
+  working together. Here: HTTP client → Servlet
+  → Repository → JSON serialization.
+
+  <b>AAA Pattern:</b>
+  • Arrange: Set up test conditions
+  • Act: Execute the operation
+  • Assert: Verify expected outcome
+
+  <b>Test Data Builder:</b> Pattern for creating
+  complex test objects with realistic data.
+
+  <b>Test Lifecycle Annotations:</b>
+  • @BeforeAll: Runs once before all tests
+  • @AfterAll: Runs once after all tests
+  • @Test: Marks a test method
+  • @DisplayName: Readable test description
+  • @Order: Control test execution order
+
+  <b>HTTP Testing:</b>
+  Integration tests use real HTTP requests
+  over localhost. Verifies:
+  • Routing and URL mapping
+  • Request/response serialization
+  • HTTP status codes
+  • Header handling
+  • Error responses
+
+  <b>Test Isolation:</b>
+  Each test class gets fresh server instance.
+  Tests use separate port from production.
+  In-memory storage ensures no persistence.
+
+  <b>End-to-End vs Integration:</b>
+  • E2E: Test through UI/external client
+  • Integration: Test server components together
+  • Unit: Test single class in isolation
+
+  Our tests are integration tests: they test
+  servlet + repository + JSON together, but
+  use test infrastructure (test port, in-memory DB).
+endlegend
+
+@enduml

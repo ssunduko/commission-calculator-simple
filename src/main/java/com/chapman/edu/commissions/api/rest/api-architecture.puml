@@ -1,0 +1,347 @@
+@startuml REST API Architecture - Commission Calculator
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title REST API Architecture - Embedded Tomcat with Servlets
+
+' Embedded Server
+class ApiServer <<EmbeddedServer>> {
+  -tomcat: Tomcat
+  -dealRepository: Repository<Deal>
+  -userRepository: Repository<User>
+  -planRepository: Repository<CommissionPlan>
+  -disputeRepository: Repository<Dispute>
+  +ApiServer(port: int)
+  +start(): void
+  +stop(): void
+  +main(args: String[]): void
+}
+
+' Base Servlet (Template)
+abstract class BaseServlet <<AbstractServlet>> {
+  #readRequestBody(request: HttpServletRequest): String
+  #sendJsonResponse(response: HttpServletResponse, object: Object): void
+  #sendJsonResponse(response: HttpServletResponse, object: Object, statusCode: int): void
+  #sendErrorResponse(response: HttpServletResponse, statusCode: int, message: String): void
+  #extractResourceId(request: HttpServletRequest): String
+}
+
+' Concrete Servlets
+class DealServlet <<ConcreteServlet>> {
+  -dealRepository: Repository<Deal>
+  +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  +doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetAllDeals(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetDealById(dealId: String, response: HttpServletResponse): void
+}
+
+class UserServlet <<ConcreteServlet>> {
+  -userRepository: Repository<User>
+  +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  +doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetAllUsers(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetUserById(userId: String, response: HttpServletResponse): void
+}
+
+class CommissionPlanServlet <<ConcreteServlet>> {
+  -planRepository: Repository<CommissionPlan>
+  +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  +doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetAllPlans(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetPlanById(planId: String, response: HttpServletResponse): void
+}
+
+class DisputeServlet <<ConcreteServlet>> {
+  -disputeRepository: Repository<Dispute>
+  +doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  +doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  +doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetAllDisputes(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetDisputeById(disputeId: String, response: HttpServletResponse): void
+}
+
+' Repository Pattern
+interface Repository<T> <<Interface>> {
+  +findAll(): List<T>
+  +findById(id: String): Optional<T>
+  +save(entity: T): T
+  +deleteById(id: String): boolean
+  +generateId(): String
+}
+
+class InMemoryRepository<T> <<ConcreteRepository>> {
+  -storage: Map<String, T>
+  -idCounter: AtomicLong
+  -idExtractor: Function<T, String>
+  -idSetter: BiConsumer<T, String>
+  -idPrefix: String
+  +InMemoryRepository(idPrefix: String, idExtractor: Function, idSetter: BiConsumer)
+  +findAll(): List<T>
+  +findById(id: String): Optional<T>
+  +save(entity: T): T
+  +deleteById(id: String): boolean
+  +generateId(): String
+  +size(): int
+  +clear(): void
+}
+
+' JSON Helper
+class JsonHelper <<Utility>> {
+  -GSON: Gson
+  +toJson(object: Object): String
+  +fromJson(json: String, classOfT: Class<T>): T
+  +getGson(): Gson
+}
+
+' Domain Models
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+}
+
+class User <<DomainModel>> {
+  -id: String
+  -username: String
+  -email: String
+  -firstName: String
+  -lastName: String
+  -roles: Set<UserRole>
+  -active: boolean
+}
+
+class CommissionPlan <<DomainModel>> {
+  -id: String
+  -name: String
+  -status: PlanStatus
+  -currency: Currency
+  -effectiveStartDate: LocalDate
+  -effectiveEndDate: LocalDate
+}
+
+class Dispute <<DomainModel>> {
+  -id: String
+  -calculationId: String
+  -salesRepId: String
+  -title: String
+  -description: String
+  -status: DisputeStatus
+}
+
+' Relationships - Inheritance
+BaseServlet <|-- DealServlet
+BaseServlet <|-- UserServlet
+BaseServlet <|-- CommissionPlanServlet
+BaseServlet <|-- DisputeServlet
+
+' Relationships - Repository Implementation
+Repository <|.. InMemoryRepository
+
+' Relationships - Server to Servlets
+ApiServer *-- DealServlet : creates >
+ApiServer *-- UserServlet : creates >
+ApiServer *-- CommissionPlanServlet : creates >
+ApiServer *-- DisputeServlet : creates >
+
+' Relationships - Server to Repositories
+ApiServer *-- "1" Repository : dealRepository
+ApiServer *-- "1" Repository : userRepository
+ApiServer *-- "1" Repository : planRepository
+ApiServer *-- "1" Repository : disputeRepository
+
+' Relationships - Servlets to Repositories
+DealServlet o--> "1" Repository : uses >
+UserServlet o--> "1" Repository : uses >
+CommissionPlanServlet o--> "1" Repository : uses >
+DisputeServlet o--> "1" Repository : uses >
+
+' Relationships - Repositories to Models
+Repository ..> Deal : manages >
+Repository ..> User : manages >
+Repository ..> CommissionPlan : manages >
+Repository ..> Dispute : manages >
+
+' Relationships - Servlets use JsonHelper
+DealServlet ..> JsonHelper : uses >
+UserServlet ..> JsonHelper : uses >
+CommissionPlanServlet ..> JsonHelper : uses >
+DisputeServlet ..> JsonHelper : uses >
+BaseServlet ..> JsonHelper : uses >
+
+' Component notes
+note right of ApiServer
+  <b>Embedded Tomcat Server</b>
+
+  Entry point for the REST API application.
+
+  <b>Responsibilities:</b>
+  • Initialize embedded Tomcat server
+  • Create and register servlets
+  • Configure URL mappings
+  • Initialize repositories
+  • Inject dependencies into servlets
+
+  <b>Design Patterns:</b>
+  • Dependency Injection
+  • Factory Pattern (creates repositories)
+
+  <b>Port:</b> 8080 (configurable)
+end note
+
+note bottom of BaseServlet
+  <b>Template Method Pattern</b>
+
+  Provides common HTTP handling logic
+  for all concrete servlets.
+
+  <b>Reusable Methods:</b>
+  • Reading request body
+  • Sending JSON responses
+  • Error handling
+  • ID extraction from URL
+
+  <b>Benefit:</b> DRY - eliminates code
+  duplication across servlets
+end note
+
+note bottom of DealServlet
+  <b>RESTful Servlet Implementation</b>
+
+  Maps HTTP methods to CRUD operations:
+  • GET → Read (one or all)
+  • POST → Create
+  • PUT → Update
+  • DELETE → Delete
+
+  <b>URL Pattern:</b> /api/v1/deals/*
+
+  <b>Features:</b>
+  • Query parameter filtering
+  • Proper HTTP status codes
+  • JSON serialization
+end note
+
+note right of Repository
+  <b>Repository Interface</b>
+
+  Abstraction for data access operations.
+
+  <b>Design Principles:</b>
+  • Dependency Inversion Principle
+    (servlets depend on abstraction)
+  • Interface Segregation Principle
+    (minimal, focused interface)
+
+  <b>Benefits:</b>
+  • Testability (easy to mock)
+  • Flexibility (swap implementations)
+  • Separation of concerns
+end note
+
+note bottom of InMemoryRepository
+  <b>Concrete Repository</b>
+
+  Thread-safe in-memory storage using:
+  • ConcurrentHashMap
+  • AtomicLong for ID generation
+
+  <b>Generic Implementation:</b>
+  Works with any entity type through
+  Function interfaces for ID extraction.
+
+  <b>Use Case:</b>
+  Development, testing, and demonstration.
+  Can be replaced with database-backed
+  implementation without changing servlets.
+end note
+
+note bottom of JsonHelper
+  <b>JSON Serialization Utility</b>
+
+  <b>Single Responsibility:</b>
+  Handles all JSON conversion logic.
+
+  <b>Features:</b>
+  • Custom LocalDate/LocalDateTime adapters
+  • Singleton Gson instance
+  • Type-safe deserialization
+
+  <b>Used by:</b> All servlets for
+  request/response JSON handling
+end note
+
+note left of Deal
+  <b>Domain Models</b>
+
+  POJOs representing business entities.
+
+  Servlets operate on these models,
+  delegating storage to repositories.
+
+  Models are serialized to/from JSON
+  using JsonHelper utility.
+end note
+
+' Legend
+legend right
+  <b>REST API Architecture Components:</b>
+
+  <b>Embedded Server:</b> Self-contained Tomcat instance
+  that hosts the application without external server.
+
+  <b>Servlet:</b> Handles HTTP requests and implements
+  RESTful endpoints. Each servlet manages one resource type.
+
+  <b>Repository:</b> Abstracts data access operations.
+  Servlets depend on Repository interface, not concrete
+  implementation (Dependency Inversion Principle).
+
+  <b>Domain Model:</b> Business entities (Deal, User, etc.)
+  that servlets manipulate and repositories persist.
+
+  <b>Key Design Patterns:</b>
+  • Dependency Injection (repositories → servlets)
+  • Template Method (BaseServlet)
+  • Repository Pattern (data access abstraction)
+  • Singleton (JsonHelper's Gson instance)
+
+  <b>Key Design Principles:</b>
+  • Single Responsibility Principle (each class one job)
+  • Dependency Inversion Principle (depend on abstractions)
+  • DRY (Don't Repeat Yourself)
+  • Separation of Concerns (HTTP ↔ Business ↔ Data)
+
+  <b>RESTful Conventions:</b>
+  • GET /resource → List all
+  • GET /resource/{id} → Get one
+  • POST /resource → Create
+  • PUT /resource/{id} → Update
+  • DELETE /resource/{id} → Delete
+
+  <b>HTTP Status Codes:</b>
+  • 200 OK → Successful GET/PUT
+  • 201 Created → Successful POST
+  • 204 No Content → Successful DELETE
+  • 400 Bad Request → Invalid input
+  • 404 Not Found → Resource doesn't exist
+endlegend
+
+@enduml
