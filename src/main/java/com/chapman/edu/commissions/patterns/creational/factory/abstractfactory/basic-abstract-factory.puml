@@ -1,0 +1,160 @@
+@startuml Abstract Factory Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Abstract Factory Pattern - Basic Structure
+
+' Abstract Products
+interface ProductA <<AbstractProduct>> {
+  +operationA(): void
+}
+
+interface ProductB <<AbstractProduct>> {
+  +operationB(): void
+}
+
+' Abstract Factory
+interface AbstractFactory <<AbstractFactory>> {
+  +createProductA(): ProductA
+  +createProductB(): ProductB
+}
+
+' Concrete Products - Family 1
+class ProductA1 <<ConcreteProduct>> {
+  +operationA(): void
+}
+
+class ProductB1 <<ConcreteProduct>> {
+  +operationB(): void
+}
+
+' Concrete Products - Family 2
+class ProductA2 <<ConcreteProduct>> {
+  +operationA(): void
+}
+
+class ProductB2 <<ConcreteProduct>> {
+  +operationB(): void
+}
+
+' Concrete Factories
+class ConcreteFactory1 <<ConcreteFactory>> {
+  +createProductA(): ProductA
+  +createProductB(): ProductB
+}
+
+class ConcreteFactory2 <<ConcreteFactory>> {
+  +createProductA(): ProductA
+  +createProductB(): ProductB
+}
+
+' Relationships - Interface implementations
+ProductA <|.. ProductA1
+ProductA <|.. ProductA2
+ProductB <|.. ProductB1
+ProductB <|.. ProductB2
+
+' Factory relationships
+AbstractFactory <|.. ConcreteFactory1
+AbstractFactory <|.. ConcreteFactory2
+
+' Factory creates products
+ConcreteFactory1 ..> ProductA1 : creates >
+ConcreteFactory1 ..> ProductB1 : creates >
+ConcreteFactory2 ..> ProductA2 : creates >
+ConcreteFactory2 ..> ProductB2 : creates >
+
+' Pattern component notes
+note right of AbstractFactory
+  <b>Abstract Factory</b>
+  Declares interface for creating
+  families of related product objects.
+
+  <b>Role:</b>
+  • Defines creation methods for
+    each abstract product type
+  • Ensures all factories provide
+    complete product families
+end note
+
+note left of ProductA
+  <b>Abstract Product A</b>
+  Declares interface for one type
+  of product object.
+
+  <b>Role:</b>
+  • Defines contract for products
+  • Multiple variants implement
+    this interface
+end note
+
+note bottom of ConcreteFactory1
+  <b>Concrete Factory 1</b>
+  Creates <b>Family 1</b> of products.
+
+  <b>Role:</b>
+  • Implements AbstractFactory interface
+  • Creates ProductA1 and ProductB1
+  • Ensures products work together
+end note
+
+note bottom of ConcreteFactory2
+  <b>Concrete Factory 2</b>
+  Creates <b>Family 2</b> of products.
+
+  <b>Role:</b>
+  • Implements AbstractFactory interface
+  • Creates ProductA2 and ProductB2
+  • Ensures products work together
+end note
+
+note bottom of ProductA1
+  <b>Concrete Product A1</b>
+  Belongs to <b>Family 1</b>.
+
+  <b>Role:</b>
+  • Implements ProductA interface
+  • Designed to work with ProductB1
+  • Created by ConcreteFactory1
+end note
+
+note bottom of ProductB2
+  <b>Concrete Product B2</b>
+  Belongs to <b>Family 2</b>.
+
+  <b>Role:</b>
+  • Implements ProductB interface
+  • Designed to work with ProductA2
+  • Created by ConcreteFactory2
+end note
+
+' Pattern overview note
+note as PatternOverview
+  <b>Abstract Factory Pattern</b>
+
+  <b>Intent:</b>
+  Provide an interface for creating families
+  of related or dependent objects without
+  specifying their concrete classes.
+
+  <b>Key Concept:</b>
+  Products from the same factory are designed
+  to work together as a family.
+  • Family 1: ProductA1 + ProductB1
+  • Family 2: ProductA2 + ProductB2
+
+  <b>Client Usage:</b>
+  AbstractFactory factory = new ConcreteFactory1();
+  ProductA productA = factory.createProductA();
+  ProductB productB = factory.createProductB();
+  // productA and productB work together consistently
+end note
+
+@enduml

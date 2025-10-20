@@ -1,0 +1,207 @@
+@startuml Basic Factory Method Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Factory Method Pattern - Core Structure
+
+' Abstract Creator
+abstract class CommissionCalculatorFactory <<Creator>> {
+  {abstract} #createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  +calculateCommission(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+}
+
+' Product Class
+class CommissionCalculation <<Product>> {
+  -id: String
+  -dealId: String
+  -salesRepId: String
+  -baseCommission: BigDecimal
+  -calculatedBy: String
+  +recalculate(): void
+  +setBaseCommission(amount: BigDecimal): void
+}
+
+' Concrete Creators
+class StandardCommissionCalculatorFactory <<ConcreteCreator>> {
+  #createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  --
+  <i>Creates "STANDARD-" prefixed calculations</i>
+  <i>Uses base amount as-is</i>
+}
+
+class BonusCommissionCalculatorFactory <<ConcreteCreator>> {
+  #createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  --
+  <i>Creates "BONUS-" prefixed calculations</i>
+  <i>Applies 10% bonus to base amount</i>
+}
+
+class AcceleratedCommissionCalculatorFactory <<ConcreteCreator>> {
+  #createCommissionCalculation(dealId: String, salesRepId: String, amount: BigDecimal): CommissionCalculation
+  --
+  <i>Creates "ACCELERATED-" prefixed calculations</i>
+  <i>Applies 1.5x multiplier to base amount</i>
+}
+
+' Client
+class Client <<Client>> {
+  -factory: CommissionCalculatorFactory
+  +processCommission(): void
+}
+
+' Relationships
+CommissionCalculatorFactory <|-- StandardCommissionCalculatorFactory
+CommissionCalculatorFactory <|-- BonusCommissionCalculatorFactory
+CommissionCalculatorFactory <|-- AcceleratedCommissionCalculatorFactory
+
+CommissionCalculatorFactory ..> CommissionCalculation : creates
+StandardCommissionCalculatorFactory ..> CommissionCalculation : creates STANDARD-*
+BonusCommissionCalculatorFactory ..> CommissionCalculation : creates BONUS-*
+AcceleratedCommissionCalculatorFactory ..> CommissionCalculation : creates ACCELERATED-*
+
+Client o--> "1" CommissionCalculatorFactory : uses
+Client ..> CommissionCalculation : uses
+
+' Component Notes
+note right of CommissionCalculatorFactory
+  <b>Abstract Creator</b>
+  Declares the factory method that returns
+  a Product object. Also contains template
+  method that calls the factory method.
+
+  <b>Key Methods:</b>
+  • createCommissionCalculation() - Factory Method
+    (abstract, implemented by subclasses)
+  • calculateCommission() - Template Method
+    (concrete, calls factory method then
+    performs recalculation)
+
+  <b>Pattern Principle:</b>
+  Defers instantiation to subclasses
+  while providing common workflow.
+end note
+
+note left of CommissionCalculation
+  <b>Product</b>
+  Defines the interface/class of
+  objects the factory method creates.
+
+  In this implementation, CommissionCalculation
+  is the product. Different concrete creators
+  create calculations with different IDs and
+  commission amounts.
+
+  <b>Variants:</b>
+  • Standard (base amount)
+  • Bonus (base + 10%)
+  • Accelerated (base × 1.5)
+end note
+
+note bottom of StandardCommissionCalculatorFactory
+  <b>Concrete Creator 1</b>
+  Overrides factory method to return
+  a standard CommissionCalculation.
+
+  <b>Customization:</b>
+  • Sets ID prefix: "STANDARD-"
+  • Uses base amount as-is
+  • Sets calculatedBy field
+
+  <b>Factory Method Implementation:</b>
+  Creates CommissionCalculation with
+  standard commission rate.
+end note
+
+note bottom of BonusCommissionCalculatorFactory
+  <b>Concrete Creator 2</b>
+  Overrides factory method to return
+  a bonus CommissionCalculation.
+
+  <b>Customization:</b>
+  • Sets ID prefix: "BONUS-"
+  • Applies 10% bonus to base amount
+  • Sets calculatedBy field
+
+  <b>Factory Method Implementation:</b>
+  Creates CommissionCalculation with
+  bonus applied to base commission.
+end note
+
+note bottom of AcceleratedCommissionCalculatorFactory
+  <b>Concrete Creator 3</b>
+  Overrides factory method to return
+  an accelerated CommissionCalculation.
+
+  <b>Customization:</b>
+  • Sets ID prefix: "ACCELERATED-"
+  • Applies 1.5x multiplier to base amount
+  • Sets calculatedBy field
+
+  <b>Factory Method Implementation:</b>
+  Creates CommissionCalculation with
+  accelerated commission rate.
+end note
+
+note right of Client
+  <b>Client Code</b>
+  Works with Creator through abstract
+  interface. Doesn't need to know the
+  concrete class of the factory or
+  the product.
+
+  <b>Example Usage:</b>
+  CommissionCalculatorFactory factory;
+  factory = new BonusCommissionCalculatorFactory();
+  CommissionCalculation calc = factory.calculateCommission(
+    "DEAL-001",
+    "SR-123",
+    new BigDecimal("1000.00")
+  );
+  // Returns calculation with 10% bonus applied
+
+  <b>Benefit:</b>
+  Client can switch factory without
+  changing its code.
+end note
+
+' Pattern Summary
+note top of CommissionCalculatorFactory
+  <b>Factory Method Pattern Components:</b>
+
+  <b>Creator:</b> Declares factory method that
+  returns Product object. May also define default
+  implementation that returns a default Product.
+
+  <b>ConcreteCreator:</b> Overrides factory method
+  to return an instance of ConcreteProduct.
+
+  <b>Product:</b> Defines interface of objects
+  the factory method creates.
+
+  <b>Template Method:</b> Creator contains
+  template method (calculateCommission) that calls
+  factory method and performs common operations
+  (recalculate).
+
+  <b>Key Benefits:</b>
+  • Eliminates need to bind application-specific
+    classes into code
+  • Provides hooks for subclasses
+  • Connects parallel class hierarchies
+  • Follows Open/Closed Principle
+
+  <b>Intent:</b>
+  Define an interface for creating an object,
+  but let subclasses decide which class to
+  instantiate. Factory Method lets a class
+  defer instantiation to subclasses.
+end note
+
+@enduml

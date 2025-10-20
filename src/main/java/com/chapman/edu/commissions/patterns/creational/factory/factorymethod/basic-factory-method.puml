@@ -1,0 +1,146 @@
+@startuml Factory Method Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Factory Method Pattern - Basic Structure
+
+' Abstract Creator
+abstract class Creator <<Creator>> {
+  {abstract} +factoryMethod(): Product
+  +operation(): void
+}
+
+' Concrete Creators
+class ConcreteCreatorA <<ConcreteCreator>> {
+  +factoryMethod(): Product
+}
+
+class ConcreteCreatorB <<ConcreteCreator>> {
+  +factoryMethod(): Product
+}
+
+' Product
+interface Product <<Product>> {
+  +operation(): void
+}
+
+' Concrete Products
+class ConcreteProductA <<ConcreteProduct>> {
+  +operation(): void
+}
+
+class ConcreteProductB <<ConcreteProduct>> {
+  +operation(): void
+}
+
+' Relationships
+Creator <|-- ConcreteCreatorA
+Creator <|-- ConcreteCreatorB
+
+Product <|.. ConcreteProductA
+Product <|.. ConcreteProductB
+
+Creator ..> Product : creates >
+ConcreteCreatorA ..> ConcreteProductA : creates >
+ConcreteCreatorB ..> ConcreteProductB : creates >
+
+' Pattern component notes
+note right of Creator
+  <b>Creator (Abstract)</b>
+  Declares the factory method that returns
+  a Product object.
+
+  <b>Role:</b>
+  • Declares abstract factoryMethod()
+  • May contain template method operation()
+    that calls factoryMethod()
+  • Defines interface without specifying
+    concrete product classes
+
+  <b>Key Principle:</b>
+  Defers instantiation to subclasses.
+end note
+
+note left of Product
+  <b>Product (Interface)</b>
+  Defines the interface of objects
+  created by factory method.
+
+  <b>Role:</b>
+  • Declares operations that all
+    concrete products must implement
+  • Allows Creator to work with any
+    product variant
+end note
+
+note bottom of ConcreteCreatorA
+  <b>Concrete Creator A</b>
+  Implements factory method to create
+  ConcreteProductA.
+
+  <b>Role:</b>
+  • Overrides factoryMethod() to return
+    new instance of ConcreteProductA
+  • Decides which concrete class to
+    instantiate
+end note
+
+note bottom of ConcreteCreatorB
+  <b>Concrete Creator B</b>
+  Implements factory method to create
+  ConcreteProductB.
+
+  <b>Role:</b>
+  • Overrides factoryMethod() to return
+    new instance of ConcreteProductB
+  • Provides different implementation
+    than ConcreteCreatorA
+end note
+
+note bottom of ConcreteProductA
+  <b>Concrete Product A</b>
+  Implements Product interface.
+
+  <b>Role:</b>
+  • Provides specific implementation
+    of Product operations
+  • Created by ConcreteCreatorA
+end note
+
+' Pattern overview note
+note as PatternOverview
+  <b>Factory Method Pattern</b>
+
+  <b>Intent:</b>
+  Define an interface for creating an object,
+  but let subclasses decide which class to
+  instantiate. Factory Method lets a class
+  defer instantiation to subclasses.
+
+  <b>Key Concept:</b>
+  The Creator defines WHAT to create (Product),
+  but each ConcreteCreator decides which
+  specific ConcreteProduct to instantiate.
+
+  <b>How It Works:</b>
+  1. Client calls Creator.operation()
+  2. operation() calls factoryMethod()
+  3. Subclass's factoryMethod() creates
+     specific ConcreteProduct
+  4. Client receives Product through
+     abstract interface
+
+  <b>Client Usage:</b>
+  Creator creator = new ConcreteCreatorA();
+  creator.operation();
+  // Uses ConcreteProductA internally
+end note
+
+@enduml

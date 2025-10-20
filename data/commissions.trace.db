@@ -1,0 +1,15 @@
+2025-10-19 20:10:54.343432-07:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "    CREATE TABLE IF NOT EXISTS deals (\000a        id VARCHAR(255) PRIMARY KEY,\000a        title VARCHAR(255) NOT NULL,\000a        [*]value DECIMAL(19,2) NOT NULL,\000a        status VARCHAR(50) NOT NULL,\000a        sales_rep_id VARCHAR(255) NOT NULL,\000a        close_date DATE,\000a        products TEXT,\000a        created_date DATE DEFAULT CURRENT_DATE,\000a        last_modified_date DATE DEFAULT CURRENT_DATE,\000a        FOREIGN KEY (sales_rep_id) REFERENCES users(id)\000a    )\000a"; expected "identifier"; SQL statement:
+    CREATE TABLE IF NOT EXISTS deals (
+        id VARCHAR(255) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        value DECIMAL(19,2) NOT NULL,
+        status VARCHAR(50) NOT NULL,
+        sales_rep_id VARCHAR(255) NOT NULL,
+        close_date DATE,
+        products TEXT,
+        created_date DATE DEFAULT CURRENT_DATE,
+        last_modified_date DATE DEFAULT CURRENT_DATE,
+        FOREIGN KEY (sales_rep_id) REFERENCES users(id)
+    )
+ [42001-224]

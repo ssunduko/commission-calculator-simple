@@ -1,9 +1,9 @@
-package com.chapman.edu.commissions.patterns.creational.factory.factorymethods;
+package com.chapman.edu.commissions.patterns.creational.factory.factorymethod;
 
 import com.chapman.edu.commissions.model.CommissionCalculation;
-import com.chapman.edu.commissions.patterns.creational.factory.factorymethods.FactoryMethodStructure.StandardCommissionCalculatorFactory;
-import com.chapman.edu.commissions.patterns.creational.factory.factorymethods.FactoryMethodStructure.BonusCommissionCalculatorFactory;
-import com.chapman.edu.commissions.patterns.creational.factory.factorymethods.FactoryMethodStructure.AcceleratedCommissionCalculatorFactory;
+import com.chapman.edu.commissions.patterns.creational.factory.factorymethod.FactoryMethodImplementation.StandardCommissionCalculatorFactory;
+import com.chapman.edu.commissions.patterns.creational.factory.factorymethod.FactoryMethodImplementation.BonusCommissionCalculatorFactory;
+import com.chapman.edu.commissions.patterns.creational.factory.factorymethod.FactoryMethodImplementation.AcceleratedCommissionCalculatorFactory;
 import java.math.BigDecimal;
 
 /**

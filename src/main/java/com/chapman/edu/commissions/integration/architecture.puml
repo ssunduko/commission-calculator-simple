@@ -1,0 +1,480 @@
+@startuml Layered MVC Architecture - Commission Calculator Integration
+
+' Define the styles (matching strategy pattern style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+skinparam packageStyle rectangle
+
+' Title
+title Layered MVC Architecture - Commission Calculator Integration Application
+
+' ==================== PRESENTATION LAYER ====================
+package "Presentation Layer\n(Controller/View)" {
+
+    class DealController <<Servlet/Controller>> {
+        -dealService: DealService
+        +doGet(request, response): void
+        +doPost(request, response): void
+        +doPut(request, response): void
+        +doDelete(request, response): void
+        -handleGetAllDeals(): void
+        -handleCreateDeal(): void
+        -handleUpdateDeal(): void
+        -handleDeleteDeal(): void
+        -handleCloseDeal(): void
+    }
+
+    class AuthenticationFilter <<Filter/Security>> {
+        -userService: UserService
+        {static} +USER_ATTRIBUTE: String
+        +doFilter(request, response, chain): void
+        -isPublicEndpoint(path): boolean
+        -sendAuthenticationChallenge(): void
+        {static} +getAuthenticatedUser(): Optional<User>
+    }
+
+    class SwaggerServlet <<Servlet/Documentation>> {
+        +doGet(request, response): void
+        -serveSwaggerUI(): void
+        -serveOpenAPISpec(): void
+    }
+
+    class BaseServlet <<Abstract>> {
+        #extractResourceId(): String
+        #readRequestBody(): String
+        #sendJsonResponse(): void
+        #sendErrorResponse(): void
+    }
+}
+
+' ==================== BUSINESS LOGIC LAYER ====================
+package "Business Logic Layer\n(Service)" {
+
+    class DealService <<Service>> {
+        -dealRepository: Repository<Deal>
+        +getAllDeals(): List<Deal>
+        +getDealById(id): Optional<Deal>
+        +getDealsByStatus(status): List<Deal>
+        +getDealsBySalesRep(id): List<Deal>
+        +createDeal(deal): Deal
+        +updateDeal(id, deal): Deal
+        +deleteDeal(id): boolean
+        +closeDealAsWon(id): Deal
+        +calculatePipelineValue(id): BigDecimal
+        -validateDeal(deal): void
+    }
+
+    class UserService <<Service>> {
+        -userRepository: H2UserRepository
+        +getAllUsers(): List<User>
+        +getUserById(id): Optional<User>
+        +getUsersByRole(role): List<User>
+        +createUser(user): User
+        +updateUser(id, user): User
+        +deleteUser(id): boolean
+        +authenticate(email, password): Optional<User>
+        +authenticateBasic(authHeader): Optional<User>
+        +hasRole(user, role): boolean
+        -validateUser(user): void
+    }
+}
+
+' ==================== DATA ACCESS LAYER ====================
+package "Data Access Layer\n(Repository)" {
+
+    interface Repository<T> <<Interface>> {
+        +findAll(): List<T>
+        +findById(id): Optional<T>
+        +save(entity): T
+        +deleteById(id): boolean
+        +generateId(): String
+    }
+
+    class H2DealRepository <<Repository/JDBC>> {
+        -dbManager: DatabaseManager
+        +findAll(): List<Deal>
+        +findById(id): Optional<Deal>
+        +save(deal): Deal
+        +deleteById(id): boolean
+        +generateId(): String
+        -insert(deal): Deal
+        -update(deal): Deal
+        -setDealParameters(): void
+        -mapResultSetToDeal(): Deal
+    }
+
+    class H2UserRepository <<Repository/JDBC>> {
+        -dbManager: DatabaseManager
+        +findAll(): List<User>
+        +findById(id): Optional<User>
+        +findByEmail(email): Optional<User>
+        +save(user): User
+        +deleteById(id): boolean
+        +generateId(): String
+        -insert(user): User
+        -update(user): User
+        -setUserParameters(): void
+        -mapResultSetToUser(): User
+    }
+}
+
+' ==================== DATABASE LAYER ====================
+package "Database Layer\n(Persistence)" {
+
+    class DatabaseManager <<Singleton/Database>> {
+        {static} -instance: DatabaseManager
+        -connection: Connection
+        {static} -DB_URL: String
+        {static} -DB_USER: String
+        {static} -DB_PASSWORD: String
+        {static} +getInstance(): DatabaseManager
+        +getConnection(): Connection
+        -initializeSchema(): void
+        +close(): void
+        +resetDatabase(): void
+    }
+
+    class H2DB <<Database>> {
+        + users table
+        + deals table
+        + commission_plans table
+        + disputes table
+    }
+}
+
+' ==================== DOMAIN MODEL ====================
+package "Domain Model\n(Entities)" {
+
+    class Deal <<Entity>> {
+        -id: String
+        -title: String
+        -customerName: String
+        -value: BigDecimal
+        -status: DealStatus
+        -salesRepId: String
+        -expectedCloseDate: LocalDate
+        -actualCloseDate: LocalDate
+        -products: List<DealProduct>
+        +calculateTotalValue(): BigDecimal
+    }
+
+    class User <<Entity>> {
+        -id: String
+        -firstName: String
+        -lastName: String
+        -email: String
+        -password: String
+        -roles: List<UserRole>
+        -active: boolean
+    }
+
+    class DealProduct <<ValueObject>> {
+        -name: String
+        -price: BigDecimal
+        -quantity: int
+    }
+
+    enum DealStatus <<Enum>> {
+        OPEN
+        WON
+        LOST
+        CANCELLED
+    }
+
+    enum UserRole <<Enum>> {
+        SALES_REP
+        MANAGER
+        ADMIN
+    }
+}
+
+' ==================== UTILITIES ====================
+package "Utilities\n(Helper Classes)" {
+
+    class JsonHelper <<Utility>> {
+        {static} +toJson(object): String
+        {static} +fromJson(json, type): T
+    }
+
+    class IntegrationApplication <<Main>> {
+        {static} -PORT: int
+        -tomcat: Tomcat
+        -dbManager: DatabaseManager
+        {static} +main(args): void
+        +start(): void
+        -loadSampleData(): void
+        -shutdown(): void
+    }
+}
+
+' ==================== RELATIONSHIPS ====================
+
+' Presentation Layer Dependencies
+DealController ..> DealService : uses
+DealController --|> BaseServlet : extends
+AuthenticationFilter ..> UserService : uses
+SwaggerServlet --|> BaseServlet : extends
+
+' Service Layer Dependencies
+DealService ..> Repository : depends on
+UserService ..> H2UserRepository : uses
+
+' Repository Layer Dependencies
+H2DealRepository ..|> Repository : implements
+H2UserRepository ..|> Repository : implements
+H2DealRepository ..> DatabaseManager : uses
+H2UserRepository ..> DatabaseManager : uses
+Repository ..> Deal : manages
+Repository ..> User : manages
+
+' Database Layer Dependencies
+DatabaseManager --> H2DB : manages
+
+' Domain Model Relationships
+Deal --> DealProduct : contains
+Deal --> DealStatus : has
+User --> UserRole : has
+
+' Application Bootstrap
+IntegrationApplication ..> DealController : creates
+IntegrationApplication ..> AuthenticationFilter : creates
+IntegrationApplication ..> SwaggerServlet : creates
+IntegrationApplication ..> DealService : creates
+IntegrationApplication ..> UserService : creates
+IntegrationApplication ..> H2DealRepository : creates
+IntegrationApplication ..> H2UserRepository : creates
+IntegrationApplication ..> DatabaseManager : uses
+
+' JSON Serialization
+DealController ..> JsonHelper : uses
+DealService ..> JsonHelper : uses
+H2DealRepository ..> JsonHelper : uses
+H2UserRepository ..> JsonHelper : uses
+
+' ==================== COMPONENT NOTES ====================
+
+note right of DealController
+  <b>Controller (MVC)</b>
+  Handles HTTP requests and responses.
+  Translates between HTTP and domain model.
+  Delegates business logic to service layer.
+
+  <b>Responsibilities:</b>
+  - HTTP request/response handling
+  - URL routing and parameter extraction
+  - Status code selection
+  - Error response formatting
+
+  <b>Does NOT contain:</b>
+  - Business logic
+  - Data access code
+  - Validation rules
+end note
+
+note left of AuthenticationFilter
+  <b>Security Filter</b>
+  Intercepts all HTTP requests before
+  reaching controllers.
+
+  <b>Pattern:</b> Filter/Interceptor
+
+  <b>Functionality:</b>
+  - HTTP Basic Auth validation
+  - Public endpoint bypass
+  - User credential verification
+  - Request attribute population
+
+  <b>WWW-Authenticate:</b>
+  Challenges browser for credentials
+  when authentication fails.
+end note
+
+note right of DealService
+  <b>Service Layer (Business Logic)</b>
+  Encapsulates business rules and validation.
+  Orchestrates repository operations.
+
+  <b>Responsibilities:</b>
+  - Business rule enforcement
+  - Input validation
+  - Complex queries
+  - Transaction boundaries
+  - Logging and error handling
+
+  <b>Example Business Rules:</b>
+  - Deal must have title and products
+  - Total value must be positive
+  - Cannot delete closed deals
+  - Cannot modify cancelled deals
+end note
+
+note left of UserService
+  <b>Authentication Service</b>
+  Manages user accounts and authentication.
+
+  <b>Key Methods:</b>
+  - authenticate(): Username/password check
+  - authenticateBasic(): HTTP Basic Auth
+  - createUser(): User registration
+  - hasRole(): Role-based authorization
+
+  <b>Security Note:</b>
+  In production, passwords should be
+  hashed with bcrypt. This implementation
+  uses plaintext for educational purposes.
+end note
+
+note bottom of Repository
+  <b>Repository Interface</b>
+  Abstracts data access logic.
+  Generic interface for any entity type.
+
+  <b>Design Patterns:</b>
+  - Repository Pattern
+  - Dependency Inversion Principle
+  - Interface Segregation Principle
+
+  <b>Benefits:</b>
+  - Testability (can mock repository)
+  - Database independence
+  - Centralized data access logic
+
+  <b>Implementation:</b>
+  Currently uses JDBC with H2.
+  Could be swapped for JPA, MongoDB, etc.
+end note
+
+note bottom of H2DealRepository
+  <b>JDBC Repository Implementation</b>
+  Translates between database rows
+  and domain objects (ORM concept).
+
+  <b>Key Techniques:</b>
+  - PreparedStatement (SQL injection prevention)
+  - ResultSet mapping to objects
+  - JSON serialization for complex types
+  - UUID-based ID generation
+
+  <b>SQL Operations:</b>
+  - INSERT: Create new records
+  - SELECT: Query with filtering
+  - UPDATE: Modify existing records
+  - DELETE: Remove records
+end note
+
+note top of DatabaseManager
+  <b>Database Manager (Singleton)</b>
+  Central point for database connections
+  and schema management.
+
+  <b>Pattern:</b> Singleton
+
+  <b>Responsibilities:</b>
+  - Connection lifecycle management
+  - Schema initialization (DDL)
+  - Database reset for testing
+  - Connection pooling (simplified)
+
+  <b>H2 Configuration:</b>
+  - Embedded mode with file persistence
+  - AUTO_SERVER for multiple connections
+  - Location: ./data/commissions
+end note
+
+note bottom of Deal
+  <b>Domain Entity</b>
+  Represents a sales deal in the system.
+  Contains business logic methods.
+
+  <b>Rich Domain Model:</b>
+  - calculateTotalValue(): Sums product prices
+  - Business state (status workflow)
+  - Validation logic
+
+  <b>Persistence:</b>
+  Mapped to "deals" table via Repository.
+  Products stored as JSON in database.
+end note
+
+note bottom of IntegrationApplication
+  <b>Application Bootstrap</b>
+  Main entry point that wires together
+  all components (Dependency Injection).
+
+  <b>Startup Sequence:</b>
+  1. Initialize database
+  2. Create repositories
+  3. Create services
+  4. Create controllers
+  5. Register servlets and filters
+  6. Start Tomcat
+  7. Load sample data
+
+  <b>Embedded Tomcat:</b>
+  - Port 8080
+  - Servlet mappings
+  - Filter chains
+  - H2 Console servlet
+  - Swagger UI servlet
+end note
+
+note bottom of JsonHelper
+  <b>JSON Serialization Utility</b>
+  Uses Gson for object-to-JSON conversion.
+
+  <b>Purpose:</b>
+  - HTTP request/response bodies
+  - Database column storage (complex types)
+
+  <b>Used by:</b>
+  - Controllers (HTTP bodies)
+  - Repositories (store lists as JSON)
+end note
+
+' ==================== LEGEND ====================
+
+legend right
+  <b>Layered MVC Architecture Components:</b>
+
+  <b>Presentation Layer:</b>
+  - Controllers: Handle HTTP requests/responses
+  - Filters: Cross-cutting concerns (security)
+  - Servlets: Web endpoints
+
+  <b>Business Logic Layer:</b>
+  - Services: Business rules and validation
+  - Orchestration: Coordinate repositories
+  - Transaction boundaries
+
+  <b>Data Access Layer:</b>
+  - Repositories: Abstract data persistence
+  - JDBC operations: SQL execution
+  - Object-relational mapping
+
+  <b>Database Layer:</b>
+  - H2 Database: Embedded SQL database
+  - Schema management: DDL execution
+  - Connection pooling
+
+  <b>Key Principles:</b>
+  - Separation of Concerns
+  - Dependency Inversion (depend on abstractions)
+  - Single Responsibility (one reason to change)
+  - Layered dependencies (flow downward only)
+
+  <b>Benefits:</b>
+  - Testability (can mock each layer)
+  - Maintainability (changes isolated to layers)
+  - Scalability (layers can be distributed)
+  - Flexibility (swap implementations)
+
+  <b>Data Flow:</b>
+  HTTP Request > Filter > Controller > Service
+  > Repository > Database > [reverse] > HTTP Response
+endlegend
+
+@enduml

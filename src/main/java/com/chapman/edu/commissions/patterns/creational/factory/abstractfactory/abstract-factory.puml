@@ -1,0 +1,196 @@
+@startuml Basic Abstract Factory Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Abstract Factory Pattern - Core Structure
+
+' Abstract Factory Interface
+interface CommissionSystemFactory <<AbstractFactory>> {
+  +createCommissionCalculator(): CommissionCalculator
+  +createDealValidator(): DealValidator
+}
+
+' Abstract Product Interfaces
+interface CommissionCalculator <<AbstractProduct>> {
+  +calculateCommission(deal: Deal, salesRep: User): CommissionCalculation
+}
+
+interface DealValidator <<AbstractProduct>> {
+  +validateDeal(deal: Deal): boolean
+  +getInvalidReason(deal: Deal): String
+}
+
+' Concrete Factories
+class StandardCommissionSystemFactory <<ConcreteFactory>> {
+  +createCommissionCalculator(): CommissionCalculator
+  +createDealValidator(): DealValidator
+}
+
+class PremiumCommissionSystemFactory <<ConcreteFactory>> {
+  +createCommissionCalculator(): CommissionCalculator
+  +createDealValidator(): DealValidator
+}
+
+' Concrete Products - Calculator Family
+class StandardCommissionCalculator <<ConcreteProduct>> {
+  +calculateCommission(deal: Deal, salesRep: User): CommissionCalculation
+  --
+  <i>Calculates 5% commission</i>
+}
+
+class PremiumCommissionCalculator <<ConcreteProduct>> {
+  +calculateCommission(deal: Deal, salesRep: User): CommissionCalculation
+  --
+  <i>Calculates 8% commission</i>
+}
+
+' Concrete Products - Validator Family
+class BasicDealValidator <<ConcreteProduct>> {
+  +validateDeal(deal: Deal): boolean
+  +getInvalidReason(deal: Deal): String
+  --
+  <i>Validates: value > 0</i>
+}
+
+class AdvancedDealValidator <<ConcreteProduct>> {
+  +validateDeal(deal: Deal): boolean
+  +getInvalidReason(deal: Deal): String
+  --
+  <i>Validates: value > 0 and has products</i>
+}
+
+' Client
+class Client <<Client>> {
+  -factory: CommissionSystemFactory
+  +processCommission(): void
+}
+
+' Factory Relationships
+CommissionSystemFactory <|.. StandardCommissionSystemFactory
+CommissionSystemFactory <|.. PremiumCommissionSystemFactory
+
+' Product Relationships
+CommissionCalculator <|.. StandardCommissionCalculator
+CommissionCalculator <|.. PremiumCommissionCalculator
+DealValidator <|.. BasicDealValidator
+DealValidator <|.. AdvancedDealValidator
+
+' Factory-Product Creation Relationships
+StandardCommissionSystemFactory ..> StandardCommissionCalculator : creates
+StandardCommissionSystemFactory ..> BasicDealValidator : creates
+PremiumCommissionSystemFactory ..> PremiumCommissionCalculator : creates
+PremiumCommissionSystemFactory ..> AdvancedDealValidator : creates
+
+' Client Dependencies
+Client o--> "1" CommissionSystemFactory : uses
+Client ..> CommissionCalculator : uses
+Client ..> DealValidator : uses
+
+' Component Notes
+note right of CommissionSystemFactory
+  <b>Abstract Factory</b>
+  Declares creation methods for
+  each product type in the family.
+
+  Ensures all concrete factories
+  provide a complete set of
+  related products.
+
+  <b>Key Principle:</b>
+  Program to an interface, not
+  an implementation.
+end note
+
+note left of CommissionCalculator
+  <b>Abstract Product A</b>
+  Defines interface for
+  commission calculator products.
+
+  Multiple variants (Standard,
+  Premium) implement different
+  calculation strategies.
+end note
+
+note left of DealValidator
+  <b>Abstract Product B</b>
+  Defines interface for
+  deal validator products.
+
+  Multiple variants (Basic,
+  Advanced) implement different
+  validation rules.
+end note
+
+note bottom of StandardCommissionSystemFactory
+  <b>Concrete Factory 1</b>
+  Creates <b>Standard family</b> of products:
+  • StandardCommissionCalculator (5%)
+  • BasicDealValidator (simple rules)
+
+  Products in this family are designed
+  to work together consistently.
+end note
+
+note bottom of PremiumCommissionSystemFactory
+  <b>Concrete Factory 2</b>
+  Creates <b>Premium family</b> of products:
+  • PremiumCommissionCalculator (8%)
+  • AdvancedDealValidator (strict rules)
+
+  Products in this family are designed
+  to work together consistently.
+end note
+
+note right of Client
+  <b>Client Code</b>
+  • Works with abstract interfaces only
+  • Doesn't know which concrete products it uses
+  • Can switch entire product family by
+    changing the factory instance
+
+  <b>Example:</b>
+  factory = new StandardCommissionSystemFactory();
+  calculator = factory.createCommissionCalculator();
+  validator = factory.createDealValidator();
+end note
+
+' Pattern Summary
+note top of CommissionSystemFactory
+  <b>Abstract Factory Pattern Components:</b>
+
+  <b>AbstractFactory:</b> Interface for creating
+  families of related/dependent objects.
+
+  <b>ConcreteFactory:</b> Implements operations
+  to create concrete product objects.
+
+  <b>AbstractProduct:</b> Interface for a type
+  of product object.
+
+  <b>ConcreteProduct:</b> Defines a product
+  object to be created by the corresponding
+  concrete factory; implements AbstractProduct.
+
+  <b>Client:</b> Uses only interfaces declared
+  by AbstractFactory and AbstractProduct.
+
+  <b>Key Benefits:</b>
+  • Isolates concrete classes
+  • Makes exchanging product families easy
+  • Promotes consistency among products
+  • Supports Open/Closed Principle
+
+  <b>Intent:</b>
+  Provide an interface for creating families
+  of related or dependent objects without
+  specifying their concrete classes.
+end note
+
+@enduml

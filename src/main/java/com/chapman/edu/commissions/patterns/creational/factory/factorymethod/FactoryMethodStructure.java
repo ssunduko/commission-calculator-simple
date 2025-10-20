@@ -1,4 +1,4 @@
-package com.chapman.edu.commissions.patterns.creational.factory.factorymethods;
+package com.chapman.edu.commissions.patterns.creational.factory.factorymethod;
 
 import com.chapman.edu.commissions.model.CommissionCalculation;
 import java.math.BigDecimal;
@@ -60,54 +60,6 @@ public class FactoryMethodStructure {
 
             // Perform common operations
             calculation.recalculate();
-
-            return calculation;
-        }
-    }
-
-    /**
-     * Concrete Creator for standard commission calculations
-     */
-    public static class StandardCommissionCalculatorFactory extends CommissionCalculatorFactory {
-        @Override
-        protected CommissionCalculation createCommissionCalculation(String dealId, String salesRepId, BigDecimal amount) {
-            CommissionCalculation calculation = new CommissionCalculation(dealId, salesRepId, amount);
-            calculation.setId("STANDARD-" + dealId);
-            calculation.setCalculatedBy("StandardCommissionCalculatorFactory");
-            return calculation;
-        }
-    }
-
-    /**
-     * Concrete Creator for bonus commission calculations
-     */
-    public static class BonusCommissionCalculatorFactory extends CommissionCalculatorFactory {
-        @Override
-        protected CommissionCalculation createCommissionCalculation(String dealId, String salesRepId, BigDecimal amount) {
-            CommissionCalculation calculation = new CommissionCalculation(dealId, salesRepId, amount);
-            calculation.setId("BONUS-" + dealId);
-            calculation.setCalculatedBy("BonusCommissionCalculatorFactory");
-
-            // Apply a 10% bonus to the base commission
-            BigDecimal bonusAmount = amount.multiply(new BigDecimal("0.1"));
-            calculation.setBaseCommission(amount.add(bonusAmount));
-
-            return calculation;
-        }
-    }
-
-    /**
-     * Concrete Creator for accelerated commission calculations
-     */
-    public static class AcceleratedCommissionCalculatorFactory extends CommissionCalculatorFactory {
-        @Override
-        protected CommissionCalculation createCommissionCalculation(String dealId, String salesRepId, BigDecimal amount) {
-            CommissionCalculation calculation = new CommissionCalculation(dealId, salesRepId, amount);
-            calculation.setId("ACCELERATED-" + dealId);
-            calculation.setCalculatedBy("AcceleratedCommissionCalculatorFactory");
-
-            // Apply a 1.5x multiplier to the base commission
-            calculation.setBaseCommission(amount.multiply(new BigDecimal("1.5")));
 
             return calculation;
         }
