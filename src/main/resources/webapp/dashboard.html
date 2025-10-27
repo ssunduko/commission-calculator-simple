@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status Dashboard - Deal Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f23;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b8d4ff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2a2a4e;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: #b8d4ff;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-large {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online {
+            background: #4CAF50;
+        }
+
+        .status-offline {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #2a2a4e;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .link {
+            color: #64b5f6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .link:hover {
+            color: #90caf9;
+            text-decoration: underline;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #2a2a4e;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 1s ease;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.5);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-box {
+            background: #0f0f23;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #2a2a4e;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #64b5f6;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            gap: 10px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, #64b5f6, #2196F3);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .timestamp {
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Deal Management System</h1>
+            <p class="subtitle">System Status Dashboard - Real-time Monitoring</p>
+        </header>
+
+        <!-- System Status -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">System Status</div>
+                <div class="info-row">
+                    <span class="info-label">API Status</span>
+                    <span class="info-value">
+                        <span class="status-indicator status-online" id="apiStatus"></span>
+                        <span id="apiStatusText">Online</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Database</span>
+                    <span class="info-value">
+                        <span class="status-indicator status-online" id="dbStatus"></span>
+                        <span id="dbStatusText">Connected</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Server</span>
+                    <span class="info-value">Apache Tomcat 10.1</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Port</span>
+                    <span class="info-value">8080</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Uptime</span>
+                    <span class="info-value" id="uptime">Calculating...</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Quick Stats</div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-value" id="totalDeals">-</div>
+                        <div class="metric-label">Total Deals</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="openDeals">-</div>
+                        <div class="metric-label">Open</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="wonDeals">-</div>
+                        <div class="metric-label">Won</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" id="lostDeals">-</div>
+                        <div class="metric-label">Lost</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Financial Overview</div>
+                <div class="stat-large" id="totalValue">$0.00</div>
+                <div class="stat-label">Total Deal Value</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="valueProgress" style="width: 0%"></div>
+                </div>
+                <div class="info-row" style="margin-top: 15px;">
+                    <span class="info-label">Open Value</span>
+                    <span class="info-value" id="openValue">$0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Won Value</span>
+                    <span class="info-value" id="wonValue">$0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Win Rate</span>
+                    <span class="info-value" id="winRate">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deals by Status Chart -->
+        <div class="card">
+            <div class="card-title">Deals by Status</div>
+            <div class="chart-container">
+                <div class="bar-chart" id="statusChart">
+                    <div class="bar" style="height: 0%;" data-status="OPEN">
+                        <span class="bar-value">0</span>
+                        <span class="bar-label">OPEN</span>
+                    </div>
+                    <div class="bar" style="height: 0%;" data-status="WON">
+                        <span class="bar-value">0</span>
+                        <span class="bar-label">WON</span>
+                    </div>
+                    <div class="bar" style="height: 0%;" data-status="LOST">
+                        <span class="bar-value">0</span>
+                        <span class="bar-label">LOST</span>
+                    </div>
+                    <div class="bar" style="height: 0%;" data-status="PENDING">
+                        <span class="bar-value">0</span>
+                        <span class="bar-label">PENDING</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-title">Quick Actions</div>
+            <div class="button-group">
+                <button class="btn" onclick="window.location.href='index.html'">Full UI</button>
+                <button class="btn" onclick="window.location.href='/h2-console'">H2 Console</button>
+                <button class="btn" onclick="window.location.href='/api/v1/integration/deals'">View API</button>
+                <button class="btn" onclick="refreshData()">Refresh Data</button>
+            </div>
+        </div>
+
+        <div class="timestamp">
+            Last updated: <span id="lastUpdate">Never</span> | Auto-refresh every 10 seconds
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/v1/integration/deals';
+        const startTime = Date.now();
+
+        // Load data on page load
+        loadDashboardData();
+
+        // Auto-refresh every 10 seconds
+        setInterval(loadDashboardData, 10000);
+
+        // Update uptime every second
+        setInterval(updateUptime, 1000);
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const deals = await response.json();
+                updateDashboard(deals);
+                updateStatusIndicators(true);
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                updateStatusIndicators(false);
+            }
+
+            updateLastUpdateTime();
+        }
+
+        function updateDashboard(deals) {
+            // Count deals by status
+            const statusCounts = {
+                OPEN: 0,
+                WON: 0,
+                LOST: 0,
+                PENDING: 0
+            };
+
+            let totalValue = 0;
+            let openValue = 0;
+            let wonValue = 0;
+
+            deals.forEach(deal => {
+                statusCounts[deal.status] = (statusCounts[deal.status] || 0) + 1;
+
+                const dealValue = (deal.products || []).reduce((sum, p) =>
+                    sum + (p.quantity * p.price), 0);
+
+                totalValue += dealValue;
+
+                if (deal.status === 'OPEN') openValue += dealValue;
+                if (deal.status === 'WON') wonValue += dealValue;
+            });
+
+            // Update stats
+            document.getElementById('totalDeals').textContent = deals.length;
+            document.getElementById('openDeals').textContent = statusCounts.OPEN;
+            document.getElementById('wonDeals').textContent = statusCounts.WON;
+            document.getElementById('lostDeals').textContent = statusCounts.LOST;
+
+            // Update financial info
+            document.getElementById('totalValue').textContent = '$' + totalValue.toFixed(2);
+            document.getElementById('openValue').textContent = '$' + openValue.toFixed(2);
+            document.getElementById('wonValue').textContent = '$' + wonValue.toFixed(2);
+
+            // Calculate win rate
+            const closedDeals = statusCounts.WON + statusCounts.LOST;
+            const winRate = closedDeals > 0 ? (statusCounts.WON / closedDeals * 100).toFixed(1) : 0;
+            document.getElementById('winRate').textContent = winRate + '%';
+
+            // Update progress bar (using won value as percentage of total)
+            const progressPercent = totalValue > 0 ? (wonValue / totalValue * 100).toFixed(0) : 0;
+            document.getElementById('valueProgress').style.width = progressPercent + '%';
+
+            // Update bar chart
+            updateBarChart(statusCounts, deals.length);
+        }
+
+        function updateBarChart(counts, total) {
+            const bars = document.querySelectorAll('.bar');
+            const maxCount = Math.max(...Object.values(counts), 1);
+
+            bars.forEach(bar => {
+                const status = bar.dataset.status;
+                const count = counts[status] || 0;
+                const height = total > 0 ? (count / maxCount * 100) : 0;
+
+                bar.style.height = height + '%';
+                bar.querySelector('.bar-value').textContent = count;
+            });
+        }
+
+        function updateStatusIndicators(online) {
+            const apiStatus = document.getElementById('apiStatus');
+            const apiStatusText = document.getElementById('apiStatusText');
+            const dbStatus = document.getElementById('dbStatus');
+            const dbStatusText = document.getElementById('dbStatusText');
+
+            if (online) {
+                apiStatus.className = 'status-indicator status-online';
+                apiStatusText.textContent = 'Online';
+                dbStatus.className = 'status-indicator status-online';
+                dbStatusText.textContent = 'Connected';
+            } else {
+                apiStatus.className = 'status-indicator status-offline';
+                apiStatusText.textContent = 'Offline';
+                dbStatus.className = 'status-indicator status-offline';
+                dbStatusText.textContent = 'Disconnected';
+            }
+        }
+
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+        }
+
+        function updateUptime() {
+            const elapsed = Date.now() - startTime;
+            const seconds = Math.floor(elapsed / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+
+            const displayHours = hours;
+            const displayMinutes = minutes % 60;
+            const displaySeconds = seconds % 60;
+
+            document.getElementById('uptime').textContent =
+                `${displayHours}h ${displayMinutes}m ${displaySeconds}s`;
+        }
+
+        function refreshData() {
+            loadDashboardData();
+        }
+    </script>
+</body>
+</html>

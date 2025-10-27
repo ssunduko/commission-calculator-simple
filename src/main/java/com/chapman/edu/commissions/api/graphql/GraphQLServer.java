@@ -37,12 +37,43 @@ public class GraphQLServer {
         String baseDir = createTempDirectory();
         tomcat.setBaseDir(baseDir);
         Context context = tomcat.addContext("", baseDir);
+
+        // Initialize GraphQL provider
         GraphQLProvider graphQLProvider = new GraphQLProvider(dealRepository, userRepository, planRepository, disputeRepository);
         graphQLProvider.init();
+
+        // Register GraphQL API endpoint
         GraphQLServlet graphQLServlet = new GraphQLServlet(graphQLProvider);
         Tomcat.addServlet(context, "GraphQLServlet", graphQLServlet);
         context.addServletMappingDecoded("/graphql", "GraphQLServlet");
-        System.out.println("GraphQL servlet registered at /graphql");
+        System.out.println("GraphQL API endpoint registered at /graphql");
+
+        // Register GraphQL development tools
+        String graphQLEndpoint = "http://localhost:" + port + "/graphql";
+
+        // GraphQL Tools Index Page
+        GraphQLIndexServlet indexServlet = new GraphQLIndexServlet(port);
+        Tomcat.addServlet(context, "GraphQLIndexServlet", indexServlet);
+        context.addServletMappingDecoded("/", "GraphQLIndexServlet");
+        System.out.println("GraphQL tools index registered at /");
+
+        // GraphiQL IDE
+        GraphiQLServlet graphiQLServlet = new GraphiQLServlet(graphQLEndpoint);
+        Tomcat.addServlet(context, "GraphiQLServlet", graphiQLServlet);
+        context.addServletMappingDecoded("/graphiql", "GraphiQLServlet");
+        System.out.println("GraphiQL IDE registered at /graphiql");
+
+        // GraphQL Playground
+        GraphQLPlaygroundServlet playgroundServlet = new GraphQLPlaygroundServlet(graphQLEndpoint);
+        Tomcat.addServlet(context, "GraphQLPlaygroundServlet", playgroundServlet);
+        context.addServletMappingDecoded("/playground", "GraphQLPlaygroundServlet");
+        System.out.println("GraphQL Playground registered at /playground");
+
+        // GraphQL Schema Endpoint
+        GraphQLSchemaServlet schemaServlet = new GraphQLSchemaServlet(graphQLProvider);
+        Tomcat.addServlet(context, "GraphQLSchemaServlet", schemaServlet);
+        context.addServletMappingDecoded("/schema", "GraphQLSchemaServlet");
+        System.out.println("GraphQL Schema endpoint registered at /schema");
     }
 
     private String createTempDirectory() {
@@ -59,13 +90,33 @@ public class GraphQLServer {
     public void start() {
         try {
             tomcat.start();
-            System.out.println("\nGraphQL Server started successfully!");
-            System.out.println("\nGraphQL Endpoint:");
-            System.out.println("  - http://localhost:" + tomcat.getConnector().getLocalPort() + "/graphql");
-            System.out.println("\nExample Query:");
-            System.out.println("  POST http://localhost:" + tomcat.getConnector().getLocalPort() + "/graphql");
+            int serverPort = tomcat.getConnector().getLocalPort();
+
+            System.out.println("\n╔══════════════════════════════════════════════════════════════════╗");
+            System.out.println("║     GraphQL Server Started Successfully!                         ║");
+            System.out.println("╚══════════════════════════════════════════════════════════════════╝");
+
+            System.out.println("\n📊 GraphQL Development Tools:");
+            System.out.println("  🏠 Index Page:         http://localhost:" + serverPort + "/");
+            System.out.println("  🔍 GraphiQL IDE:       http://localhost:" + serverPort + "/graphiql");
+            System.out.println("  🎮 Playground:         http://localhost:" + serverPort + "/playground");
+
+            System.out.println("\n🔌 GraphQL API Endpoints:");
+            System.out.println("  📡 GraphQL API:        http://localhost:" + serverPort + "/graphql");
+            System.out.println("  📄 Schema (SDL):       http://localhost:" + serverPort + "/schema");
+
+            System.out.println("\n📝 Example Queries:");
+            System.out.println("  POST http://localhost:" + serverPort + "/graphql");
+            System.out.println("  Content-Type: application/json");
             System.out.println("  Body: { \"query\": \"{ deals { id title value } }\" }");
-            System.out.println("\nPress Ctrl+C to stop the server.");
+
+            System.out.println("\n  GET http://localhost:" + serverPort + "/graphql?query={deals{id title}}");
+
+            System.out.println("\n💡 Pro Tip: Open http://localhost:" + serverPort + "/ in your browser");
+            System.out.println("            to access all GraphQL development tools!\n");
+
+            System.out.println("Press Ctrl+C to stop the server.\n");
+
             tomcat.getServer().await();
         } catch (LifecycleException e) {
             throw new RuntimeException("Failed to start server", e);

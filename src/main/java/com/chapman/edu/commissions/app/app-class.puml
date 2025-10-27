@@ -1,0 +1,559 @@
+@startuml Deal Management Application - Class Diagram
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+skinparam packageBackgroundColor #fafafa
+skinparam packageBorderColor #9e9e9e
+
+' Title
+title Deal Management Application - Class Diagram (Implementation View)
+
+' ============================================================================
+' PRESENTATION LAYER (Controller)
+' ============================================================================
+package "Presentation Layer" <<Layer>> #e3f2fd {
+
+    abstract class HttpServlet <<Jakarta Servlet>> {
+        +doGet(request, response)
+        +doPost(request, response)
+        +doPut(request, response)
+        +doDelete(request, response)
+    }
+
+    abstract class BaseServlet <<Abstract Class>> {
+        #extractResourceId(request): String
+        #readRequestBody(request): String
+        #sendJsonResponse(response, object, status)
+        #sendErrorResponse(response, status, message)
+    }
+
+    class DealController <<Controller>> {
+        -dealService: DealService
+        +DealController(dealService: DealService)
+        +doGet(request, response)
+        +doPost(request, response)
+        +doPut(request, response)
+        +doDelete(request, response)
+        -handleGetAllDeals(request, response)
+        -handleGetDealById(dealId, response)
+        -handleCreateDeal(request, response)
+        -handleUpdateDeal(dealId, request, response)
+        -handleDeleteDeal(dealId, response)
+        -handleCloseDeal(dealId, response)
+        -extractDealIdFromClosePath(pathInfo): String
+    }
+
+    note right of DealController
+      <b>MVC Controller</b>
+
+      <b>Responsibilities:</b>
+      • Handle HTTP requests/responses
+      • Parse request parameters
+      • Delegate to service layer
+      • Map errors to HTTP status codes
+
+      <b>HTTP Methods:</b>
+      • GET - List or retrieve deals
+      • POST - Create deal, close deal
+      • PUT - Update deal
+      • DELETE - Delete deal
+
+      <b>Status Code Mapping:</b>
+      • 200 OK - Successful retrieval/update
+      • 201 Created - Successful creation
+      • 204 No Content - Successful deletion
+      • 400 Bad Request - Validation error
+      • 404 Not Found - Resource not found
+      • 409 Conflict - Business rule violation
+      • 500 Internal Server Error - Unexpected
+
+      <b>Layer:</b> Presentation
+      <b>Pattern:</b> MVC Controller
+    end note
+}
+
+' ============================================================================
+' BUSINESS LOGIC LAYER (Service)
+' ============================================================================
+package "Business Logic Layer" <<Layer>> #fff3e0 {
+
+    class DealService <<Service>> {
+        -logger: Logger
+        -dealRepository: Repository<Deal>
+        +DealService(dealRepository: Repository<Deal>)
+        +getAllDeals(): List<Deal>
+        +getDealById(id: String): Optional<Deal>
+        +getDealsByStatus(status: DealStatus): List<Deal>
+        +getDealsBySalesRep(salesRepId: String): List<Deal>
+        +createDeal(deal: Deal): Deal
+        +updateDeal(id: String, deal: Deal): Deal
+        +deleteDeal(id: String): boolean
+        +closeDealAsWon(id: String): Deal
+        +calculatePipelineValue(salesRepId: String): BigDecimal
+        -validateDeal(deal: Deal): void
+    }
+
+    note left of DealService
+      <b>Business Logic Layer</b>
+
+      <b>Responsibilities:</b>
+      • Enforce business rules
+      • Validate domain constraints
+      • Coordinate operations
+      • Complex queries
+
+      <b>Business Rules:</b>
+      • "Deal title is required"
+      • "Deal value must be positive"
+      • "Can only delete OPEN deals"
+      • "Can only close OPEN deals"
+      • "Cannot modify CANCELLED deals"
+
+      <b>Operations:</b>
+      • CRUD operations with validation
+      • Status-based filtering
+      • Sales rep filtering
+      • Pipeline value calculation
+      • Deal closure workflow
+
+      <b>Layer:</b> Business Logic
+      <b>Pattern:</b> Service Layer
+    end note
+
+    class UserService <<Service>> {
+        -logger: Logger
+        -userRepository: Repository<User>
+        +UserService(userRepository: Repository<User>)
+        +getAllUsers(): List<User>
+        +getUserById(id: String): Optional<User>
+        +createUser(user: User): User
+        +updateUser(id: String, user: User): User
+        +deleteUser(id: String): boolean
+        +findByEmail(email: String): Optional<User>
+        +authenticate(email: String, password: String): boolean
+    }
+}
+
+' ============================================================================
+' DATA ACCESS LAYER (Repository)
+' ============================================================================
+package "Data Access Layer" <<Layer>> #f3e5f5 {
+
+    interface "Repository<T>" <<Interface>> {
+        +findAll(): List<T>
+        +findById(id: String): Optional<T>
+        +save(entity: T): T
+        +deleteById(id: String): boolean
+        +generateId(): String
+    }
+
+    class H2DealRepository <<Repository>> {
+        -logger: Logger
+        -dbManager: DatabaseManager
+        +H2DealRepository(dbManager: DatabaseManager)
+        +findAll(): List<Deal>
+        +findById(id: String): Optional<Deal>
+        +save(deal: Deal): Deal
+        +deleteById(id: String): boolean
+        +generateId(): String
+        -insert(deal: Deal): Deal
+        -update(deal: Deal): Deal
+        -setDealParameters(stmt: PreparedStatement, deal: Deal)
+        -mapResultSetToDeal(rs: ResultSet): Deal
+    }
+
+    note right of H2DealRepository
+      <b>Repository Pattern Implementation</b>
+
+      <b>Responsibilities:</b>
+      • CRUD operations with SQL
+      • Object-Relational Mapping
+      • Query execution
+      • ID generation
+
+      <b>Key Techniques:</b>
+      • PreparedStatement (SQL injection prevention)
+      • Try-with-resources (resource management)
+      • JSON serialization for products
+      • ResultSet to object mapping
+
+      <b>SQL Operations:</b>
+      • findAll() → SELECT * FROM deals
+      • findById() → SELECT ... WHERE id = ?
+      • insert() → INSERT INTO deals ...
+      • update() → UPDATE deals SET ...
+      • deleteById() → DELETE FROM deals WHERE id = ?
+
+      <b>ID Format:</b>
+      DEAL-{UUID}
+
+      <b>Layer:</b> Data Access
+      <b>Pattern:</b> Repository
+    end note
+
+    class H2UserRepository <<Repository>> {
+        -logger: Logger
+        -dbManager: DatabaseManager
+        +H2UserRepository(dbManager: DatabaseManager)
+        +findAll(): List<User>
+        +findById(id: String): Optional<User>
+        +save(user: User): User
+        +deleteById(id: String): boolean
+        +generateId(): String
+        +findByEmail(email: String): Optional<User>
+        -insert(user: User): User
+        -update(user: User): User
+        -setUserParameters(stmt: PreparedStatement, user: User)
+        -mapResultSetToUser(rs: ResultSet): User
+    }
+
+    class DatabaseManager <<Singleton>> {
+        -instance: DatabaseManager {static}
+        -connection: Connection
+        -logger: Logger
+        -DatabaseManager()
+        +getInstance(): DatabaseManager {static}
+        +getConnection(): Connection
+        +close(): void
+        -initializeDatabase(): void
+        -createSchema(): void
+    }
+
+    note bottom of DatabaseManager
+      <b>Singleton Pattern</b>
+
+      <b>Responsibilities:</b>
+      • Manage database connection
+      • Initialize schema
+      • Connection pooling (simplified)
+
+      <b>Thread Safety:</b>
+      Synchronized getInstance()
+
+      <b>Database:</b>
+      H2 embedded (jdbc:h2:./data/commissions)
+
+      <b>Schema Initialization:</b>
+      CREATE TABLE IF NOT EXISTS deals...
+      CREATE TABLE IF NOT EXISTS users...
+
+      <b>Pattern:</b> Singleton
+    end note
+}
+
+' ============================================================================
+' DOMAIN MODEL
+' ============================================================================
+package "Domain Model" <<Layer>> #c8e6c9 {
+
+    class Deal <<Entity>> {
+        -id: String
+        -title: String
+        -status: DealStatus
+        -salesRepId: String
+        -closeDate: LocalDate
+        -products: List<DealProduct>
+        -createdDate: LocalDate
+        -lastModifiedDate: LocalDate
+        +Deal()
+        +getId(): String
+        +setId(id: String): void
+        +getTitle(): String
+        +setTitle(title: String): void
+        +getStatus(): DealStatus
+        +setStatus(status: DealStatus): void
+        +getSalesRepId(): String
+        +setSalesRepId(salesRepId: String): void
+        +getCloseDate(): LocalDate
+        +setCloseDate(closeDate: LocalDate): void
+        +getProducts(): List<DealProduct>
+        +setProducts(products: List<DealProduct>): void
+        +calculateTotalValue(): BigDecimal
+        +equals(obj: Object): boolean
+        +hashCode(): int
+    }
+
+    note right of Deal
+      <b>Domain Entity</b>
+
+      Represents a sales deal with:
+      • Unique identifier
+      • Title and status
+      • Sales rep assignment
+      • Product line items
+      • Lifecycle dates
+
+      <b>Business Method:</b>
+      calculateTotalValue() computes
+      total from products list.
+
+      <b>Statuses:</b>
+      OPEN, WON, LOST, CANCELLED
+
+      <b>Pattern:</b> Domain Model
+    end note
+
+    class DealProduct <<Value Object>> {
+        -productId: String
+        -name: String
+        -quantity: int
+        -unitPrice: BigDecimal
+        +DealProduct()
+        +DealProduct(productId, name, quantity, unitPrice)
+        +getProductId(): String
+        +getName(): String
+        +getQuantity(): int
+        +getUnitPrice(): BigDecimal
+        +getTotalPrice(): BigDecimal
+    }
+
+    enum DealStatus <<Enumeration>> {
+        OPEN
+        WON
+        LOST
+        CANCELLED
+    }
+
+    class User <<Entity>> {
+        -id: String
+        -firstName: String
+        -lastName: String
+        -email: String
+        -passwordHash: String
+        -roles: Set<UserRole>
+        -active: boolean
+        +User()
+        +getId(): String
+        +getEmail(): String
+        +getRoles(): Set<UserRole>
+        ... getters/setters ...
+    }
+
+    enum UserRole <<Enumeration>> {
+        SALES_REP
+        SALES_MANAGER
+        ADMIN
+    }
+}
+
+' ============================================================================
+' UTILITIES
+' ============================================================================
+package "Utilities" <<Layer>> #ffe0b2 {
+
+    class JsonHelper <<Utility>> {
+        -gson: Gson {static}
+        +toJson(object: Object): String {static}
+        +fromJson(json: String, clazz: Class<T>): T {static}
+    }
+
+    note right of JsonHelper
+      <b>JSON Serialization Utility</b>
+
+      Uses Gson library for:
+      • Object → JSON string
+      • JSON string → Object
+
+      <b>Used By:</b>
+      • DealController (HTTP I/O)
+      • H2DealRepository (products storage)
+
+      <b>Thread-Safe:</b>
+      Static methods with immutable Gson instance
+    end note
+}
+
+' ============================================================================
+' APPLICATION BOOTSTRAP
+' ============================================================================
+package "Application Bootstrap" <<Layer>> #e1bee7 {
+
+    class DealManagementApp <<Main Application>> {
+        -logger: Logger
+        -tomcat: Tomcat
+        -dbManager: DatabaseManager
+        +main(args: String[]): void {static}
+        +start(): void
+        -loadSampleData(userService, dealService): void
+        -shutdown(): void
+    }
+
+    note left of DealManagementApp
+      <b>Application Entry Point</b>
+
+      <b>Responsibilities:</b>
+      • Bootstrap application
+      • Initialize dependencies
+      • Configure Tomcat
+      • Register servlets
+      • Load sample data
+      • Graceful shutdown
+
+      <b>Startup Sequence:</b>
+      1. Initialize database
+      2. Create repositories
+      3. Create services
+      4. Create controllers
+      5. Configure Tomcat
+      6. Load sample data
+      7. Start server
+
+      <b>Pattern:</b>
+      • Facade (simplifies startup)
+      • Dependency Injection (manual)
+
+      <b>Main Entry Point:</b>
+      mvn exec:java -Dexec.mainClass=
+        "...DealManagementApp"
+    end note
+}
+
+' ============================================================================
+' RELATIONSHIPS - Inheritance
+' ============================================================================
+BaseServlet -up-|> HttpServlet
+DealController -up-|> BaseServlet
+
+' ============================================================================
+' RELATIONSHIPS - Composition/Aggregation
+' ============================================================================
+DealController o-right-> "1" DealService : uses
+DealService o-right-> "1" Repository : uses
+UserService o--> "1" Repository : uses
+
+H2DealRepository .up.|> Repository : implements
+H2UserRepository .up.|> Repository : implements
+
+H2DealRepository o--> "1" DatabaseManager : uses
+H2UserRepository o--> "1" DatabaseManager : uses
+
+Deal *--> "*" DealProduct : contains
+Deal --> "1" DealStatus : has
+User --> "*" UserRole : has
+
+' ============================================================================
+' RELATIONSHIPS - Dependencies
+' ============================================================================
+DealController ..> Deal : creates/returns
+DealController ..> JsonHelper : uses
+DealService ..> Deal : validates/manages
+H2DealRepository ..> Deal : maps to/from
+H2DealRepository ..> JsonHelper : uses
+
+DealManagementApp ..> DealController : creates
+DealManagementApp ..> DealService : creates
+DealManagementApp ..> UserService : creates
+DealManagementApp ..> H2DealRepository : creates
+DealManagementApp ..> H2UserRepository : creates
+DealManagementApp ..> DatabaseManager : uses
+
+' ============================================================================
+' ARCHITECTURAL NOTES
+' ============================================================================
+note top of "Presentation Layer"
+  <b>LAYER 1: Presentation</b>
+
+  Handles HTTP communication
+  • Request parsing
+  • Response formatting
+  • HTTP status codes
+  • No business logic
+end note
+
+note top of "Business Logic Layer"
+  <b>LAYER 2: Business Logic</b>
+
+  Enforces business rules
+  • Validation
+  • Business constraints
+  • Complex operations
+  • No HTTP or SQL knowledge
+end note
+
+note top of "Data Access Layer"
+  <b>LAYER 3: Data Access</b>
+
+  Manages persistence
+  • CRUD operations
+  • SQL queries
+  • ORM mapping
+  • No business logic
+end note
+
+note top of "Domain Model"
+  <b>Domain Model</b>
+
+  Business entities
+  • Pure domain objects
+  • Business methods
+  • No infrastructure concerns
+end note
+
+legend right
+  <b>Class Diagram - Deal Management Application</b>
+
+  Shows the static structure of the application,
+  including classes, interfaces, and relationships.
+
+  <b>Layered Architecture:</b>
+
+  <b>1. Presentation Layer (Blue)</b>
+  • DealController - HTTP request/response handling
+  • Extends Jakarta Servlet infrastructure
+  • Depends on: DealService
+
+  <b>2. Business Logic Layer (Orange)</b>
+  • DealService - Business rules and validation
+  • UserService - User management
+  • Depends on: Repository<T> interface
+
+  <b>3. Data Access Layer (Purple)</b>
+  • H2DealRepository - JDBC persistence
+  • H2UserRepository - User persistence
+  • DatabaseManager - Connection management
+  • Implements: Repository<T> interface
+
+  <b>4. Domain Model (Green)</b>
+  • Deal, DealProduct, User
+  • Pure business entities
+  • No framework dependencies
+
+  <b>5. Utilities (Amber)</b>
+  • JsonHelper - JSON serialization
+  • Cross-cutting concerns
+
+  <b>6. Application Bootstrap (Pink)</b>
+  • DealManagementApp - Main entry point
+  • Dependency injection orchestration
+
+  <b>Key Design Patterns:</b>
+  • <b>Layered Architecture:</b> Clear separation by responsibility
+  • <b>Repository Pattern:</b> Data access abstraction
+  • <b>MVC Pattern:</b> Controller-Service-Repository
+  • <b>Singleton Pattern:</b> DatabaseManager
+  • <b>Dependency Injection:</b> Constructor-based
+  • <b>Service Layer:</b> Business logic encapsulation
+
+  <b>SOLID Principles:</b>
+  • <b>SRP:</b> Each class has single responsibility
+  • <b>OCP:</b> Extend via new implementations
+  • <b>LSP:</b> Repository implementations substitutable
+  • <b>ISP:</b> Focused interfaces
+  • <b>DIP:</b> Depend on abstractions (Repository<T>)
+
+  <b>Dependency Flow:</b>
+  Controller → Service → Repository → Database
+  (Each layer depends on abstraction from layer below)
+
+  <b>Audience:</b>
+  • Developers (implementation reference)
+  • Architects (design review)
+  • Code reviewers (structure understanding)
+endlegend
+
+@enduml

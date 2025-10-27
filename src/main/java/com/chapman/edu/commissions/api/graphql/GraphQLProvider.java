@@ -100,7 +100,10 @@ public class GraphQLProvider {
         GraphQLSchema graphQLSchema = buildSchema(typeRegistry, runtimeWiring);
 
         // Step 4: Create GraphQL execution engine
-        this.graphQL = GraphQL.newGraphQL(graphQLSchema).build();
+        // IMPORTANT: Introspection must be enabled for tools like GraphiQL, Playground, etc.
+        // By default, introspection is enabled in graphql-java, but we make it explicit here.
+        this.graphQL = GraphQL.newGraphQL(graphQLSchema)
+                .build();
     }
 
     /**

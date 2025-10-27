@@ -107,7 +107,6 @@ public class AbstractFactoryImplementation {
     public static class StandardCommissionPlanCreator implements CommissionPlanCreator {
         /**
          * Creates a standard commission plan with 5% base rate
-         *
          * @param name the name of the plan (e.g., "Q4 2024 Standard Plan")
          * @param description the description of the plan for documentation
          * @return a CommissionPlan configured with standard rates and rules
@@ -116,22 +115,18 @@ public class AbstractFactoryImplementation {
         public CommissionPlan createCommissionPlan(String name, String description) {
             // Create the base commission plan object with name and currency
             CommissionPlan plan = new CommissionPlan(name, Currency.getInstance("USD"));
-
             // Set unique identifier with STD prefix to indicate standard family
             // Timestamp ensures uniqueness across multiple plan creations
             plan.setId("STD-PLAN-" + System.currentTimeMillis());
-
             // Set validity period - plan is active starting now and ending in 1 year
             // This allows for annual plan reviews and updates
             plan.setEffectiveStartDate(LocalDate.now());
             plan.setEffectiveEndDate(LocalDate.now().plusYears(1));
-
             // Create the base commission rate rule for standard tier
             CommissionRule baseRateRule = new CommissionRule();
             baseRateRule.setId("STD-RULE-" + System.currentTimeMillis());
             baseRateRule.setName("Standard Base Rate");
             baseRateRule.setDescription(description);
-
             // KEY CONFIGURATION: 5% commission rate for standard tier
             // This is the defining characteristic of the standard family
             baseRateRule.setRate(new BigDecimal("0.05"));

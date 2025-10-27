@@ -2,18 +2,6 @@
 
 A RESTful API implementation for the Commission Calculator system using embedded Tomcat and plain Java servlets. This implementation demonstrates modern software engineering principles, design patterns, and REST API best practices.
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Design Patterns](#design-patterns)
-4. [Design Principles](#design-principles)
-5. [API Endpoints](#api-endpoints)
-6. [Running the Server](#running-the-server)
-7. [Testing the API](#testing-the-api)
-8. [Project Structure](#project-structure)
-9. [Key Concepts](#key-concepts)
-
 ## Overview
 
 This REST API provides comprehensive CRUD (Create, Read, Update, Delete) operations for managing:

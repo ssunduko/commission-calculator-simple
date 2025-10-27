@@ -1,0 +1,241 @@
+/**
+ * Protocol Buffer definitions for the Dispute Service.
+ *
+ * This file defines the gRPC service interface and message types for managing
+ * commission disputes in the commission calculator system.
+ */
+
+syntax = "proto3";
+
+package commission;
+
+import "commission_common.proto";
+
+option java_package = "com.chapman.edu.commissions.api.grpc.proto";
+option java_multiple_files = true;
+option java_outer_classname = "DisputeServiceProto";
+
+/**
+ * DisputeComment represents a comment in a dispute discussion thread.
+ *
+ * Disputes maintain a conversation history through comments from
+ * various stakeholders (sales reps, managers, finance admins).
+ */
+message DisputeComment {
+    string id = 1;                  // Unique identifier
+    string dispute_id = 2;          // Reference to parent dispute
+    string user_id = 3;             // ID of user who made the comment
+    string user_name = 4;           // Display name of commenter
+    string text = 5;                // Comment text/content
+    Timestamp created_date = 6;     // When comment was created
+    bool is_system_comment = 7;     // Whether this is an automated system comment
+}
+
+/**
+ * Dispute represents a disagreement about commission calculation.
+ *
+ * Sales representatives can initiate disputes if they believe their
+ * commission was calculated incorrectly. Disputes follow a workflow:
+ * INITIATED → UNDER_REVIEW → (ESCALATED) → RESOLVED/APPROVED/REJECTED
+ */
+message Dispute {
+    string id = 1;                      // Unique identifier (e.g., "DISP-001")
+    string calculation_id = 2;          // ID of the disputed commission calculation
+    string sales_rep_id = 3;            // ID of sales rep who initiated dispute
+    string manager_id = 4;              // ID of assigned manager (optional)
+    string title = 5;                   // Brief description of dispute
+    string description = 6;             // Detailed explanation of the issue
+    DisputeStatus status = 7;           // Current status in the workflow
+    repeated DisputeComment comments = 8;  // Discussion thread
+    Timestamp created_date = 9;         // When dispute was initiated
+    Timestamp last_updated_date = 10;   // Last activity timestamp
+    Timestamp resolved_date = 11;       // When dispute was resolved (optional)
+    string resolved_by = 12;            // ID of user who resolved dispute (optional)
+    string resolution = 13;             // Resolution description/outcome (optional)
+    bool is_escalated = 14;             // Whether dispute has been escalated
+}
+
+/**
+ * Request message for creating a new dispute.
+ */
+message CreateDisputeRequest {
+    string calculation_id = 1;      // ID of the disputed calculation
+    string sales_rep_id = 2;        // ID of sales rep initiating dispute
+    string title = 3;               // Brief description
+    string description = 4;         // Detailed explanation
+}
+
+/**
+ * Response message containing a created dispute.
+ */
+message CreateDisputeResponse {
+    Dispute dispute = 1;  // The newly created dispute
+}
+
+/**
+ * Request message for retrieving a specific dispute by ID.
+ */
+message GetDisputeRequest {
+    string id = 1;  // The dispute ID to retrieve
+}
+
+/**
+ * Response message containing a single dispute.
+ */
+message GetDisputeResponse {
+    Dispute dispute = 1;  // The requested dispute
+}
+
+/**
+ * Request message for listing all disputes with optional filters.
+ */
+message ListDisputesRequest {
+    DisputeStatus status_filter = 1;  // Optional: Filter by status
+    string sales_rep_id_filter = 2;   // Optional: Filter by sales rep
+    bool escalated_only = 3;          // Optional: Only return escalated disputes
+}
+
+/**
+ * Response message containing a list of disputes.
+ */
+message ListDisputesResponse {
+    repeated Dispute disputes = 1;  // List of matching disputes
+    int32 total_count = 2;          // Total number of disputes
+}
+
+/**
+ * Request message for updating an existing dispute.
+ */
+message UpdateDisputeRequest {
+    Dispute dispute = 1;  // The dispute with updated values
+}
+
+/**
+ * Response message containing the updated dispute.
+ */
+message UpdateDisputeResponse {
+    Dispute dispute = 1;  // The updated dispute
+}
+
+/**
+ * Request message for deleting a dispute.
+ */
+message DeleteDisputeRequest {
+    string id = 1;  // ID of the dispute to delete
+}
+
+/**
+ * Response message for delete operation.
+ */
+message DeleteDisputeResponse {
+    bool success = 1;      // Whether deletion was successful
+    string message = 2;    // Optional message
+}
+
+/**
+ * Request message for adding a comment to a dispute.
+ *
+ * Demonstrates a more specialized RPC beyond basic CRUD.
+ */
+message AddCommentRequest {
+    string dispute_id = 1;      // ID of the dispute
+    string user_id = 2;         // ID of user adding comment
+    string user_name = 3;       // Display name of user
+    string text = 4;            // Comment text
+}
+
+/**
+ * Response message for add comment operation.
+ */
+message AddCommentResponse {
+    Dispute dispute = 1;  // The updated dispute with new comment
+}
+
+/**
+ * Request message for escalating a dispute.
+ *
+ * Demonstrates domain-specific operations in gRPC services.
+ */
+message EscalateDisputeRequest {
+    string dispute_id = 1;      // ID of the dispute to escalate
+    string reason = 2;          // Reason for escalation
+}
+
+/**
+ * Response message for escalate operation.
+ */
+message EscalateDisputeResponse {
+    Dispute dispute = 1;  // The escalated dispute
+}
+
+/**
+ * DisputeService defines the gRPC service interface for dispute management.
+ *
+ * This service manages commission disputes and demonstrates:
+ * - Standard CRUD operations
+ * - Domain-specific operations (AddComment, EscalateDispute)
+ * - Workflow state management
+ * - Nested message structures (comments within disputes)
+ *
+ * Key Concepts Demonstrated:
+ * - Beyond CRUD: Business-specific methods (AddComment, EscalateDispute)
+ * - Workflow management through status transitions
+ * - Nested collections (comments in disputes)
+ * - Timestamping for audit trail
+ */
+service DisputeService {
+    /**
+     * Create a new dispute.
+     *
+     * Analogous to: POST /api/v1/disputes
+     */
+    rpc CreateDispute(CreateDisputeRequest) returns (CreateDisputeResponse);
+
+    /**
+     * Retrieve a specific dispute by ID.
+     *
+     * Analogous to: GET /api/v1/disputes/{id}
+     */
+    rpc GetDispute(GetDisputeRequest) returns (GetDisputeResponse);
+
+    /**
+     * List all disputes with optional filtering.
+     *
+     * Analogous to: GET /api/v1/disputes?status=INITIATED&salesRepId=USER-1
+     */
+    rpc ListDisputes(ListDisputesRequest) returns (ListDisputesResponse);
+
+    /**
+     * Update an existing dispute.
+     *
+     * Analogous to: PUT /api/v1/disputes/{id}
+     */
+    rpc UpdateDispute(UpdateDisputeRequest) returns (UpdateDisputeResponse);
+
+    /**
+     * Delete a dispute by ID.
+     *
+     * Analogous to: DELETE /api/v1/disputes/{id}
+     */
+    rpc DeleteDispute(DeleteDisputeRequest) returns (DeleteDisputeResponse);
+
+    /**
+     * Add a comment to a dispute.
+     *
+     * Specialized operation for adding comments to dispute thread.
+     * Demonstrates domain-specific RPC methods beyond basic CRUD.
+     *
+     * Analogous to: POST /api/v1/disputes/{id}/comments
+     */
+    rpc AddComment(AddCommentRequest) returns (AddCommentResponse);
+
+    /**
+     * Escalate a dispute to higher management.
+     *
+     * Changes dispute status and notifies appropriate stakeholders.
+     * Demonstrates workflow state transition operations.
+     *
+     * Analogous to: POST /api/v1/disputes/{id}/escalate
+     */
+    rpc EscalateDispute(EscalateDisputeRequest) returns (EscalateDisputeResponse);
+}

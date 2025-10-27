@@ -1,0 +1,211 @@
+/**
+ * Protocol Buffer definitions for the Commission Plan Service.
+ *
+ * This file defines the gRPC service interface and message types for managing
+ * commission plans in the commission calculator system.
+ */
+
+syntax = "proto3";
+
+package commission;
+
+import "commission_common.proto";
+
+option java_package = "com.chapman.edu.commissions.api.grpc.proto";
+option java_multiple_files = true;
+option java_outer_classname = "CommissionPlanServiceProto";
+
+/**
+ * CommissionRule defines a rule for calculating commissions.
+ *
+ * Rules can be product-based, tier-based, or have custom conditions.
+ * This is a simplified representation of the Java CommissionRule class.
+ */
+message CommissionRule {
+    string id = 1;                  // Unique identifier
+    string name = 2;                // Rule name/description
+    string rule_type = 3;           // Type of rule (e.g., "PERCENTAGE", "FLAT_FEE")
+    Decimal rate = 4;               // Commission rate (percentage or amount)
+    string product_category = 5;    // Optional: Applies only to specific product category
+}
+
+/**
+ * CommissionTier defines a tiered commission structure.
+ *
+ * Tiers allow different commission rates based on deal value ranges.
+ * Example: 0-10k = 10%, 10k-50k = 12%, 50k+ = 15%
+ */
+message CommissionTier {
+    string id = 1;                  // Unique identifier
+    Decimal min_value = 2;          // Minimum deal value for this tier
+    Decimal max_value = 3;          // Maximum deal value (empty = no limit)
+    Decimal rate = 4;               // Commission rate for this tier
+    int32 tier_order = 5;           // Order of tier (0 = first tier)
+}
+
+/**
+ * BonusRule defines conditions for earning bonuses.
+ *
+ * Bonuses are additional compensation on top of base commission.
+ * Can be based on quota achievement, deal size, timing, etc.
+ */
+message BonusRule {
+    string id = 1;                  // Unique identifier
+    string name = 2;                // Bonus name/description
+    string bonus_type = 3;          // Type (e.g., "QUOTA_ACHIEVEMENT", "EARLY_CLOSE")
+    Decimal threshold = 4;          // Threshold value to trigger bonus
+    Decimal amount = 5;             // Bonus amount or percentage
+    string condition = 6;           // Description of bonus conditions
+}
+
+/**
+ * CommissionPlan represents a complete commission compensation plan.
+ *
+ * Plans define how sales representatives are compensated, including:
+ * - Base commission rules
+ * - Tiered structures for progressive compensation
+ * - Bonus opportunities
+ * - Effective date ranges
+ */
+message CommissionPlan {
+    string id = 1;                      // Unique identifier (e.g., "PLAN-001")
+    string name = 2;                    // Plan name (e.g., "Q4 2024 Software Sales Plan")
+    repeated CommissionRule rules = 3;  // List of commission rules
+    repeated CommissionTier tiers = 4;  // List of commission tiers
+    repeated BonusRule bonuses = 5;     // List of bonus rules
+    string currency = 6;                // Currency code (e.g., "USD", "EUR")
+    PlanStatus status = 7;              // Current status (DRAFT, ACTIVE, ARCHIVED)
+    Date effective_start_date = 8;      // Date when plan becomes active
+    Date effective_end_date = 9;        // Date when plan expires (optional)
+    Date created_date = 10;             // Date plan was created
+    Date last_modified_date = 11;       // Date of last modification
+    string created_by = 12;             // ID of user who created the plan
+}
+
+/**
+ * Request message for creating a new commission plan.
+ */
+message CreateCommissionPlanRequest {
+    string name = 1;
+    string currency = 2;
+    repeated CommissionRule rules = 3;
+    repeated CommissionTier tiers = 4;
+    repeated BonusRule bonuses = 5;
+    Date effective_start_date = 6;
+    Date effective_end_date = 7;
+}
+
+/**
+ * Response message containing a created commission plan.
+ */
+message CreateCommissionPlanResponse {
+    CommissionPlan plan = 1;  // The newly created plan
+}
+
+/**
+ * Request message for retrieving a specific commission plan by ID.
+ */
+message GetCommissionPlanRequest {
+    string id = 1;  // The plan ID to retrieve
+}
+
+/**
+ * Response message containing a single commission plan.
+ */
+message GetCommissionPlanResponse {
+    CommissionPlan plan = 1;  // The requested plan
+}
+
+/**
+ * Request message for listing all commission plans with optional filters.
+ */
+message ListCommissionPlansRequest {
+    PlanStatus status_filter = 1;  // Optional: Filter by status
+    bool active_only = 2;          // Optional: Only return currently active plans
+}
+
+/**
+ * Response message containing a list of commission plans.
+ */
+message ListCommissionPlansResponse {
+    repeated CommissionPlan plans = 1;  // List of matching plans
+    int32 total_count = 2;              // Total number of plans
+}
+
+/**
+ * Request message for updating an existing commission plan.
+ */
+message UpdateCommissionPlanRequest {
+    CommissionPlan plan = 1;  // The plan with updated values
+}
+
+/**
+ * Response message containing the updated commission plan.
+ */
+message UpdateCommissionPlanResponse {
+    CommissionPlan plan = 1;  // The updated plan
+}
+
+/**
+ * Request message for deleting a commission plan.
+ */
+message DeleteCommissionPlanRequest {
+    string id = 1;  // ID of the plan to delete
+}
+
+/**
+ * Response message for delete operation.
+ */
+message DeleteCommissionPlanResponse {
+    bool success = 1;      // Whether deletion was successful
+    string message = 2;    // Optional message
+}
+
+/**
+ * CommissionPlanService defines the gRPC service interface for commission plan management.
+ *
+ * This service manages commission compensation plans, which define how sales
+ * representatives are compensated for their deals.
+ *
+ * Key Concepts Demonstrated:
+ * - Complex nested message structures (plan contains rules, tiers, bonuses)
+ * - Date range handling for plan effectiveness
+ * - Status lifecycle management (DRAFT → ACTIVE → ARCHIVED)
+ * - Business domain modeling in protobuf
+ */
+service CommissionPlanService {
+    /**
+     * Create a new commission plan.
+     *
+     * Analogous to: POST /api/v1/commission-plans
+     */
+    rpc CreateCommissionPlan(CreateCommissionPlanRequest) returns (CreateCommissionPlanResponse);
+
+    /**
+     * Retrieve a specific commission plan by ID.
+     *
+     * Analogous to: GET /api/v1/commission-plans/{id}
+     */
+    rpc GetCommissionPlan(GetCommissionPlanRequest) returns (GetCommissionPlanResponse);
+
+    /**
+     * List all commission plans with optional filtering.
+     *
+     * Analogous to: GET /api/v1/commission-plans?status=ACTIVE&activeOnly=true
+     */
+    rpc ListCommissionPlans(ListCommissionPlansRequest) returns (ListCommissionPlansResponse);
+
+    /**
+     * Update an existing commission plan.
+     *
+     * Analogous to: PUT /api/v1/commission-plans/{id}
+     */
+    rpc UpdateCommissionPlan(UpdateCommissionPlanRequest) returns (UpdateCommissionPlanResponse);
+
+    /**
+     * Delete a commission plan by ID.
+     *
+     * Analogous to: DELETE /api/v1/commission-plans/{id}
+     */
+    rpc DeleteCommissionPlan(DeleteCommissionPlanRequest) returns (DeleteCommissionPlanResponse);
+}

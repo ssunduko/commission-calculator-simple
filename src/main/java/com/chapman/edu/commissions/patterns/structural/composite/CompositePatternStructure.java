@@ -1,134 +1,94 @@
 package com.chapman.edu.commissions.patterns.structural.composite;
 
+import java.math.BigDecimal;
+
 /**
- * This class demonstrates the structure of the Composite Pattern.
- * 
- * The Composite Pattern is a structural design pattern that lets you compose objects
- * into tree structures to represent part-whole hierarchies. It lets clients treat
+ * CompositePatternStructure defines the core interfaces for the Composite Pattern.
+ *
+ * ## Composite Pattern Overview
+ * The Composite Pattern is a structural design pattern that lets you compose objects into
+ * tree structures to represent part-whole hierarchies. This pattern allows clients to treat
  * individual objects and compositions of objects uniformly.
+ *
+ * ### Key Components:
+ * - **Component**: Declares the interface for objects in the composition
+ * - **Leaf**: Represents leaf objects (no children) in the composition
+ * - **Composite**: Stores child components and implements child-related operations
+ * - **Client**: Manipulates objects through the Component interface
+ *
+ * ### Benefits:
+ * - Simplifies client code by treating objects uniformly
+ * - Makes it easier to add new kinds of components
+ * - Provides flexibility in creating complex tree structures
+ *
+ * ### Application in Commission Calculator:
+ * In the commission calculator domain, we use the Composite Pattern to model:
+ * - **ProductItem** (Leaf): Individual products in a deal
+ * - **SalesDeal** (Composite): A collection of products and/or nested deals
+ * - **SalesComponent** (Component): Common interface for both
+ *
+ * This allows us to calculate commissions on individual products or entire deal hierarchies
+ * using the same interface, simplifying the commission calculation logic.
  */
 public class CompositePatternStructure {
 
     /**
-     * Component - The interface that defines operations common to both simple and complex elements
-     * of the composition.
+     * Component - The base interface that defines operations common to both simple (leaf)
+     * and complex (composite) elements of the composition.
+     *
+     * This is the foundation of the Composite Pattern. It declares the interface that
+     * all objects in the composition tree must implement, enabling clients to work with
+     * both individual objects and compositions uniformly.
+     *
+     * **Key Principle:** By programming to this interface rather than concrete classes,
+     * clients don't need to know whether they're dealing with a leaf or composite object.
      */
     public interface Component {
         /**
          * Operation that both leaf and composite objects must implement.
+         *
+         * For leaf objects, this method performs the operation directly.
+         * For composite objects, this method typically delegates to all children
+         * and combines their results.
+         *
+         * @return the result of the operation as a double
          */
         double operation();
     }
-    /**
-     * Leaf - Represents individual objects in the composition that have no children.
-     */
-    public static class Leaf implements Component {
-        private double value;
-        public Leaf(double value) {
-            this.value = value;
-        }
-        /**
-         * Implementation of the operation for a leaf object.
-         */
-        @Override
-        public double operation() {
-            return value;
-        }
-    }
-    /**
-     * Composite - Represents complex objects that may have children. Composites store
-     * child components and delegate operations to them.
-     */
-    public static class Composite implements Component {
-        private java.util.List<Component> children = new java.util.ArrayList<>();
-        private String name;
-        /**
-         * Implementation of the operation for a composite object.
-         * Typically, this delegates the operation to all children and combines the results.
-         */
-        @Override
-        public double operation() {
-            double sum = 0;
-            for (Component child : children) {
-                sum += child.operation();
-            }
-            return sum;
-        }
-
-        public Composite(String name) {
-            this.name = name;
-        }
-
-        /**
-         * Add a child component to this composite.
-         */
-        public void add(Component component) {
-            children.add(component);
-        }
-
-        /**
-         * Remove a child component from this composite.
-         */
-        public void remove(Component component) {
-            children.remove(component);
-        }
-
-        /**
-         * Get all child components.
-         */
-        public java.util.List<Component> getChildren() {
-            return children;
-        }
-    }
 
     /**
-     * Client - Uses the component interface to interact with objects in the composition.
+     * SalesComponent - The component interface for the commission calculator domain.
+     * This interface defines operations common to both individual products (leaves)
+     * and deals (composites containing products and/or nested deals).
+     *
+     * **Domain Application:**
+     * - **ProductItem** (Leaf): Calculates value for a single product
+     * - **SalesDeal** (Composite): Calculates total value of all contained products/deals
+     *
+     * This allows the system to calculate commissions uniformly, whether dealing with
+     * a single product sale or a complex multi-level deal structure.
      */
-    public static class Client {
+    public interface SalesComponent {
         /**
-         * The client works with all components through the component interface.
+         * Calculate the monetary value of this sales component.
+         *
+         * **Polymorphic Behavior:**
+         * - For ProductItem (Leaf): Returns (price * quantity) - discount
+         * - For SalesDeal (Composite): Returns sum of all child component values
+         *
+         * This demonstrates the power of the Composite Pattern - the same method call
+         * works recursively through the entire object tree, automatically handling complexity.
+         * @return the calculated value as a BigDecimal
          */
-        public void doSomething(Component component) {
-            System.out.println("Result: " + component.operation());
-        }
-    }
+        BigDecimal calculateValue();
 
-    /**
-     * Example of how the Composite Pattern structure works.
-     */
-    public static void main(String[] args) {
-        // Create leaf objects
-        Leaf leaf1 = new Leaf(5);
-        Leaf leaf2 = new Leaf(10);
-        Leaf leaf3 = new Leaf(15);
-
-        // Create composite objects
-        Composite composite1 = new Composite("Composite 1");
-        Composite composite2 = new Composite("Composite 2");
-        Composite root = new Composite("Root");
-
-        // Build the tree structure
-        composite1.add(leaf1);
-        composite1.add(leaf2);
-        
-        composite2.add(leaf3);
-        
-        root.add(composite1);
-        root.add(composite2);
-
-        // Client uses components
-        Client client = new Client();
-        
-        // Client can work with leaf objects
-        System.out.println("Client working with leaf:");
-        client.doSomething(leaf1);
-        
-        // Client can also work with composite objects the same way
-        System.out.println("Client working with composite:");
-        client.doSomething(composite1);
-        
-        // Client can work with the entire tree
-        System.out.println("Client working with the entire tree:");
-        client.doSomething(root);
+        /**
+         * Get the name/title of this sales component.
+         *
+         * Provides a human-readable identifier for reporting and display purposes.
+         * Works uniformly for both individual products and deal collections.
+         * @return the name as a String
+         */
+        String getName();
     }
 }

@@ -1,0 +1,143 @@
+/**
+ * Common Protocol Buffer definitions for the Commission Calculator gRPC API.
+ *
+ * This file defines common data types and messages used across multiple services.
+ * Protocol Buffers (protobuf) is a language-neutral, platform-neutral mechanism
+ * for serializing structured data, developed by Google.
+ *
+ * Key Concepts:
+ * - syntax = "proto3": Uses Protocol Buffers version 3 syntax
+ * - package: Namespace to prevent name collisions
+ * - option java_package: Specifies the Java package for generated classes
+ * - option java_multiple_files: Generates separate class files for each message
+ * - message: Defines a structured data type (like a class)
+ * - enum: Defines an enumeration type
+ * - Field numbers (1, 2, 3...): Unique identifiers for fields in the binary encoding
+ */
+
+syntax = "proto3";
+
+package commission;
+
+// Java-specific options for code generation
+option java_package = "com.chapman.edu.commissions.api.grpc.proto";
+option java_multiple_files = true;
+option java_outer_classname = "CommissionCommonProto";
+
+/**
+ * Decimal message type for representing monetary values and percentages.
+ *
+ * Protocol Buffers doesn't have a native decimal type, so we represent
+ * decimal values as a string to preserve precision (important for financial calculations).
+ * The string should contain a valid decimal number (e.g., "123.45", "0.15").
+ *
+ * Alternative approaches:
+ * - Use int64 for cents/smallest unit (loses flexibility with different currencies)
+ * - Use double (loses precision for financial calculations)
+ * - Use string (chosen approach - preserves precision and flexibility)
+ */
+message Decimal {
+    string value = 1;  // String representation of decimal value (e.g., "123.45")
+}
+
+/**
+ * Timestamp message for date-time values.
+ *
+ * Represents a point in time as milliseconds since Unix epoch (Jan 1, 1970 00:00:00 UTC).
+ * This is compatible with Java's LocalDateTime when converted properly.
+ */
+message Timestamp {
+    int64 millis = 1;  // Milliseconds since epoch
+}
+
+/**
+ * Date message for date-only values (no time component).
+ *
+ * Represents a date using year, month, and day components.
+ * Compatible with Java's LocalDate.
+ */
+message Date {
+    int32 year = 1;   // Year (e.g., 2024)
+    int32 month = 2;  // Month (1-12)
+    int32 day = 3;    // Day of month (1-31)
+}
+
+/**
+ * Enum representing the status of a deal in the sales pipeline.
+ *
+ * Enums in protobuf:
+ * - Must start with value 0 (the default value)
+ * - Values are integers but have symbolic names
+ * - Can be referenced by name in generated code
+ */
+enum DealStatus {
+    DEAL_STATUS_UNSPECIFIED = 0;  // Default value (required in proto3)
+    OPEN = 1;                      // Deal is currently being worked on
+    WON = 2;                       // Deal was successfully closed
+    LOST = 3;                      // Deal was lost to competition or abandoned
+    CANCELLED = 4;                 // Deal was cancelled by customer or company
+}
+
+/**
+ * Enum representing user roles in the commission system.
+ *
+ * Different roles have different permissions and capabilities:
+ * - SALES_REP: Can view their own deals and commissions
+ * - SALES_MANAGER: Can view and manage team members' data
+ * - FINANCE_ADMIN: Can configure commission plans and approve payouts
+ * - SYSTEM_ADMIN: Full system access and configuration
+ */
+enum UserRole {
+    USER_ROLE_UNSPECIFIED = 0;  // Default value
+    SALES_REP = 1;              // Sales representative
+    SALES_MANAGER = 2;          // Sales manager
+    FINANCE_ADMIN = 3;          // Finance administrator
+    SYSTEM_ADMIN = 4;           // System administrator
+}
+
+/**
+ * Enum representing the status of a commission plan.
+ *
+ * Commission plans go through a lifecycle:
+ * DRAFT → ACTIVE → ARCHIVED
+ */
+enum PlanStatus {
+    PLAN_STATUS_UNSPECIFIED = 0;  // Default value
+    DRAFT = 1;                     // Plan is being created/edited
+    ACTIVE = 2;                    // Plan is currently in use
+    ARCHIVED = 3;                  // Plan is no longer active but kept for records
+}
+
+/**
+ * Enum representing the status of a commission dispute.
+ *
+ * Disputes follow a workflow through these statuses.
+ */
+enum DisputeStatus {
+    DISPUTE_STATUS_UNSPECIFIED = 0;  // Default value
+    INITIATED = 1;                    // Dispute has been created
+    UNDER_REVIEW = 2;                 // Dispute is being investigated
+    ESCALATED = 3;                    // Dispute has been escalated to higher management
+    RESOLVED = 4;                     // Dispute has been resolved
+    APPROVED = 5;                     // Dispute resolution approved
+    REJECTED = 6;                     // Dispute was rejected
+}
+
+/**
+ * Standard response for operations that don't return specific data.
+ *
+ * Used for operations like delete that only need to indicate success/failure.
+ */
+message Empty {
+    // Intentionally empty - represents "void" or "no data"
+}
+
+/**
+ * Standard response wrapper with success indicator and optional message.
+ *
+ * Provides a consistent way to return operation results.
+ */
+message OperationResponse {
+    bool success = 1;      // Whether the operation succeeded
+    string message = 2;    // Optional message (error details or success confirmation)
+}

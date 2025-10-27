@@ -1,0 +1,299 @@
+@startuml Deal Management Application - Component Diagram
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam componentBackgroundColor #f8f9fa
+skinparam componentBorderColor #dee2e6
+skinparam interfaceBackgroundColor #e8f5e9
+skinparam interfaceBorderColor #4caf50
+skinparam arrowColor #6c757d
+skinparam packageBackgroundColor #fafafa
+skinparam packageBorderColor #9e9e9e
+
+' Title
+title Deal Management Application - Component Diagram (C4 Level 3)
+
+' Container boundary
+package "REST API Container" <<Container>> {
+
+    ' Controller Components
+    component DealController <<Component: Servlet>> #e3f2fd
+
+    ' HTTP handling interface
+    interface "HttpServlet" as httpServlet <<Jakarta Servlet API>> #e8f5e9
+    interface "BaseServlet" as baseServlet <<Base Class>> #e8f5e9
+}
+
+package "Business Logic Container" <<Container>> {
+
+    ' Service Components
+    component DealService <<Component: Service>> #fff3e0
+
+    component UserService <<Component: Service>> #fff3e0
+}
+
+package "Data Access Container" <<Container>> {
+
+    ' Repository Components
+    component H2DealRepository <<Component: Repository>> #f3e5f5
+
+    component H2UserRepository <<Component: Repository>> #f3e5f5
+
+    component DatabaseManager <<Component: Singleton>> #f3e5f5
+
+    ' Repository interface
+    interface "Repository<T>" as repoInterface <<Interface>> #e8f5e9
+}
+
+package "Domain Model" <<Package>> {
+    ' Domain model components
+    component Deal <<Component: Entity>> #c8e6c9
+
+    component DealProduct <<Component: Value Object>> #c8e6c9
+    component DealStatus <<Component: Enum>> #c8e6c9
+}
+
+' Infrastructure
+component JsonHelper <<Component: Utility>> #ffe0b2
+
+database "H2 Database" as db <<Database>> #f3e5f5
+
+' Relationships - Controller layer
+DealController -up-|> baseServlet
+baseServlet -up-|> httpServlet
+DealController --> DealService : delegates to
+
+' Relationships - Service layer
+DealService --> repoInterface : uses
+UserService --> repoInterface : uses
+DealService ..> Deal : creates/validates
+
+' Relationships - Repository layer
+H2DealRepository .up.|> repoInterface : implements
+H2UserRepository .up.|> repoInterface : implements
+H2DealRepository --> DatabaseManager : gets connection from
+H2UserRepository --> DatabaseManager : gets connection from
+H2DealRepository --> db : executes SQL
+H2UserRepository --> db : executes SQL
+H2DealRepository ..> Deal : maps to/from
+
+' Relationships - Domain model
+Deal *--> "*" DealProduct : contains
+Deal --> DealStatus : has
+
+' Relationships - Utilities
+DealController ..> JsonHelper : uses for serialization
+H2DealRepository ..> JsonHelper : uses for products
+
+' Component notes
+note bottom of DealController
+  <b>Presentation Layer Controller</b>
+
+  Handles HTTP request/response:
+  • doGet() - List/retrieve deals
+  • doPost() - Create deals, close deal
+  • doPut() - Update deals
+  • doDelete() - Delete deals
+
+  <b>Responsibilities:</b>
+  • Parse HTTP requests
+  • Validate request format
+  • Map to HTTP status codes
+  • Format JSON responses
+
+  <b>No Business Logic!</b>
+  Delegates all business operations
+  to DealService.
+end note
+
+note bottom of DealService
+  <b>Business Logic Layer</b>
+
+  Core business operations:
+  • createDeal() - Validates and creates
+  • updateDeal() - Validates and updates
+  • deleteDeal() - Enforces delete rules
+  • closeDealAsWon() - Closes deal
+  • getDealsByStatus() - Filters deals
+  • calculatePipelineValue() - Metrics
+
+  <b>Business Rules:</b>
+  • "Deal title is required"
+  • "Deal value must be positive"
+  • "Can only delete OPEN deals"
+  • "Can only close OPEN deals"
+
+  <b>Validation Location:</b>
+  validateDeal() private method
+end note
+
+note right of UserService
+  <b>User Management Service</b>
+
+  User operations:
+  • createUser()
+  • updateUser()
+  • authenticate()
+  • findByEmail()
+
+  Used for:
+  • Sales rep assignment
+  • Authentication
+  • User management
+end note
+
+note bottom of H2DealRepository
+  <b>Deal Repository Implementation</b>
+
+  JDBC-based persistence:
+  • findAll() - SELECT * FROM deals
+  • findById() - SELECT by ID
+  • save() - INSERT or UPDATE
+  • deleteById() - DELETE by ID
+
+  <b>Key Techniques:</b>
+  • PreparedStatement (SQL injection prevention)
+  • ResultSet mapping (ORM concepts)
+  • JSON serialization (for products list)
+  • ID generation (DEAL-{UUID})
+
+  <b>SQL Operations:</b>
+  Translates method calls to SQL queries
+  and maps results back to Deal objects.
+end note
+
+note right of H2UserRepository
+  <b>User Repository Implementation</b>
+
+  JDBC-based persistence:
+  • findAll()
+  • findById()
+  • findByEmail()
+  • save()
+  • deleteById()
+
+  Manages user accounts
+  and authentication data.
+end note
+
+note right of DatabaseManager
+  <b>Connection Management</b>
+
+  Singleton that provides:
+  • Connection pooling
+  • Schema initialization
+  • Connection lifecycle
+
+  <b>Pattern:</b>
+  Singleton Pattern
+
+  <b>Thread-safe:</b>
+  Synchronized getInstance()
+end note
+
+note right of repoInterface
+  <b>Repository Interface</b>
+
+  Generic contract:
+  +findAll(): List<T>
+  +findById(id): Optional<T>
+  +save(entity: T): T
+  +deleteById(id): boolean
+  +generateId(): String
+
+  <b>Purpose:</b>
+  Abstracts data access,
+  allows swapping implementations
+  (H2 → MySQL, PostgreSQL, etc.)
+end note
+
+note bottom of Deal
+  <b>Deal Entity</b>
+
+  Domain object representing a sales deal:
+  • id, title, status
+  • salesRepId
+  • products (List<DealProduct>)
+  • closeDate
+  • calculateTotalValue()
+
+  <b>Statuses:</b>
+  OPEN, WON, LOST, CANCELLED
+end note
+
+note right of JsonHelper
+  <b>JSON Serialization Utility</b>
+
+  Uses Gson for:
+  • toJson() - Object to JSON string
+  • fromJson() - JSON string to Object
+
+  Used by:
+  • Controller (request/response)
+  • Repository (products storage)
+end note
+
+note as N1
+  <b>Dependency Injection Flow</b>
+
+  Application startup creates dependencies
+  in bottom-up order:
+
+  1. DatabaseManager.getInstance()
+  2. H2DealRepository(dbManager)
+  3. DealService(dealRepository)
+  4. DealController(dealService)
+
+  Each layer depends on interface/abstraction
+  from layer below (Dependency Inversion Principle).
+end note
+
+legend right
+  <b>C4 Model - Level 3: Component Diagram</b>
+
+  Zooms into the REST API container to show
+  the key components and their interactions.
+
+  <b>Component Definition:</b>
+  A component is a grouping of related functionality
+  encapsulated behind a well-defined interface.
+
+  <b>Layered Architecture:</b>
+
+  <b>Layer 1: Presentation (Controller)</b>
+  • DealController - HTTP request/response handling
+  • Extends BaseServlet for common functionality
+  • No business logic, only HTTP concerns
+
+  <b>Layer 2: Business Logic (Service)</b>
+  • DealService - Business rules and validation
+  • UserService - User management
+  • Core business operations and rules
+
+  <b>Layer 3: Data Access (Repository)</b>
+  • H2DealRepository - Deal persistence
+  • H2UserRepository - User persistence
+  • Repository<T> interface for abstraction
+  • DatabaseManager - Connection management
+
+  <b>Cross-Cutting:</b>
+  • JsonHelper - JSON serialization utility
+  • Deal, DealProduct - Domain model
+
+  <b>Key Patterns:</b>
+  • Layered Architecture (separation of concerns)
+  • Repository Pattern (data abstraction)
+  • Dependency Injection (constructor-based)
+  • Singleton (DatabaseManager)
+
+  <b>Dependencies Flow Down:</b>
+  Controller → Service → Repository → Database
+
+  <b>Audience:</b>
+  • Developers
+  • Technical architects
+  • Code reviewers
+endlegend
+
+@enduml

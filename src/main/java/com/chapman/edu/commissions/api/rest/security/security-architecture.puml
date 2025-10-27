@@ -1,0 +1,413 @@
+@startuml Integrated Security Authentication Architecture
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Integrated Security Authentication Architecture - Commission Calculator
+
+' Authentication Token
+class AuthenticationToken <<ValueObject>> {
+  -scheme: String
+  -credentials: String
+  -username: String
+  -password: String
+  +basic(username: String, password: String): AuthenticationToken
+  +bearer(token: String): AuthenticationToken
+  +apiKey(apiKey: String): AuthenticationToken
+  +getScheme(): String
+  +getCredentials(): String
+  +getUsername(): String
+  +getPassword(): String
+  +isBasic(): boolean
+  +isBearer(): boolean
+  +isApiKey(): boolean
+}
+
+' User Principal
+class UserPrincipal <<Principal>> {
+  -userId: String
+  -username: String
+  -email: String
+  -roles: Set<UserRole>
+  -authenticated: boolean
+  +UserPrincipal(userId: String, username: String, email: String, roles: Set<UserRole>)
+  +anonymous(): UserPrincipal
+  +getUserId(): String
+  +getUsername(): String
+  +getRoles(): Set<UserRole>
+  +isAuthenticated(): boolean
+  +hasRole(role: UserRole): boolean
+  +hasAnyRole(roles: UserRole...): boolean
+  +hasAllRoles(roles: UserRole...): boolean
+}
+
+' Security Context
+class SecurityContext <<ThreadLocal>> {
+  -CURRENT_USER: ThreadLocal<UserPrincipal>
+  +setCurrentUser(principal: UserPrincipal): void
+  +getCurrentUser(): UserPrincipal
+  +isAuthenticated(): boolean
+  +clear(): void
+  +getCurrentUserId(): String
+  +getCurrentUsername(): String
+}
+
+' Authenticator Interface
+interface Authenticator <<Strategy>> {
+  +authenticate(token: AuthenticationToken): Optional<UserPrincipal>
+  +getSupportedScheme(): String
+  +supports(token: AuthenticationToken): boolean
+}
+
+' Basic Authenticator
+class BasicAuthenticator <<ConcreteStrategy>> {
+  -userRepository: Repository<User>
+  +BasicAuthenticator(userRepository: Repository<User>)
+  +authenticate(token: AuthenticationToken): Optional<UserPrincipal>
+  +getSupportedScheme(): String
+  -validatePassword(password: String, user: User): boolean
+}
+
+' JWT Authenticator
+class JwtAuthenticator <<ConcreteStrategy>> {
+  -secretKey: String
+  -tokenCache: Map<String, UserPrincipal>
+  +JwtAuthenticator(secretKey: String)
+  +authenticate(token: AuthenticationToken): Optional<UserPrincipal>
+  +getSupportedScheme(): String
+  -validateAndExtractPrincipal(jwt: String): Optional<UserPrincipal>
+  +generateSampleToken(principal: UserPrincipal): String
+  +getSampleToken(role: UserRole): String
+}
+
+' Authentication Manager
+class AuthenticationManager <<ChainOfResponsibility>> {
+  -authenticators: List<Authenticator>
+  +AuthenticationManager()
+  +addAuthenticator(authenticator: Authenticator): AuthenticationManager
+  +authenticate(token: AuthenticationToken): Optional<UserPrincipal>
+  +supportsScheme(scheme: String): boolean
+  +getSupportedSchemes(): String[]
+}
+
+' Security Filter
+class SecurityFilter <<Filter>> {
+  -authenticationManager: AuthenticationManager
+  -requireAuthentication: boolean
+  +SecurityFilter(authenticationManager: AuthenticationManager, requireAuthentication: boolean)
+  +doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): void
+  -extractAuthenticationToken(request: HttpServletRequest): Optional<AuthenticationToken>
+  -parseBasicAuth(encodedCredentials: String): Optional<AuthenticationToken>
+  -sendAuthenticationError(response: HttpServletResponse, message: String): void
+}
+
+' Authorization Helper
+class AuthorizationHelper <<Utility>> {
+  +requireAuthentication(response: HttpServletResponse): boolean
+  +requireRole(role: UserRole, response: HttpServletResponse): boolean
+  +requireAnyRole(response: HttpServletResponse, roles: UserRole...): boolean
+  +requireAllRoles(response: HttpServletResponse, roles: UserRole...): boolean
+  +requireOwnerOrAdmin(resourceOwnerId: String, response: HttpServletResponse): boolean
+  +sendUnauthorizedError(response: HttpServletResponse, message: String): void
+  +sendForbiddenError(response: HttpServletResponse, message: String): void
+}
+
+' Secured Annotation
+annotation Secured <<Annotation>> {
+  +roles(): UserRole[]
+  +requireAll(): boolean
+  +deniedMessage(): String
+}
+
+' User Model (from domain)
+class User <<DomainModel>> {
+  -id: String
+  -username: String
+  -email: String
+  -roles: Set<UserRole>
+  -active: boolean
+}
+
+' User Role Enum
+enum UserRole <<Enum>> {
+  SALES_REP
+  SALES_MANAGER
+  FINANCE_ADMIN
+  SYSTEM_ADMIN
+}
+
+' Repository Interface
+interface Repository<T> <<Interface>> {
+  +findAll(): List<T>
+  +findById(id: String): Optional<T>
+}
+
+' Relationships - Strategy Pattern
+Authenticator <|.. BasicAuthenticator
+Authenticator <|.. JwtAuthenticator
+
+' Relationships - Authentication Manager
+AuthenticationManager o--> "0..*" Authenticator : manages >
+AuthenticationManager ..> AuthenticationToken : uses >
+AuthenticationManager ..> UserPrincipal : returns >
+
+' Relationships - Security Filter
+SecurityFilter o--> "1" AuthenticationManager : uses >
+SecurityFilter ..> AuthenticationToken : creates >
+SecurityFilter ..> SecurityContext : sets >
+
+' Relationships - Authenticators
+BasicAuthenticator ..> AuthenticationToken : validates >
+BasicAuthenticator ..> UserPrincipal : creates >
+BasicAuthenticator o--> "1" Repository : uses >
+JwtAuthenticator ..> AuthenticationToken : validates >
+JwtAuthenticator ..> UserPrincipal : creates >
+
+' Relationships - Security Context
+SecurityContext o--> "1" UserPrincipal : stores >
+
+' Relationships - User Principal
+UserPrincipal o--> "0..*" UserRole : has >
+
+' Relationships - Authorization Helper
+AuthorizationHelper ..> SecurityContext : queries >
+AuthorizationHelper ..> UserPrincipal : checks >
+AuthorizationHelper ..> UserRole : validates >
+
+' Relationships - Repository to User
+Repository ..> User : manages >
+User o--> "0..*" UserRole : has >
+
+' Component notes
+note right of AuthenticationToken
+  <b>Value Object - Credentials</b>
+
+  Immutable object encapsulating
+  authentication credentials.
+
+  <b>Supported Schemes:</b>
+  • Basic: username + password
+  • Bearer: JWT token
+  • ApiKey: API key
+
+  <b>Factory Methods:</b>
+  • basic(user, pass)
+  • bearer(token)
+  • apiKey(key)
+
+  <b>Security:</b>
+  toString() doesn't expose credentials
+end note
+
+note left of UserPrincipal
+  <b>Principal Pattern</b>
+
+  Represents authenticated user identity.
+
+  <b>Contains:</b>
+  • User ID and username
+  • Email address
+  • Assigned roles
+  • Authentication status
+
+  <b>Role Checking:</b>
+  • hasRole(role)
+  • hasAnyRole(roles...)
+  • hasAllRoles(roles...)
+
+  <b>Immutable:</b> Roles set is unmodifiable
+end note
+
+note bottom of SecurityContext
+  <b>Thread-Local Storage</b>
+
+  Stores current user per request thread.
+
+  <b>Lifecycle:</b>
+  1. Filter sets user on request start
+  2. Available throughout request processing
+  3. Filter clears on request completion
+
+  <b>Thread Safety:</b>
+  Each thread has isolated context
+
+  <b>Usage:</b>
+  UserPrincipal user = SecurityContext.getCurrentUser();
+end note
+
+note right of Authenticator
+  <b>Strategy Pattern</b>
+
+  Interface for authentication strategies.
+
+  <b>Implementations:</b>
+  • BasicAuthenticator: username/password
+  • JwtAuthenticator: JWT tokens
+  • (Extensible for OAuth, SAML, etc.)
+
+  <b>Dependency Inversion:</b>
+  High-level components depend on
+  this abstraction, not concrete types
+end note
+
+note bottom of BasicAuthenticator
+  <b>Basic Authentication Strategy</b>
+
+  Validates username/password credentials
+  against user repository.
+
+  <b>Process:</b>
+  1. Extract username/password from token
+  2. Find user in repository
+  3. Validate password (simplified)
+  4. Check if user is active
+  5. Create and return principal
+
+  <b>Educational Note:</b>
+  Production systems should hash passwords
+  using bcrypt, Argon2, etc.
+end note
+
+note bottom of JwtAuthenticator
+  <b>JWT Authentication Strategy</b>
+
+  Validates JWT Bearer tokens.
+
+  <b>Educational Implementation:</b>
+  • Uses simple token cache
+  • No actual JWT parsing/validation
+
+  <b>Production Implementation:</b>
+  • Parse JWT structure
+  • Verify signature (HMAC, RSA)
+  • Validate expiration
+  • Extract claims (user, roles)
+  • Libraries: java-jwt, jjwt
+
+  <b>Sample Tokens:</b>
+  Includes sample tokens for demo
+end note
+
+note left of AuthenticationManager
+  <b>Chain of Responsibility</b>
+
+  Coordinates multiple authenticators.
+
+  <b>Process:</b>
+  1. Receive authentication token
+  2. Find supporting authenticator
+  3. Delegate authentication
+  4. Return result
+
+  <b>Benefits:</b>
+  • Support multiple auth schemes
+  • Easy to add new authenticators
+  • Centralized authentication logic
+end note
+
+note bottom of SecurityFilter
+  <b>Intercepting Filter Pattern</b>
+
+  Intercepts all HTTP requests to
+  perform authentication.
+
+  <b>Flow:</b>
+  1. Extract credentials from headers
+  2. Authenticate via manager
+  3. Set SecurityContext if successful
+  4. Chain to next filter/servlet
+  5. Clear context in finally block
+
+  <b>Supported Headers:</b>
+  • Authorization: Basic ...
+  • Authorization: Bearer ...
+  • X-API-Key: ...
+
+  <b>Configuration:</b>
+  Can require authentication or
+  allow anonymous access
+end note
+
+note right of AuthorizationHelper
+  <b>Utility Class - Authorization</b>
+
+  Convenient methods for checking
+  permissions in servlets.
+
+  <b>Methods:</b>
+  • requireAuthentication()
+  • requireRole(role)
+  • requireAnyRole(roles...)
+  • requireAllRoles(roles...)
+  • requireOwnerOrAdmin(ownerId)
+
+  <b>Auto-responds:</b>
+  Sends 401/403 errors automatically
+  when authorization fails
+end note
+
+note left of Secured
+  <b>Declarative Security</b>
+
+  Annotation for marking secured endpoints.
+
+  <b>Example:</b>
+  @Secured(roles = {SALES_MANAGER})
+  public void doPost(...) { }
+
+  <b>Future Enhancement:</b>
+  Could be processed by aspect/filter
+  to enforce security automatically
+end note
+
+' Legend
+legend right
+  <b>Integrated Security Architecture:</b>
+
+  <b>Authentication Flow:</b>
+  1. Client sends credentials in HTTP header
+  2. SecurityFilter intercepts request
+  3. Filter extracts AuthenticationToken
+  4. AuthenticationManager finds matching Authenticator
+  5. Authenticator validates credentials
+  6. UserPrincipal created and stored in SecurityContext
+  7. Request proceeds to servlet
+  8. Servlet accesses user via SecurityContext
+  9. Filter clears SecurityContext after response
+
+  <b>Key Design Patterns:</b>
+  • Strategy Pattern: Multiple authentication strategies
+  • Chain of Responsibility: Authenticator selection
+  • Intercepting Filter: Request interception
+  • Thread-Local Storage: Request-scoped context
+  • Value Object: Immutable credentials
+
+  <b>Supported Authentication Schemes:</b>
+  • <b>Basic:</b> Authorization: Basic base64(user:pass)
+  • <b>Bearer:</b> Authorization: Bearer jwt-token
+  • <b>API Key:</b> X-API-Key: api-key
+
+  <b>Authorization Levels:</b>
+  • <b>Authentication:</b> User must be logged in
+  • <b>Role-Based:</b> User must have specific roles
+  • <b>Owner-Based:</b> User must own resource or be admin
+
+  <b>HTTP Status Codes:</b>
+  • 401 Unauthorized: Authentication required/failed
+  • 403 Forbidden: Authenticated but insufficient permissions
+
+  <b>Security Best Practices Demonstrated:</b>
+  • Separation of authentication and authorization
+  • Immutable credentials and principals
+  • Thread-safe context management
+  • Extensible authentication strategies
+  • Clear security abstractions
+endlegend
+
+@enduml

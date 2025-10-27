@@ -317,8 +317,7 @@ public class GraphQLServlet extends HttpServlet {
                                 "method", "POST",
                                 "body", Map.of(
                                         "query", "query { deals { id title value } }",
-                                        "variables", Map.of(),
-                                        "operationName", null
+                                        "variables", Map.of()
                                 )
                         ),
                         "get", Map.of(

@@ -1,5 +1,7 @@
 package com.chapman.edu.commissions.api.rest;
 
+import com.chapman.edu.commissions.api.rest.security.*;
+import com.chapman.edu.commissions.api.rest.version.VersionedDealServlet;
 import com.chapman.edu.commissions.model.CommissionPlan;
 import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.Dispute;
@@ -7,6 +9,8 @@ import com.chapman.edu.commissions.model.User;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
 
 import java.io.File;
 
@@ -110,10 +114,12 @@ public class ApiServer {
         // Pattern: Tomcat.addServlet(context, servletName, servletInstance)
         // Pattern: context.addServletMappingDecoded(urlPattern, servletName)
 
-        // Deal servlet: Handles /api/v1/deals/*
-        String dealServletName = "DealServlet";
-        Tomcat.addServlet(context, dealServletName, new DealServlet(dealRepository));
-        context.addServletMappingDecoded("/api/v1/deals/*", dealServletName);
+        // Versioned Deal servlet: Handles /api/v1/deals/* and /api/v2/deals/*
+        // Uses path-based versioning to route to appropriate version handler
+        String versionedDealServletName = "VersionedDealServlet";
+        Tomcat.addServlet(context, versionedDealServletName, new VersionedDealServlet(dealRepository));
+        context.addServletMappingDecoded("/api/v1/deals/*", versionedDealServletName);
+        context.addServletMappingDecoded("/api/v2/deals/*", versionedDealServletName);
 
         // User servlet: Handles /api/v1/users/*
         String userServletName = "UserServlet";
@@ -130,7 +136,47 @@ public class ApiServer {
         Tomcat.addServlet(context, disputeServletName, new DisputeServlet(disputeRepository));
         context.addServletMappingDecoded("/api/v1/disputes/*", disputeServletName);
 
+        // Configure security filter for V2 endpoints (requires authentication)
+        configureSecurityFilter(context);
+
         System.out.println("✓ Servlets registered successfully");
+        System.out.println("✓ Security filter configured for V2 endpoints (authentication required)");
+    }
+
+    /**
+     * Configure security filter for V2 API endpoints.
+     *
+     * This demonstrates:
+     * - V1 endpoints: Optional authentication (backward compatibility)
+     * - V2 endpoints: Required authentication (enhanced security)
+     * - Multiple authentication schemes (Basic, JWT, API Key)
+     *
+     * @param context The Tomcat context
+     */
+    private void configureSecurityFilter(Context context) {
+        // Create authenticators
+        Authenticator basicAuthenticator = new BasicAuthenticator(userRepository);
+        Authenticator jwtAuthenticator = new JwtAuthenticator("demo-secret-key-change-in-production");
+
+        // Create authentication manager and register authenticators
+        AuthenticationManager authManager = new AuthenticationManager();
+        authManager.addAuthenticator(basicAuthenticator);
+        authManager.addAuthenticator(jwtAuthenticator);
+
+        // Create security filter that REQUIRES authentication for V2
+        SecurityFilter securityFilter = new SecurityFilter(authManager, true);
+
+        // Register the filter
+        FilterDef filterDef = new FilterDef();
+        filterDef.setFilterName("SecurityFilter");
+        filterDef.setFilter(securityFilter);
+        context.addFilterDef(filterDef);
+
+        // Map filter to V2 endpoints only (V1 remains open for backward compatibility)
+        FilterMap filterMap = new FilterMap();
+        filterMap.setFilterName("SecurityFilter");
+        filterMap.addURLPattern("/api/v2/*");
+        context.addFilterMap(filterMap);
     }
 
     /**
@@ -149,10 +195,13 @@ public class ApiServer {
 
         System.out.println("✓ Server started successfully!");
         System.out.println("\nAPI Endpoints:");
-        System.out.println("  - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/deals");
-        System.out.println("  - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/users");
-        System.out.println("  - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/commission-plans");
-        System.out.println("  - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/disputes");
+        System.out.println("  V1 (Deprecated):");
+        System.out.println("    - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/deals");
+        System.out.println("    - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/users");
+        System.out.println("    - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/commission-plans");
+        System.out.println("    - http://localhost:" + tomcat.getConnector().getPort() + "/api/v1/disputes");
+        System.out.println("  V2 (Current):");
+        System.out.println("    - http://localhost:" + tomcat.getConnector().getPort() + "/api/v2/deals");
         System.out.println("\nPress Ctrl+C to stop the server.");
 
         // Block the main thread to keep the server running

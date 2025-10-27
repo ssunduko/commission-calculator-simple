@@ -1,0 +1,292 @@
+@startuml Prototype Pattern - Commission Calculator
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Prototype Pattern - Deal Cloning Implementation
+
+' Prototype Interface
+interface Prototype<T> <<interface>> {
+  +clone(): T
+}
+
+' Domain Models (Base Classes)
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+}
+
+class DealProduct <<DomainModel>> {
+  -id: String
+  -productId: String
+  -productName: String
+  -quantity: int
+  -price: BigDecimal
+  -discount: BigDecimal
+  -dealId: String
+}
+
+' Concrete Prototypes
+class CloneableDeal <<ConcretePrototype>> {
+  +CloneableDeal()
+  +CloneableDeal(title: String, value: BigDecimal, salesRepId: String)
+  +clone(): CloneableDeal
+  +deepClone(): CloneableDeal
+}
+
+class CloneableDealProduct <<ConcretePrototype>> {
+  +CloneableDealProduct()
+  +CloneableDealProduct(productId: String, productName: String, quantity: int, price: BigDecimal)
+  +clone(): CloneableDealProduct
+}
+
+' Prototype Registry
+class PrototypeRegistry <<Registry>> {
+  -prototypes: Map<String, CloneableDeal>
+  +PrototypeRegistry()
+  +addPrototype(key: String, prototype: CloneableDeal): void
+  +getPrototype(key: String): CloneableDeal
+  +removePrototype(key: String): void
+  +containsPrototype(key: String): boolean
+  +size(): int
+  +clear(): void
+  +getKeys(): Iterable<String>
+}
+
+' Enum
+enum DealStatus <<Enum>> {
+  OPEN
+  WON
+  LOST
+  PENDING
+}
+
+' Relationships
+Prototype <|.. CloneableDeal : implements
+Prototype <|.. CloneableDealProduct : implements
+Deal <|-- CloneableDeal : extends
+DealProduct <|-- CloneableDealProduct : extends
+CloneableDeal o--> "*" CloneableDealProduct : contains
+CloneableDeal --> "1" DealStatus : has status
+PrototypeRegistry o--> "*" CloneableDeal : stores
+CloneableDeal ..> CloneableDeal : clones
+CloneableDealProduct ..> CloneableDealProduct : clones
+
+' Pattern component notes
+note right of Prototype
+  <b>Prototype Interface</b>
+  Generic interface defining
+  the clone contract.
+
+  <b>Type Parameter T:</b>
+  Allows each prototype to
+  return its own type from clone().
+
+  <b>Design Benefit:</b>
+  Type-safe cloning without
+  casting required.
+end note
+
+note top of CloneableDeal
+  <b>Concrete Prototype: CloneableDeal</b>
+
+  Extends Deal domain model and implements
+  Prototype interface for cloning capabilities.
+
+  <b>Two Cloning Strategies:</b>
+
+  • <b>clone():</b> Shallow copy
+    - Copies all primitive fields
+    - Creates new ArrayList for products
+    - But shares product references
+    - Fast but modifications affect both
+
+  • <b>deepClone():</b> Deep copy
+    - Copies all primitive fields
+    - Clones each product individually
+    - Complete independence from original
+    - Safer but more expensive
+
+  <b>Use Cases:</b>
+  • Template deals for sales reps
+  • Historical deal recreation
+  • Test data generation
+  • Deal variations (same structure, different values)
+end note
+
+note bottom of CloneableDealProduct
+  <b>Concrete Prototype: CloneableDealProduct</b>
+
+  Cloneable version of DealProduct.
+
+  <b>Clone Implementation:</b>
+  • Creates new instance
+  • Copies all 7 fields
+  • Returns independent copy
+
+  <b>Why Needed:</b>
+  Required for deep cloning of Deal
+  to ensure complete independence.
+end note
+
+note left of PrototypeRegistry
+  <b>Prototype Registry</b>
+
+  Centralized catalog of pre-configured
+  deal templates.
+
+  <b>Purpose:</b>
+  • Store standard deal types
+    (standard, premium, enterprise)
+  • Quick retrieval by name
+  • Avoid recreating templates
+
+  <b>Workflow:</b>
+  1. Create & configure prototype deals
+  2. Register with meaningful keys
+  3. Retrieve prototype by key
+  4. Clone and customize for new deal
+
+  <b>Benefits:</b>
+  • Standardizes deal configurations
+  • Reduces initialization code
+  • Centralized template management
+  • Runtime prototype modification
+end note
+
+note right of DealStatus
+  <b>Enum</b>
+  Deal lifecycle states.
+
+  Immutable, safe to share
+  between clones.
+end note
+
+' Usage examples
+note bottom of CloneableDeal
+  <b>Usage Example - Shallow Clone:</b>
+
+  CloneableDeal prototype = new CloneableDeal(
+      "Standard Deal", new BigDecimal("10000"), "REP-001");
+  prototype.setStatus(DealStatus.OPEN);
+  prototype.addProduct(product);
+
+  // Clone creates new deal with same structure
+  CloneableDeal newDeal = prototype.clone();
+  newDeal.setId("DEAL-NEW-1");
+  newDeal.setTitle("Custom Deal");
+  // Products list is new, but references same product objects
+
+  <b>Usage Example - Deep Clone:</b>
+
+  // Deep clone for complete independence
+  CloneableDeal fullyIndependent = prototype.deepClone();
+  fullyIndependent.setId("DEAL-NEW-2");
+  // Modifying products won't affect prototype
+end note
+
+note bottom of PrototypeRegistry
+  <b>Registry Usage Example:</b>
+
+  // Setup: Create and register templates
+  PrototypeRegistry registry = new PrototypeRegistry();
+
+  CloneableDeal standardTemplate = createStandardDeal();
+  CloneableDeal premiumTemplate = createPremiumDeal();
+
+  registry.addPrototype("standard", standardTemplate);
+  registry.addPrototype("premium", premiumTemplate);
+
+  // Usage: Retrieve and clone
+  CloneableDeal newDeal = registry
+      .getPrototype("premium")
+      .deepClone();
+
+  newDeal.setId("DEAL-001");
+  newDeal.setSalesRepId("REP-002");
+  // Now have independent premium deal with custom values
+end note
+
+' Problem/Solution note
+note top of Deal
+  <b>Domain Model (Base Class)</b>
+
+  Original Deal class from domain model.
+  Not directly cloneable.
+
+  <b>Problem:</b>
+  Deal creation can be complex:
+  • Many fields to set
+  • Products to add
+  • Status and dates to configure
+
+  <b>Solution:</b>
+  Create pre-configured prototype deals
+  and clone them to create new instances.
+
+  <b>Benefits vs Builder:</b>
+  • Builder: Build new from scratch
+  • Prototype: Copy existing configuration
+  • Both: Avoid complex initialization
+  • Use together: Build prototype once,
+    clone many times
+end note
+
+' Legend
+note right of CloneableDealProduct
+  <b>Prototype Pattern in Commission Calculator:</b>
+
+  <b>Problem Solved:</b>
+  Creating similar Deal objects requires:
+  • Repeating same initialization code
+  • Re-adding same products
+  • Reconfiguring same settings
+  • Error-prone manual copying
+
+  <b>Prototype Solution:</b>
+  • Create template deals once
+  • Clone to create new instances
+  • Customize only what changes
+  • Shallow or deep copy as needed
+
+  <b>Implementation Pattern:</b>
+  1. CloneableDeal extends Deal
+  2. Implements Prototype<CloneableDeal>
+  3. Provides clone() and deepClone()
+  4. Registry stores common templates
+
+  <b>Shallow vs Deep Cloning:</b>
+  • <b>Shallow:</b> Fast, shares product objects
+    Use when products won't change
+  • <b>Deep:</b> Complete copy, independent
+    Use when products will be modified
+
+  <b>Key Benefits:</b>
+  • Avoid complex deal creation code
+  • Reuse standard configurations
+  • Create deal variations quickly
+  • Registry provides template catalog
+  • Works well with Builder pattern
+
+  <b>Real-World Usage:</b>
+  • Standard deal templates per region
+  • Product bundle templates
+  • Historical deal recreation
+  • Test data generation
+  • Deal proposal variations
+end note
+
+@enduml

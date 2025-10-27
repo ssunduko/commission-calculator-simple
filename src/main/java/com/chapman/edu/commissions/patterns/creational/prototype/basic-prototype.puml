@@ -1,0 +1,161 @@
+@startuml Basic Prototype Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Prototype Pattern - Core Structure
+
+' Prototype Interface
+interface Prototype <<interface>> {
+  +clone(): Prototype
+}
+
+' Concrete Prototypes
+class ConcretePrototypeA <<ConcretePrototype>> {
+  -fieldA: String
+  -fieldB: int
+  +ConcretePrototypeA(fieldA: String, fieldB: int)
+  +clone(): ConcretePrototypeA
+  +setFieldA(fieldA: String): void
+  +setFieldB(fieldB: int): void
+}
+
+class ConcretePrototypeB <<ConcretePrototype>> {
+  -fieldX: String
+  -fieldY: boolean
+  +ConcretePrototypeB(fieldX: String, fieldY: boolean)
+  +clone(): ConcretePrototypeB
+  +setFieldX(fieldX: String): void
+  +setFieldY(fieldY: boolean): void
+}
+
+' Client
+class Client <<Client>> {
+  -prototype: Prototype
+  +Client(prototype: Prototype)
+  +operation(): Prototype
+}
+
+' Prototype Registry (Optional)
+class PrototypeRegistry <<Registry>> {
+  -prototypes: Map<String, Prototype>
+  +addPrototype(key: String, prototype: Prototype): void
+  +getPrototype(key: String): Prototype
+  +removePrototype(key: String): void
+}
+
+' Relationships
+Prototype <|.. ConcretePrototypeA : implements
+Prototype <|.. ConcretePrototypeB : implements
+Client o--> "1" Prototype : uses
+Client ..> Prototype : clones
+PrototypeRegistry o--> "*" Prototype : stores
+
+' Pattern component notes
+note right of Prototype
+  <b>Prototype Interface</b>
+  Declares cloning method common
+  to all prototypes.
+
+  <b>Key Method:</b>
+  clone() - creates copy of itself
+
+  <b>Purpose:</b>
+  • Provides common contract
+  • Enables polymorphic cloning
+  • Decouples client from concrete types
+end note
+
+note left of ConcretePrototypeA
+  <b>Concrete Prototype</b>
+  Implements clone() to create
+  a copy of itself.
+
+  <b>Clone Implementation:</b>
+  • Create new instance
+  • Copy all fields
+  • Return the copy
+
+  <b>Types of Cloning:</b>
+  • <b>Shallow:</b> Copy field references
+  • <b>Deep:</b> Clone referenced objects too
+end note
+
+note left of Client
+  <b>Client</b>
+  Creates new objects by
+  cloning prototypes instead
+  of using constructors.
+
+  <b>Usage Pattern:</b>
+  Prototype copy = prototype.clone();
+  copy.setFieldA("modified");
+
+  <b>Benefits:</b>
+  • Don't need to know concrete class
+  • Avoid complex initialization
+  • Create variations easily
+end note
+
+note right of PrototypeRegistry
+  <b>Prototype Registry (Optional)</b>
+  Central repository for managing
+  commonly used prototypes.
+
+  <b>Purpose:</b>
+  • Store pre-configured prototypes
+  • Retrieve by name/key
+  • Avoid recreating same prototypes
+
+  <b>Usage:</b>
+  registry.addPrototype("standard", proto);
+  Prototype p = registry.getPrototype("standard");
+  Prototype copy = p.clone();
+end note
+
+' Legend
+note right of Prototype
+  <b>Prototype Pattern Components:</b>
+
+  <b>Prototype:</b> Interface declaring clone()
+  method for creating copies of objects.
+
+  <b>ConcretePrototype:</b> Implements clone()
+  to return a copy of itself. Contains logic
+  for copying all fields.
+
+  <b>Client:</b> Creates new objects by asking
+  prototype to clone itself, rather than
+  calling constructors directly.
+
+  <b>Registry (Optional):</b> Manages a catalog
+  of frequently used prototypes, allowing
+  retrieval and cloning by identifier.
+
+  <b>Key Benefits:</b>
+  • Avoid complex object construction
+  • Hide concrete classes from client
+  • Add/remove prototypes at runtime
+  • Reduce subclassing
+  • Clone objects without coupling to class
+
+  <b>Intent:</b>
+  Specify the kinds of objects to create
+  using a prototypical instance, and create
+  new objects by copying this prototype.
+
+  <b>When to Use:</b>
+  • Object creation is expensive
+  • Many similar objects needed
+  • Avoid complex initialization
+  • Reduce number of classes
+end note
+
+
+@enduml

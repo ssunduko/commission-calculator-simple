@@ -51,7 +51,6 @@ import java.math.BigDecimal;
  * sales representative's tier.
  *
  * PATTERN BENEFITS SHOWN:
- *
  * - Isolation from concrete classes:
  *   Client never references StandardCommissionCalculator or PremiumCommissionCalculator
  *   directly. Works only with CommissionCalculator interface.
@@ -78,7 +77,6 @@ import java.math.BigDecimal;
  * // Risk: Could accidentally mix families
  * calculator = new PremiumCommissionCalculator(); // Now inconsistent!
  * ```
- *
  * With Abstract Factory, client code does this:
  * ```java
  * // Good: Client works with abstractions
@@ -152,16 +150,13 @@ public class AbstractFactoryUsage {
         System.out.println();
 
         // ==================== DEMONSTRATION 1: Standard Family ====================
-
         System.out.println("-".repeat(80));
         System.out.println("DEMONSTRATION 1: Standard Commission System (Entry-Level Tier)");
         System.out.println("-".repeat(80));
         System.out.println();
-
         System.out.println("Processing commission for: " + juniorSalesRep.getFirstName() + " "
             + juniorSalesRep.getLastName() + " (Junior Sales Rep)");
         System.out.println();
-
         // Use the standard commission system factory
         // KEY POINT: Client code works with CommissionSystemFactory interface
         processCommissionWithFactory(
@@ -170,20 +165,14 @@ public class AbstractFactoryUsage {
             juniorSalesRep,
             "Standard"
         );
-
-        System.out.println();
-
         // ==================== DEMONSTRATION 2: Premium Family ====================
-
         System.out.println("-".repeat(80));
         System.out.println("DEMONSTRATION 2: Premium Commission System (High-Performance Tier)");
         System.out.println("-".repeat(80));
         System.out.println();
-
         System.out.println("Processing commission for: " + seniorSalesRep.getFirstName() + " "
             + seniorSalesRep.getLastName() + " (Senior Sales Rep)");
         System.out.println();
-
         // Use the premium commission system factory
         // KEY POINT: Same client code, different factory, different behavior
         processCommissionWithFactory(

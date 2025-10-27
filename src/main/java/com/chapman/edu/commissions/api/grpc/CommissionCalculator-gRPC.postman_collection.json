@@ -1,0 +1,342 @@
+{
+  "info": {
+    "name": "Commission Calculator - gRPC API",
+    "_postman_id": "grpc-commission-calc-001",
+    "description": "Postman collection for testing the Commission Calculator gRPC API.\n\n## Setup\n\n1. **Start the gRPC Server:**\n   ```bash\n   mvn exec:java -Dexec.mainClass=\"com.chapman.edu.commissions.api.grpc.GrpcServer\"\n   ```\n\n2. **Import Proto Files in Postman:**\n   - In Postman, go to APIs > Import\n   - Select all .proto files from `src/main/resources/proto/`\n   - Postman will auto-discover services and methods\n\n3. **Configure Server URL:**\n   - Default: `localhost:50051`\n   - Protocol: gRPC (no TLS for development)\n\n## Services\n\n- **DealService**: Manage sales deals (CRUD operations)\n- **UserService**: Manage users (CRUD operations)\n- **CommissionPlanService**: Manage commission plans (CRUD operations)\n- **DisputeService**: Manage disputes (CRUD + workflow operations)\n\n## Request Examples\n\nSee individual requests below for examples of:\n- Creating resources\n- Retrieving by ID\n- Listing with filters\n- Updating resources\n- Deleting resources\n\n## Notes\n\n- All monetary values use the custom `Decimal` type (string-based for precision)\n- Dates use custom `Date` type (year/month/day components)\n- Timestamps use custom `Timestamp` type (milliseconds since epoch)\n- Proto files must be located at: `src/main/resources/proto/`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "DealService",
+      "item": [
+        {
+          "name": "CreateDeal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DealService/CreateDeal",
+                "message": {
+                  "title": "Enterprise Software Deal",
+                  "value": {
+                    "value": "50000.00"
+                  },
+                  "sales_rep_id": "USER-1",
+                  "products": [
+                    {
+                      "product_id": "PROD-1",
+                      "product_name": "Software License",
+                      "quantity": 10,
+                      "price": {
+                        "value": "5000.00"
+                      },
+                      "discount": {
+                        "value": "0.00"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DealService/CreateDeal",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DealService", "CreateDeal"]
+            },
+            "description": "Create a new deal with products.\n\n**Request Fields:**\n- `title`: Deal title/description\n- `value`: Total deal value (Decimal)\n- `sales_rep_id`: ID of sales representative\n- `products`: Optional list of products in the deal\n\n**Response:**\nReturns the created deal with auto-generated ID and timestamps."
+          }
+        },
+        {
+          "name": "GetDeal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DealService/GetDeal",
+                "message": {
+                  "id": "DEAL-1"
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DealService/GetDeal",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DealService", "GetDeal"]
+            },
+            "description": "Retrieve a specific deal by ID.\n\n**Request Fields:**\n- `id`: The deal ID to retrieve\n\n**Response:**\nReturns the deal if found, or NOT_FOUND error if it doesn't exist.\n\n**Example:**\n```json\n{\n  \"id\": \"DEAL-1\"\n}\n```"
+          }
+        },
+        {
+          "name": "ListDeals",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DealService/ListDeals",
+                "message": {}
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DealService/ListDeals",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DealService", "ListDeals"]
+            },
+            "description": "List all deals (no filters).\n\n**Request Fields:**\nEmpty request returns all deals.\n\n**Response:**\nReturns list of deals and total count."
+          }
+        },
+        {
+          "name": "ListDeals (Filtered by Status)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DealService/ListDeals",
+                "message": {
+                  "status_filter": "WON",
+                  "sales_rep_id_filter": ""
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DealService/ListDeals",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DealService", "ListDeals"]
+            },
+            "description": "List deals filtered by status.\n\n**Request Fields:**\n- `status_filter`: Filter by deal status (OPEN, WON, LOST, CANCELLED)\n- `sales_rep_id_filter`: Optional filter by sales rep ID\n\n**Example:**\n```json\n{\n  \"status_filter\": \"WON\"\n}\n```"
+          }
+        },
+        {
+          "name": "UpdateDeal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DealService/UpdateDeal",
+                "message": {
+                  "deal": {
+                    "id": "DEAL-1",
+                    "title": "Updated Enterprise Deal",
+                    "value": {
+                      "value": "75000.00"
+                    },
+                    "status": "WON",
+                    "sales_rep_id": "USER-1",
+                    "products": []
+                  }
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DealService/UpdateDeal",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DealService", "UpdateDeal"]
+            },
+            "description": "Update an existing deal.\n\n**Request Fields:**\n- `deal`: The complete deal object with updated values\n- Must include `id` field\n\n**Response:**\nReturns the updated deal."
+          }
+        },
+        {
+          "name": "DeleteDeal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DealService/DeleteDeal",
+                "message": {
+                  "id": "DEAL-1"
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DealService/DeleteDeal",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DealService", "DeleteDeal"]
+            },
+            "description": "Delete a deal by ID.\n\n**Request Fields:**\n- `id`: The deal ID to delete\n\n**Response:**\nReturns success flag and message.\n\n**Example Response:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Deal deleted successfully\"\n}\n```"
+          }
+        }
+      ],
+      "description": "CRUD operations for managing sales deals."
+    },
+    {
+      "name": "UserService",
+      "item": [
+        {
+          "name": "CreateUser",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.UserService/CreateUser",
+                "message": {
+                  "username": "john.doe",
+                  "email": "john.doe@example.com",
+                  "first_name": "John",
+                  "last_name": "Doe",
+                  "roles": ["SALES_REP"],
+                  "department": "Sales",
+                  "territory": "West Coast"
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.UserService/CreateUser",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.UserService", "CreateUser"]
+            },
+            "description": "Create a new user.\n\n**Request Fields:**\n- `username`: Unique username\n- `email`: Email address\n- `first_name`: First name\n- `last_name`: Last name\n- `roles`: List of user roles (SALES_REP, SALES_MANAGER, FINANCE_ADMIN, SYSTEM_ADMIN)\n- `department`: Department name\n- `territory`: Sales territory"
+          }
+        },
+        {
+          "name": "ListUsers",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.UserService/ListUsers",
+                "message": {
+                  "active_only": true
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.UserService/ListUsers",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.UserService", "ListUsers"]
+            },
+            "description": "List users with optional filters.\n\n**Request Fields:**\n- `role_filter`: Optional filter by role\n- `active_only`: If true, only return active users"
+          }
+        }
+      ],
+      "description": "CRUD operations for managing users."
+    },
+    {
+      "name": "DisputeService",
+      "item": [
+        {
+          "name": "CreateDispute",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DisputeService/CreateDispute",
+                "message": {
+                  "calculation_id": "CALC-1",
+                  "sales_rep_id": "USER-1",
+                  "title": "Incorrect commission calculation",
+                  "description": "The commission was calculated at 10% instead of 15% as per my plan."
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DisputeService/CreateDispute",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DisputeService", "CreateDispute"]
+            },
+            "description": "Create a new commission dispute.\n\n**Request Fields:**\n- `calculation_id`: ID of the disputed calculation\n- `sales_rep_id`: ID of sales rep initiating dispute\n- `title`: Brief description\n- `description`: Detailed explanation of the issue"
+          }
+        },
+        {
+          "name": "AddComment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DisputeService/AddComment",
+                "message": {
+                  "dispute_id": "DISP-1",
+                  "user_id": "USER-2",
+                  "user_name": "Manager Smith",
+                  "text": "I've reviewed the calculation and will escalate this to finance."
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DisputeService/AddComment",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DisputeService", "AddComment"]
+            },
+            "description": "Add a comment to a dispute.\n\nThis is a domain-specific operation beyond basic CRUD.\n\n**Request Fields:**\n- `dispute_id`: ID of the dispute\n- `user_id`: ID of user adding comment\n- `user_name`: Display name of user\n- `text`: Comment text"
+          }
+        },
+        {
+          "name": "EscalateDispute",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "grpc",
+              "grpc": {
+                "method": "commission.DisputeService/EscalateDispute",
+                "message": {
+                  "dispute_id": "DISP-1",
+                  "reason": "Complex calculation requiring senior finance review"
+                }
+              }
+            },
+            "url": {
+              "raw": "grpc://localhost:50051/commission.DisputeService/EscalateDispute",
+              "protocol": "grpc",
+              "host": ["localhost"],
+              "port": "50051",
+              "path": ["commission.DisputeService", "EscalateDispute"]
+            },
+            "description": "Escalate a dispute to higher management.\n\nThis demonstrates workflow state transitions in gRPC.\n\n**Request Fields:**\n- `dispute_id`: ID of the dispute to escalate\n- `reason`: Reason for escalation"
+          }
+        }
+      ],
+      "description": "Manage commission disputes with workflow operations."
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "localhost:50051",
+      "type": "string"
+    },
+    {
+      "key": "protocol",
+      "value": "grpc",
+      "type": "string"
+    }
+  ]
+}

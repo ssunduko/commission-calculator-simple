@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -200,5 +204,74 @@ public class DealSoapIntegrationTest extends SoapIntegrationTestBase {
 
         // Assert
         assertNull(deal, "Non-existent deal should return null");
+    }
+
+    @Test
+    @DisplayName("Should verify SOAP XML structure for createDeal operation")
+    void testCreateDealSoapXmlComparison() throws Exception {
+        // Arrange - prepare SOAP request XML
+        String soapRequestXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <soapenv:Envelope
+                    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:soap="http://soap.api.commissions.edu.chapman.com/">
+                  <soapenv:Header/>
+                  <soapenv:Body>
+                    <soap:createDeal>
+                      <deal>
+                        <title>SOAP XML Test Deal</title>
+                        <value>175000.00</value>
+                        <status>OPEN</status>
+                        <salesRepId>USER-001</salesRepId>
+                      </deal>
+                    </soap:createDeal>
+                  </soapenv:Body>
+                </soapenv:Envelope>
+                """;
+
+        // Act - send raw SOAP request
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "DealService"))
+                .header("Content-Type", "text/xml")
+                .header("SOAPAction", "")
+                .POST(HttpRequest.BodyPublishers.ofString(soapRequestXml))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        // Assert - verify response structure and content
+        assertEquals(200, response.statusCode(), "SOAP request should be successful");
+        
+        String responseXml = response.body();
+        assertNotNull(responseXml, "Response XML should not be null");
+        
+        // Print the actual response for debugging
+        System.out.println("Actual SOAP XML Response:");
+        System.out.println(responseXml);
+        
+        // Verify basic SOAP structure (flexible matching)
+        assertTrue(responseXml.contains("Envelope"), 
+                "Response should contain SOAP Envelope element");
+        assertTrue(responseXml.contains("Body"), 
+                "Response should contain SOAP Body element");
+        assertTrue(responseXml.contains("createDealResponse"), 
+                "Response should contain createDealResponse element");
+        
+        // Verify deal content in response
+        assertTrue(responseXml.contains("SOAP XML Test Deal"), 
+                "Response should contain the created deal title");
+        assertTrue(responseXml.contains("175000.00"), 
+                "Response should contain the created deal value");
+        assertTrue(responseXml.contains("OPEN"), 
+                "Response should contain the created deal status");
+        assertTrue(responseXml.contains("USER-001"), 
+                "Response should contain the sales rep ID");
+        
+        // Verify that an ID was generated
+        assertTrue(responseXml.contains("<id>") || responseXml.contains("<return>"), 
+                "Response should contain a deal element with ID");
+        
+        System.out.println("SOAP XML Response structure verified successfully!");
     }
 }

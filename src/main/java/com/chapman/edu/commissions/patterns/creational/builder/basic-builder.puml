@@ -1,0 +1,161 @@
+@startuml Basic Builder Pattern
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Basic Builder Pattern - Core Structure
+
+' Product
+class Product <<Product>> {
+  -partA: String
+  -partB: String
+  -partC: String
+  +setPartA(part: String): void
+  +setPartB(part: String): void
+  +setPartC(part: String): void
+  +show(): void
+}
+
+' Builder Interface
+interface Builder <<interface>> {
+  +buildPartA(): Builder
+  +buildPartB(): Builder
+  +buildPartC(): Builder
+  +build(): Product
+}
+
+' Concrete Builder
+class ConcreteBuilder <<ConcreteBuilder>> {
+  -product: Product
+  +ConcreteBuilder()
+  +buildPartA(): Builder
+  +buildPartB(): Builder
+  +buildPartC(): Builder
+  +build(): Product
+}
+
+' Director (Optional)
+class Director <<Director>> {
+  -builder: Builder
+  +Director(builder: Builder)
+  +construct(): Product
+  +constructMinimal(): Product
+}
+
+' Relationships
+Builder <|.. ConcreteBuilder : implements
+ConcreteBuilder ..> Product : creates
+Director o--> "1" Builder : uses
+Director ..> Product : returns
+
+' Pattern component notes
+note right of Product
+  <b>Product</b>
+  The complex object being built.
+
+  Contains multiple parts that
+  are set during construction.
+
+  <b>Characteristics:</b>
+  • May have many attributes
+  • Complex initialization logic
+  • May have required and optional parts
+end note
+
+note left of Builder
+  <b>Builder Interface</b>
+  Declares construction methods
+  for building parts of Product.
+
+  <b>Key Features:</b>
+  • Each build method returns Builder
+    (for method chaining)
+  • build() returns final Product
+  • Provides fluent interface
+
+  <b>Fluent Interface Example:</b>
+  builder.buildPartA()
+         .buildPartB()
+         .build();
+end note
+
+note bottom of ConcreteBuilder
+  <b>Concrete Builder</b>
+  Implements Builder interface to
+  construct and assemble parts.
+
+  <b>Responsibilities:</b>
+  • Creates new Product instance
+  • Implements building steps
+  • Keeps track of product being built
+  • Returns completed Product
+
+  <b>Key Method:</b>
+  build() finalizes and returns Product
+end note
+
+note left of Director
+  <b>Director (Optional)</b>
+  Defines order in which to call
+  building steps.
+
+  <b>Purpose:</b>
+  • Encapsulates construction logic
+  • Reuses common construction sequences
+  • Hides complexity from client
+  • Creates different representations
+
+  <b>Example:</b>
+  construct() - builds full product
+  constructMinimal() - builds basic version
+
+  <b>Note:</b> Director is optional; clients
+  can build directly using Builder.
+end note
+
+' Legend positioned to the right
+note right of ConcreteBuilder
+  <b>Builder Pattern Components:</b>
+
+  <b>Product:</b> Complex object being constructed.
+  May have many configuration options.
+
+  <b>Builder:</b> Abstract interface for creating
+  parts of Product object. Returns self to
+  enable method chaining (fluent interface).
+
+  <b>ConcreteBuilder:</b> Implements Builder interface.
+  Constructs and assembles parts of Product.
+  Provides method to retrieve built product.
+
+  <b>Director (Optional):</b> Constructs object using
+  Builder interface. Defines construction sequences.
+
+  <b>Key Benefits:</b>
+  • Separates construction from representation
+  • Allows step-by-step construction
+  • Supports different representations
+  • Provides control over construction process
+  • Creates immutable objects cleanly
+  • Improves code readability with fluent API
+
+  <b>Intent:</b>
+  Separate the construction of a complex
+  object from its representation so that
+  the same construction process can create
+  different representations.
+
+  <b>When to Use:</b>
+  • Object has many optional parameters
+  • Construction requires multiple steps
+  • Need different representations
+  • Want to avoid telescoping constructors
+end note
+
+@enduml

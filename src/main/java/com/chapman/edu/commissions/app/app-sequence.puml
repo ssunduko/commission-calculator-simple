@@ -1,0 +1,348 @@
+@startuml Deal Management Application - Sequence Diagram
+
+' Define the styles
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam participantBackgroundColor #f8f9fa
+skinparam participantBorderColor #dee2e6
+skinparam actorBackgroundColor #fff3e0
+skinparam actorBorderColor #f57c00
+skinparam databaseBackgroundColor #f3e5f5
+skinparam databaseBorderColor #7b1fa2
+
+' Title
+title Deal Management Application - Create Deal Sequence (Runtime Behavior)
+
+' Participants
+actor "Sales Rep" as user
+participant "Tomcat\nWeb Server" as tomcat <<Container>>
+participant "DealController" as controller <<Component>>
+participant "JsonHelper" as json <<Utility>>
+participant "DealService" as service <<Component>>
+participant "H2DealRepository" as repository <<Component>>
+participant "DatabaseManager" as dbManager <<Component>>
+database "H2 Database" as db <<Database>>
+
+' Sequence flow for creating a new deal
+== HTTP Request Processing ==
+
+user -> tomcat : POST /api/v1/integration/deals\nContent-Type: application/json\nBody: {"title": "New Deal", "salesRepId": "USER-123", ...}
+activate tomcat
+note right
+  <b>Step 1: HTTP Request</b>
+
+  Sales rep sends HTTP POST
+  with JSON payload containing
+  deal information.
+
+  HTTP Method: POST
+  Endpoint: /api/v1/integration/deals
+end note
+
+tomcat -> controller : doPost(request, response)
+activate controller
+note right
+  <b>Step 2: Servlet Routing</b>
+
+  Tomcat routes request to
+  DealController based on
+  URL mapping.
+
+  Servlet mapping:
+  /api/v1/integration/deals/*
+  → DealController
+end note
+
+== Request Parsing ==
+
+controller -> controller : readRequestBody(request)
+activate controller
+note right
+  <b>Step 3: Read Request Body</b>
+
+  Controller reads HTTP request
+  body stream into String.
+
+  Reads: InputStream → String
+end note
+controller --> controller : requestBody (JSON String)
+deactivate controller
+
+controller -> json : fromJson(requestBody, Deal.class)
+activate json
+note right
+  <b>Step 4: JSON Deserialization</b>
+
+  Convert JSON string to
+  Deal domain object.
+
+  Uses Gson library for:
+  • JSON parsing
+  • Object instantiation
+  • Property mapping
+end note
+json --> controller : deal (Deal object)
+deactivate json
+
+== Business Logic Validation ==
+
+controller -> service : createDeal(deal)
+activate service
+note right
+  <b>Step 5: Delegate to Service</b>
+
+  Controller delegates to service layer.
+
+  <b>Separation of Concerns:</b>
+  Controller handles HTTP only,
+  service handles business logic.
+end note
+
+service -> service : validateDeal(deal)
+activate service
+note right
+  <b>Step 6: Business Validation</b>
+
+  Service validates business rules:
+  • Title is required
+  • Sales rep ID is required
+  • At least one product
+  • Total value > 0
+
+  <b>Throws:</b>
+  IllegalArgumentException
+  if validation fails
+end note
+service --> service : validation passed
+deactivate service
+
+service -> service : Set status to OPEN\nif not specified
+note right
+  <b>Step 7: Apply Business Defaults</b>
+
+  Service sets default values
+  based on business rules.
+
+  Default status: OPEN
+  (new deals start as OPEN)
+end note
+
+== Data Persistence ==
+
+service -> repository : save(deal)
+activate repository
+note right
+  <b>Step 8: Delegate to Repository</b>
+
+  Service delegates data persistence
+  to repository layer.
+
+  <b>Abstraction:</b>
+  Service doesn't know it's H2,
+  only knows Repository<Deal> interface.
+end note
+
+repository -> repository : Check if deal.getId() is null
+note right
+  <b>Step 9: Insert vs Update</b>
+
+  Repository determines operation:
+  • null ID → insert()
+  • existing ID → update()
+
+  This example: ID is null → insert
+end note
+
+repository -> repository : generateId()
+activate repository
+note right
+  <b>Step 10: Generate Unique ID</b>
+
+  Repository generates unique ID:
+  DEAL-{UUID}
+
+  Example:
+  DEAL-a1b2c3d4-e5f6-7890...
+end note
+repository --> repository : "DEAL-{UUID}"
+deactivate repository
+
+repository -> repository : insert(deal)
+activate repository
+note right
+  <b>Step 11: Prepare SQL INSERT</b>
+
+  Repository prepares SQL statement
+  with PreparedStatement.
+
+  SQL:
+  INSERT INTO deals (id, title, ...)
+  VALUES (?, ?, ...)
+end note
+
+repository -> json : toJson(deal.getProducts())
+activate json
+note right
+  <b>Step 12: Serialize Products</b>
+
+  Convert products list to JSON
+  for database storage.
+
+  List<DealProduct> →
+  JSON string
+end note
+json --> repository : productsJson
+deactivate json
+
+repository -> dbManager : getConnection()
+activate dbManager
+note right
+  <b>Step 13: Get Database Connection</b>
+
+  DatabaseManager provides
+  JDBC connection from pool.
+
+  Singleton pattern ensures
+  one connection pool.
+end note
+dbManager --> repository : connection
+deactivate dbManager
+
+repository -> db : executeUpdate(\nINSERT INTO deals ...)
+activate db
+note right
+  <b>Step 14: Execute SQL INSERT</b>
+
+  JDBC executes parameterized
+  SQL INSERT statement.
+
+  <b>Security:</b>
+  PreparedStatement prevents
+  SQL injection attacks.
+
+  <b>Atomicity:</b>
+  Single transaction for insert.
+end note
+db --> repository : rowsAffected = 1
+deactivate db
+
+repository --> repository : Log success
+repository --> service : deal (with ID)
+deactivate repository
+
+== Response Formation ==
+
+service --> service : Log creation
+service --> controller : createdDeal
+deactivate service
+note right
+  <b>Step 15: Return Created Deal</b>
+
+  Service returns saved deal
+  with generated ID back to controller.
+end note
+
+controller -> json : toJson(createdDeal)
+activate json
+note right
+  <b>Step 16: JSON Serialization</b>
+
+  Convert Deal object to
+  JSON string for HTTP response.
+
+  Deal → JSON string
+end note
+json --> controller : responseJson
+deactivate json
+
+controller -> controller : sendJsonResponse(\nresponse, createdDeal,\nSC_CREATED)
+activate controller
+note right
+  <b>Step 17: Format HTTP Response</b>
+
+  Controller sets:
+  • Status: 201 Created
+  • Content-Type: application/json
+  • Body: JSON representation
+end note
+controller --> controller : response configured
+deactivate controller
+
+controller -> tomcat : response
+deactivate controller
+note right
+  <b>Step 18: Return HTTP Response</b>
+
+  Controller returns response
+  to Tomcat for sending.
+end note
+
+tomcat -> user : HTTP 201 Created\nContent-Type: application/json\nBody: {"id": "DEAL-...", ...}
+deactivate tomcat
+note right
+  <b>Step 19: HTTP Response Sent</b>
+
+  Tomcat sends HTTP response
+  back to client.
+
+  Status: 201 Created
+  Body: Created deal with ID
+end note
+
+== Complete ==
+
+note over user, db
+  <b>Transaction Complete</b>
+
+  Deal successfully created and persisted.
+
+  <b>Key Points:</b>
+  1. Request flows through layers: Controller → Service → Repository
+  2. Each layer has distinct responsibility
+  3. Validation happens in service layer
+  4. JSON conversion at boundaries (HTTP ↔ Domain, Domain ↔ Database)
+  5. Response flows back through same layers
+  6. HTTP status code (201) indicates successful creation
+end note
+
+legend right
+  <b>Sequence Diagram - Create Deal Operation</b>
+
+  Shows runtime interaction between components
+  when creating a new deal via REST API.
+
+  <b>Layers Traversed:</b>
+  1. Presentation (Controller) - HTTP handling
+  2. Business Logic (Service) - Validation & rules
+  3. Data Access (Repository) - Persistence
+  4. Database - Storage
+
+  <b>Key Patterns Demonstrated:</b>
+  • <b>Layered Architecture:</b> Clear separation of concerns
+  • <b>Request/Response Flow:</b> Unidirectional through layers
+  • <b>Dependency Injection:</b> Each layer receives next layer
+  • <b>Repository Pattern:</b> Data access abstraction
+  • <b>Service Layer:</b> Business logic encapsulation
+
+  <b>Data Transformations:</b>
+  1. HTTP JSON → Deal object (request)
+  2. Deal object → SQL parameters (persistence)
+  3. List<DealProduct> → JSON (storage)
+  4. Deal object → HTTP JSON (response)
+
+  <b>Error Handling:</b>
+  • Validation errors → 400 Bad Request
+  • Business rule violations → 409 Conflict
+  • Database errors → 500 Internal Server Error
+
+  <b>HTTP Status Codes:</b>
+  • 201 Created - Successful creation (shown)
+  • 400 Bad Request - Validation failure
+  • 500 Internal Server Error - Unexpected error
+
+  <b>Sequence Type:</b>
+  POST request (create operation)
+  Other sequences: GET, PUT, DELETE follow similar pattern
+endlegend
+
+@enduml

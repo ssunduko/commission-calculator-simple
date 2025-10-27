@@ -1,0 +1,147 @@
+@startuml Deal Management Application - System Context
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam rectangleBackgroundColor #e3f2fd
+skinparam rectangleBorderColor #1976d2
+skinparam actorBackgroundColor #fff3e0
+skinparam actorBorderColor #f57c00
+skinparam databaseBackgroundColor #f3e5f5
+skinparam databaseBorderColor #7b1fa2
+
+' Title
+title Deal Management Application - System Context Diagram (C4 Level 1)
+
+' Actors
+actor "Sales Representative" as salesrep <<Person>> #fff3e0
+actor "Sales Manager" as manager <<Person>> #fff3e0
+actor "System Administrator" as admin <<Person>> #fff3e0
+
+' System
+rectangle "Deal Management\nApplication" as system <<Software System>> #e3f2fd {
+}
+
+' External Systems
+database "H2 Database" as db <<External System>> #f3e5f5
+
+' Relationships
+salesrep --> system : Creates and manages\nsales deals
+manager --> system : Reviews deals and\nperformance metrics
+admin --> system : Manages users and\nsystem configuration
+
+system --> db : Stores deals, users,\nand transactions
+
+' Notes explaining the context
+note right of salesrep
+  <b>Sales Representative</b>
+
+  Primary users who:
+  • Create new deals
+  • Update deal status
+  • Track pipeline
+  • Close won deals
+  • Manage deal products
+end note
+
+note right of manager
+  <b>Sales Manager</b>
+
+  Managers who:
+  • Monitor team performance
+  • Review all deals
+  • Analyze sales metrics
+  • Approve large deals
+  • Generate reports
+end note
+
+note left of system
+  <b>Deal Management Application</b>
+
+  Core system that provides:
+  • RESTful API for deal operations
+  • Business rule validation
+  • Deal lifecycle management
+  • Query and filtering capabilities
+  • Sample data for testing
+
+  <b>Technology:</b>
+  • Java 21 with Jakarta Servlets
+  • Embedded Tomcat server
+  • Layered architecture
+  • Repository pattern
+
+  <b>Key Features:</b>
+  • CRUD operations for deals
+  • Status-based filtering
+  • Sales rep assignment
+  • Product line items
+  • Deal value calculation
+end note
+
+note right of db
+  <b>H2 Database</b>
+
+  Embedded relational database:
+  • File-based persistence
+  • JDBC connectivity
+  • Schema auto-initialization
+  • Web console for queries
+
+  <b>Stores:</b>
+  • Deal records
+  • User accounts
+  • Deal products
+  • Audit information
+
+  <b>Location:</b>
+  ./data/commissions.mv.db
+end note
+
+' System boundary note
+note bottom of system
+  <b>System Boundary</b>
+
+  The Deal Management Application is a standalone
+  software system that runs as an embedded web server.
+
+  It exposes HTTP/REST endpoints and stores data in
+  an embedded database for simplicity and portability.
+
+  This is a Level 1 (System Context) diagram showing
+  the system's relationship with users and external systems.
+end note
+
+legend right
+  <b>C4 Model - Level 1: System Context</b>
+
+  Shows the big picture of the system landscape.
+
+  <b>Purpose:</b>
+  Provides a high-level view of how the Deal Management
+  Application fits into its environment, showing:
+  • Who uses the system (actors/users)
+  • What the system does (core purpose)
+  • External dependencies (database)
+
+  <b>Audience:</b>
+  • Technical and non-technical stakeholders
+  • Project managers
+  • Business analysts
+  • Architects
+
+  <b>Key Elements:</b>
+  • Person (users of the system)
+  • Software System (the application itself)
+  • External System (dependencies)
+  • Relationships (interactions)
+
+  <b>Scope:</b>
+  Everything in scope for the Deal Management
+  Application, from a bird's-eye view.
+endlegend
+
+@enduml

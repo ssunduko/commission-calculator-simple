@@ -1,0 +1,291 @@
+@startuml Path-Based API Versioning Architecture
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Path-Based API Versioning Architecture - Commission Calculator
+
+' API Version Enum
+enum ApiVersion <<Enum>> {
+  V1
+  V2
+  V3
+  -pathSegment: String
+  -versionNumber: String
+  -description: String
+  +getPathSegment(): String
+  +getVersionNumber(): String
+  +getDescription(): String
+  +fromPathSegment(pathSegment: String): ApiVersion
+  +getDefault(): ApiVersion
+  +isDeprecated(): boolean
+  +isExperimental(): boolean
+}
+
+' Versioned Endpoint Interface
+interface VersionedEndpoint <<Interface>> {
+  +handleGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +handlePost(request: HttpServletRequest, response: HttpServletResponse): void
+  +handlePut(request: HttpServletRequest, response: HttpServletResponse): void
+  +handleDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  +getVersion(): ApiVersion
+}
+
+' Version Router
+class VersionRouter <<Router>> {
+  -endpoints: Map<ApiVersion, VersionedEndpoint>
+  -resourceName: String
+  +VersionRouter(resourceName: String)
+  +register(version: ApiVersion, endpoint: VersionedEndpoint): VersionRouter
+  +getEndpoint(version: ApiVersion): Optional<VersionedEndpoint>
+  +extractVersion(request: HttpServletRequest): ApiVersion
+  +supportsVersion(version: ApiVersion): boolean
+  +getSupportedVersions(): ApiVersion[]
+  +buildPath(version: ApiVersion, resourceId: String): String
+}
+
+' V1 Endpoint Implementation
+class DealEndpointV1 <<V1Implementation>> {
+  -dealRepository: Repository<Deal>
+  +DealEndpointV1(dealRepository: Repository<Deal>)
+  +handleGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +handlePost(request: HttpServletRequest, response: HttpServletResponse): void
+  +handlePut(request: HttpServletRequest, response: HttpServletResponse): void
+  +handleDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  +getVersion(): ApiVersion
+  -handleGetAll(request: HttpServletRequest, response: HttpServletResponse): void
+  -handleGetById(dealId: String, response: HttpServletResponse): void
+}
+
+' V2 Endpoint Implementation
+class DealEndpointV2 <<V2Implementation>> {
+  -dealRepository: Repository<Deal>
+  -DEFAULT_PAGE_SIZE: int
+  -MAX_PAGE_SIZE: int
+  +DealEndpointV2(dealRepository: Repository<Deal>)
+  +handleGet(request: HttpServletRequest, response: HttpServletResponse): void
+  +handlePost(request: HttpServletRequest, response: HttpServletResponse): void
+  +handlePut(request: HttpServletRequest, response: HttpServletResponse): void
+  +handleDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  +getVersion(): ApiVersion
+  -handleGetAll(request: HttpServletRequest, response: HttpServletResponse): void
+  -applyFilters(deals: List<Deal>, request: HttpServletRequest): List<Deal>
+  -createEnhancedResponse(deal: Deal): Map<String, Object>
+  -calculateEstimatedCommission(deal: Deal): BigDecimal
+}
+
+' Versioned Servlet
+class VersionedDealServlet <<Servlet>> {
+  -router: VersionRouter
+  +VersionedDealServlet(dealRepository: Repository<Deal>)
+  #doGet(request: HttpServletRequest, response: HttpServletResponse): void
+  #doPost(request: HttpServletRequest, response: HttpServletResponse): void
+  #doPut(request: HttpServletRequest, response: HttpServletResponse): void
+  #doDelete(request: HttpServletRequest, response: HttpServletResponse): void
+  -routeRequest(request: HttpServletRequest, response: HttpServletResponse, handler: EndpointHandler): void
+}
+
+' Repository Interface (from main API)
+interface Repository<T> <<Interface>> {
+  +findAll(): List<T>
+  +findById(id: String): Optional<T>
+  +save(entity: T): T
+  +deleteById(id: String): boolean
+}
+
+' Deal Model (from domain)
+class Deal <<DomainModel>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+}
+
+' Relationships - Interface Implementation
+VersionedEndpoint <|.. DealEndpointV1
+VersionedEndpoint <|.. DealEndpointV2
+
+' Relationships - Router to Endpoints
+VersionRouter o--> "0..*" VersionedEndpoint : manages >
+
+' Relationships - Router to ApiVersion
+VersionRouter ..> ApiVersion : uses >
+
+' Relationships - Endpoints to ApiVersion
+DealEndpointV1 ..> ApiVersion : returns V1 >
+DealEndpointV2 ..> ApiVersion : returns V2 >
+
+' Relationships - Servlet to Router
+VersionedDealServlet *-- "1" VersionRouter : uses >
+
+' Relationships - Endpoints to Repository
+DealEndpointV1 o--> "1" Repository : uses >
+DealEndpointV2 o--> "1" Repository : uses >
+
+' Relationships - Repository to Domain
+Repository ..> Deal : manages >
+
+' Component notes
+note right of ApiVersion
+  <b>API Version Enumeration</b>
+
+  Defines available API versions:
+  • V1: Deprecated, basic features
+  • V2: Current stable, enhanced features
+  • V3: Experimental, future features
+
+  <b>Path Segments:</b>
+  • V1 → "v1" (/api/v1/deals)
+  • V2 → "v2" (/api/v2/deals)
+  • V3 → "v3" (/api/v3/deals)
+
+  <b>Features:</b>
+  • Version metadata (number, description)
+  • Deprecation/experimental flags
+  • Default version selection
+end note
+
+note bottom of VersionedEndpoint
+  <b>Strategy Pattern</b>
+
+  Interface for version-specific
+  endpoint implementations.
+
+  Each version provides different:
+  • Response formats
+  • Feature sets
+  • Business logic
+
+  <b>Benefits:</b>
+  • Clean version separation
+  • Independent evolution
+  • Easy to add new versions
+end note
+
+note left of VersionRouter
+  <b>Router + Registry Pattern</b>
+
+  Coordinates version routing:
+  1. Extract version from URL path
+  2. Lookup version handler
+  3. Delegate to handler
+  4. Add version headers
+
+  <b>URL Format:</b>
+  /api/{version}/{resource}/{id}
+
+  <b>Example:</b>
+  /api/v2/deals/DEAL-001
+  → routes to DealEndpointV2
+end note
+
+note bottom of DealEndpointV1
+  <b>V1 Implementation (Deprecated)</b>
+
+  <b>Features:</b>
+  • Basic CRUD operations
+  • Simple status filtering
+  • No pagination
+  • Returns all fields
+
+  <b>Limitations:</b>
+  • Performance issues with large datasets
+  • No computed fields
+  • Basic error messages
+
+  <b>Status:</b> Deprecated
+  Clients should migrate to V2
+end note
+
+note bottom of DealEndpointV2
+  <b>V2 Implementation (Current)</b>
+
+  <b>Enhancements over V1:</b>
+  • Pagination (page, limit params)
+  • Advanced filtering (multiple criteria)
+  • Enhanced error responses with codes
+  • Metadata in responses
+  • Computed fields (commission estimates)
+
+  <b>Pagination:</b>
+  GET /api/v2/deals?page=1&limit=20
+
+  <b>Response Format:</b>
+  {
+    "data": [...],
+    "metadata": {
+      "page": 1,
+      "totalCount": 100,
+      "hasNext": true
+    }
+  }
+end note
+
+note right of VersionedDealServlet
+  <b>Versioned Servlet</b>
+
+  Entry point for versioned endpoints.
+
+  <b>Responsibilities:</b>
+  • Register version handlers
+  • Route based on URL path
+  • Add version headers
+  • Handle version errors
+
+  <b>Headers Added:</b>
+  • API-Version: version number
+  • Warning: deprecation notices
+
+  <b>URL Mapping:</b> /api/*
+end note
+
+' Legend
+legend right
+  <b>Path-Based Versioning Strategy:</b>
+
+  <b>Concept:</b>
+  Version information is embedded in the URL path,
+  allowing multiple API versions to coexist.
+
+  <b>URL Structure:</b>
+  /api/{version}/{resource}/{id}
+
+  <b>Examples:</b>
+  • /api/v1/deals → DealEndpointV1
+  • /api/v2/deals → DealEndpointV2
+  • /api/v3/deals → DealEndpointV3 (future)
+
+  <b>Key Design Patterns:</b>
+  • Strategy Pattern: Version-specific implementations
+  • Router Pattern: Version-based request routing
+  • Registry Pattern: Version-to-handler mapping
+
+  <b>Version Lifecycle:</b>
+  1. <b>Experimental</b> (V3): Beta, may change
+  2. <b>Current</b> (V2): Stable, recommended
+  3. <b>Deprecated</b> (V1): Legacy, migrate away
+
+  <b>Benefits:</b>
+  • Clear version identification in URLs
+  • Backward compatibility maintained
+  • Independent version evolution
+  • Easy client migration path
+
+  <b>Trade-offs:</b>
+  • URL changes between versions
+  • Multiple implementations to maintain
+  • More complex routing logic
+
+  <b>V1 vs V2 Differences:</b>
+  V1: Basic CRUD, no pagination
+  V2: Pagination, advanced filtering, metadata
+endlegend
+
+@enduml

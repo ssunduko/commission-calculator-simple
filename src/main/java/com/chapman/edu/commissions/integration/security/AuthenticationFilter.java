@@ -34,12 +34,16 @@ import java.util.Optional;
  * - WWW-Authenticate header: Prompts browser for credentials
  *
  * Public endpoints (no authentication required):
- * - /swagger-ui/* - Swagger UI interface
- * - /api-docs/* - OpenAPI documentation
- * - /h2-console/* - H2 database console
+ * - / - Root index page
+ * - /index.html - Main index page
+ * - /dashboard.html - Public dashboard
+ * - /webjars/* - Static web resources
  *
  * Protected endpoints (authentication required):
  * - /api/v1/integration/* - All integration API endpoints
+ * - /swagger-ui/* - Swagger UI interface (SECURED)
+ * - /api-docs/* - OpenAPI documentation (SECURED)
+ * - /h2-console/* - H2 database console (SECURED)
  */
 public class AuthenticationFilter implements Filter {
 
@@ -127,16 +131,41 @@ public class AuthenticationFilter implements Filter {
     /**
      * Checks if the endpoint is public (no authentication required).
      *
+     * Security Policy:
+     * - All development/admin tools require authentication (Swagger, H2 Console)
+     * - Public web UI pages are accessible without authentication
+     * - Static resources (CSS, JS) are public
+     * - All API endpoints require authentication
+     *
      * @param path The request path
      * @return true if endpoint is public
      */
     private boolean isPublicEndpoint(String path) {
-        return path.startsWith("/swagger-ui") ||
-               path.startsWith("/api-docs") ||
-               path.startsWith("/h2-console") ||
-               path.startsWith("/webjars") ||
-               path.equals("/") ||
-               path.equals("/index.html");
+        // Public web pages
+        if (path.equals("/") ||
+            path.equals("/index.html") ||
+            path.equals("/dashboard.html") ||
+            path.startsWith("/ui") ||
+            path.startsWith("/jsp")) {
+            return true;
+        }
+
+        // Static resources
+        if (path.startsWith("/webjars") ||
+            path.endsWith(".css") ||
+            path.endsWith(".js") ||
+            path.endsWith(".png") ||
+            path.endsWith(".jpg") ||
+            path.endsWith(".ico")) {
+            return true;
+        }
+
+        // All other endpoints require authentication:
+        // - /api/v1/integration/* (API endpoints)
+        // - /swagger-ui/* (Swagger UI - SECURED)
+        // - /api-docs (OpenAPI spec - SECURED)
+        // - /h2-console/* (Database console - SECURED)
+        return false;
     }
 
     /**

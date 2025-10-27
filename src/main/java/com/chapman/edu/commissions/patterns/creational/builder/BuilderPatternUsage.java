@@ -10,33 +10,39 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 /**
- * Builder Pattern Usage
- * 
- * This class demonstrates how to use the Builder pattern in practice.
- * It shows different ways to create Deal objects using the DealBuilder.
- * 
- * CLIENT PERSPECTIVE:
- * This example shows how client code interacts with the Builder pattern:
- * 1. The client creates a builder instance with required parameters
- * 2. The client calls methods to set optional parameters as needed
- * 3. The client calls build() to get the final object
- * 
- * KEY DEMONSTRATION POINTS:
- * - Fluent Interface: Method chaining for a more readable API
- * - Selective Parameter Setting: Only set the parameters you need
- * - Readability: Clear what each parameter represents
- * - Flexibility: Multiple ways to create objects with different configurations
- * 
- * PATTERN BENEFITS SHOWN:
- * - Improved code readability compared to constructors with many parameters
- * - No need for multiple constructors with different parameter combinations
- * - Clear separation between construction and representation
- * - Ability to enforce invariants during construction
+ * BUILDER PATTERN USAGE EXAMPLES
+ *
+ * This class demonstrates practical usage of the Builder pattern for creating Deal objects.
+ *
+ * LEARNING OBJECTIVES:
+ * 1. See how Builder simplifies object creation
+ * 2. Understand fluent API benefits
+ * 3. Compare minimal vs. complete object construction
+ * 4. Learn when to use Builder pattern
+ *
+ * EXAMPLES DEMONSTRATED:
+ * - Minimal Deal: Only required fields
+ * - Complete Deal: All fields populated
+ * - Custom Deal: Mix of required and selected optional fields
+ *
+ * KEY BENEFITS SHOWN:
+ * - Code readability: Clear what each parameter represents
+ * - Flexibility: Only set fields you need
+ * - Type safety: Compile-time checking of parameter types
+ * - Maintainability: Easy to add new optional fields
+ *
+ * RUN THIS CLASS:
+ * mvn exec:java -Dexec.mainClass="com.chapman.edu.commissions.patterns.creational.builder.BuilderPatternUsage"
  */
 public class BuilderPatternUsage {
 
     /**
-     * Main method to demonstrate the usage of the Builder pattern
+     * Main method demonstrating various Builder pattern usage scenarios.
+     *
+     * Compares different ways of constructing Deal objects:
+     * 1. Minimal construction (required fields only)
+     * 2. Complete construction (all fields)
+     * 3. Custom construction (selective fields)
      */
     public static void main(String[] args) {
         // Example 1: Creating a minimal Deal with only required fields
@@ -56,53 +62,110 @@ public class BuilderPatternUsage {
     }
 
     /**
-     * Creates a minimal Deal with only the required fields.
-     * @return a minimal Deal
+     * EXAMPLE 1: Minimal Deal Construction
+     *
+     * Creates a Deal with ONLY the required fields (title, value, salesRepId).
+     *
+     * BUILDER BENEFIT: Even with minimal fields, the code is highly readable.
+     * Compare to constructor: new Deal("Basic Deal", new BigDecimal("5000.00"), "SALES-001")
+     * The builder version makes it clear we're building an object and finalizing it.
+     *
+     * DEFAULT VALUES APPLIED:
+     * - status: OPEN (builder default)
+     * - products: empty list (builder default)
+     * - createdDate: LocalDate.now() (builder default)
+     * - lastModifiedDate: LocalDate.now() (builder default)
+     * - id: null (not set)
+     * - closeDate: null (not set)
+     *
+     * @return a minimal Deal with defaults
      */
     private static Deal createMinimalDeal() {
+        // Simplest possible builder usage - just required fields and build()
         return new DealBuilder("Basic Deal", new BigDecimal("5000.00"), "SALES-001")
-                .build();
+                .build(); // Terminal operation - creates and returns Deal
     }
 
     /**
-     * Creates a complete Deal with all fields set.
-     * @return a complete Deal
+     * EXAMPLE 2: Complete Deal Construction
+     *
+     * Creates a Deal with ALL fields explicitly set.
+     *
+     * FLUENT API DEMONSTRATION:
+     * Notice how each method call chains to the next, creating a
+     * readable, top-to-bottom flow that's easy to understand.
+     *
+     * READABILITY BENEFIT:
+     * Without Builder, this would require either:
+     * 1. A constructor with 9 parameters (error-prone, hard to read)
+     * 2. Multiple setter calls (verbose, allows invalid intermediate states)
+     *
+     * MULTI-LINE CHAINING:
+     * Each withXxx() call is on its own line for maximum readability.
+     * This is a common pattern in builder usage.
+     *
+     * @return a fully-populated Deal
      */
     private static Deal createCompleteDeal() {
-        // Create some products for the deal
+        // Create product objects to add to the deal
         DealProduct product1 = new DealProduct("PROD-001", "Software License", 2, new BigDecimal("1000.00"));
         DealProduct product2 = new DealProduct("PROD-002", "Hardware", 1, new BigDecimal("1500.00"));
 
-        // Use the builder to create a deal with all properties set
+        // FLUENT API in action - method chaining creates readable construction flow
         return new DealBuilder("Complete Deal", new BigDecimal("10000.00"), "SALES-002")
-                .withId("DEAL-002")
-                .withStatus(DealStatus.WON)
-                .withProducts(Arrays.asList(product1, product2))
-                .withCloseDate(LocalDate.now().plusDays(30))
-                .withCreatedDate(LocalDate.now().minusDays(10))
-                .withLastModifiedDate(LocalDate.now())
-                .build();
+                .withId("DEAL-002")                                     // Set ID
+                .withStatus(DealStatus.WON)                            // Override default OPEN status
+                .withProducts(Arrays.asList(product1, product2))       // Set products as list
+                .withCloseDate(LocalDate.now().plusDays(30))           // Set future close date
+                .withCreatedDate(LocalDate.now().minusDays(10))        // Override creation date
+                .withLastModifiedDate(LocalDate.now())                 // Set modified date
+                .build();                                               // Terminal operation
     }
 
     /**
-     * Creates a custom Deal with some optional fields.
-     * @return a custom Deal
+     * EXAMPLE 3: Custom Deal Construction (Selective Fields)
+     *
+     * Creates a Deal with only SOME optional fields set.
+     *
+     * FLEXIBILITY BENEFIT:
+     * This demonstrates the Builder's key advantage: you only set what you need.
+     * No need to pass null for unused optional parameters.
+     *
+     * addProduct() vs withProducts():
+     * - addProduct(): Adds single product (incremental building)
+     * - withProducts(): Replaces entire product list
+     *
+     * Both methods support the fluent interface and return the builder.
+     *
+     * REAL-WORLD SCENARIO:
+     * This is the most common usage pattern - some required fields,
+     * a few optional fields, and many defaults accepted.
+     *
+     * @return a custom Deal with selective fields
      */
     private static Deal createCustomDeal() {
-        // Create a product for the deal
+        // Create a single product
         DealProduct product = new DealProduct("PROD-003", "Consulting Services", 1, new BigDecimal("2000.00"));
 
-        // Use the builder to create a deal with some optional properties
+        // Selective field setting - only what's needed for this scenario
         return new DealBuilder("Custom Deal", new BigDecimal("7500.00"), "SALES-003")
-                .withId("DEAL-003")
-                .addProduct(product)  // Note: using addProduct instead of withProducts
-                .withCloseDate(LocalDate.now().plusDays(15))
-                .build();
+                .withId("DEAL-003")                                     // Set ID
+                .addProduct(product)                                    // Add single product (note: not withProducts)
+                .withCloseDate(LocalDate.now().plusDays(15))           // Set close date
+                .build();                                               // Terminal operation
+
+        // Fields not set will use defaults:
+        // - status: OPEN (default)
+        // - createdDate: LocalDate.now() (default)
+        // - lastModifiedDate: LocalDate.now() (default)
     }
 
     /**
-     * Prints the details of a Deal.
-     * @param deal the Deal to print
+     * Utility method to print Deal details to console.
+     *
+     * Used to demonstrate the state of objects created by the builder.
+     *
+     * @param deal the Deal object to print
      */
     private static void printDealDetails(Deal deal) {
         System.out.println("  ID: " + deal.getId());

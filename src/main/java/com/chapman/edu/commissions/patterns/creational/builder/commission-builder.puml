@@ -1,0 +1,280 @@
+@startuml Builder Pattern - Commission Calculator
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Builder Pattern - Deal Builder Implementation
+
+' Product - Domain Model
+class Deal <<Product>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+  +Deal(title: String, value: BigDecimal, salesRepId: String)
+  +getId(): String
+  +getTitle(): String
+  +getValue(): BigDecimal
+  +getStatus(): DealStatus
+  +setStatus(status: DealStatus): void
+  +getProducts(): List<DealProduct>
+  +setProducts(products: List<DealProduct>): void
+}
+
+' Builder
+class DealBuilder <<ConcreteBuilder>> {
+  -id: String
+  -title: String
+  -value: BigDecimal
+  -status: DealStatus
+  -salesRepId: String
+  -products: List<DealProduct>
+  -closeDate: LocalDate
+  -createdDate: LocalDate
+  -lastModifiedDate: LocalDate
+  +DealBuilder(title: String, value: BigDecimal, salesRepId: String)
+  +withId(id: String): DealBuilder
+  +withStatus(status: DealStatus): DealBuilder
+  +addProduct(product: DealProduct): DealBuilder
+  +withProducts(products: List<DealProduct>): DealBuilder
+  +withCloseDate(closeDate: LocalDate): DealBuilder
+  +withCreatedDate(createdDate: LocalDate): DealBuilder
+  +withLastModifiedDate(lastModifiedDate: LocalDate): DealBuilder
+  +build(): Deal
+}
+
+' Director
+class DealDirector <<Director>> {
+  -builder: DealBuilder
+  +DealDirector(builder: DealBuilder)
+  +changeBuilder(builder: DealBuilder): void
+  +constructStandardDeal(): Deal
+  +constructPremiumDeal(): Deal
+  +constructWonDeal(): Deal
+  +constructLostDeal(): Deal
+}
+
+' Supporting Classes
+class DealProduct <<ValueObject>> {
+  -productId: String
+  -name: String
+  -quantity: int
+  -price: BigDecimal
+}
+
+enum DealStatus <<Enum>> {
+  OPEN
+  WON
+  LOST
+  PENDING
+}
+
+' Relationships
+DealBuilder ..> Deal : creates
+DealDirector o--> "1" DealBuilder : uses
+DealDirector ..> Deal : returns
+Deal o--> "*" DealProduct : contains
+Deal --> "1" DealStatus : has status
+
+' Pattern component notes
+note right of Deal
+  <b>Product: Deal</b>
+  Complex domain object representing
+  a sales deal/opportunity.
+
+  <b>Complexity Factors:</b>
+  • 9 attributes (3 required, 6 optional)
+  • Collection of DealProduct objects
+  • Multiple date fields with defaults
+  • Status lifecycle management
+
+  <b>Why Builder is Useful:</b>
+  • Avoids telescoping constructors
+  • Makes object creation readable
+  • Handles optional parameters cleanly
+  • Ensures consistent object state
+
+  <b>Example Without Builder:</b>
+  new Deal("title", value, "rep", id,
+    status, products, closeDate,
+    createdDate, modifiedDate)
+  → Hard to read, easy to mix up params
+end note
+
+note left of DealBuilder
+  <b>Concrete Builder: DealBuilder</b>
+  Fluent interface for constructing Deal objects.
+
+  <b>Constructor Requirements:</b>
+  Only requires essential fields:
+  • title (String)
+  • value (BigDecimal)
+  • salesRepId (String)
+
+  <b>Fluent Methods:</b>
+  Each withXxx() method:
+  • Sets a property value
+  • Returns 'this' (DealBuilder)
+  • Enables method chaining
+
+  <b>Build Process:</b>
+  1. Constructor stores required fields
+  2. Fluent methods set optional fields
+  3. build() creates and configures Deal
+  4. Returns fully-constructed Deal
+
+  <b>Design Decisions:</b>
+  • addProduct() - adds single product
+  • withProducts() - replaces all products
+    (creates defensive copy)
+  • Default values set in builder fields:
+    status = OPEN
+    createdDate = LocalDate.now()
+    lastModifiedDate = LocalDate.now()
+end note
+
+note bottom of DealDirector
+  <b>Director: DealDirector</b>
+  Encapsulates common Deal construction
+  sequences for reusability.
+
+  <b>Predefined Constructions:</b>
+  • <b>constructStandardDeal()</b>
+    → OPEN status, 30-day close date
+
+  • <b>constructPremiumDeal()</b>
+    → OPEN status with premium products
+    → 15-day close date (faster sale)
+
+  • <b>constructWonDeal()</b>
+    → WON status, close date in past
+
+  • <b>constructLostDeal()</b>
+    → LOST status, close date in past
+
+  <b>Benefits:</b>
+  • Reuses common construction logic
+  • Hides complexity from clients
+  • Ensures consistent configurations
+  • Reduces code duplication
+
+  <b>Flexibility:</b>
+  changeBuilder() allows switching to
+  different DealBuilder instances while
+  reusing same construction methods.
+end note
+
+note bottom of DealProduct
+  <b>Value Object</b>
+  Represents a product/item
+  within a deal.
+
+  Used by DealBuilder to
+  populate Deal.products
+  collection.
+end note
+
+note right of DealStatus
+  <b>Enum</b>
+  Lifecycle states for
+  a sales deal.
+
+  Builder can set any
+  valid status value.
+end note
+
+' Usage examples note
+note top of DealBuilder
+  <b>Usage Example - Fluent API:</b>
+
+  Deal deal = new DealBuilder("Software Deal",
+                new BigDecimal("10000"), "SALES-001")
+      .withId("DEAL-123")
+      .withStatus(DealStatus.OPEN)
+      .addProduct(product1)
+      .addProduct(product2)
+      .withCloseDate(LocalDate.now().plusDays(30))
+      .build();
+
+  <b>Advantages:</b>
+  ✓ Readable, self-documenting code
+  ✓ Clear what each parameter is
+  ✓ Only specify needed attributes
+  ✓ Can't mix up parameter order
+  ✓ Type-safe at compile time
+end note
+
+note bottom of DealDirector
+  <b>Usage Example - Director:</b>
+
+  DealBuilder builder = new DealBuilder(
+      "Enterprise Deal",
+      new BigDecimal("50000"),
+      "SALES-002");
+
+  DealDirector director = new DealDirector(builder);
+
+  // Use predefined construction sequence
+  Deal standardDeal = director.constructStandardDeal();
+  Deal premiumDeal = director.constructPremiumDeal();
+
+  <b>When to Use Director:</b>
+  • Need consistent configurations
+  • Multiple clients build same way
+  • Complex construction sequence
+  • Want to hide construction details
+end note
+
+' Legend
+note right of DealBuilder
+  <b>Builder Pattern in Commission Calculator:</b>
+
+  <b>Problem Solved:</b>
+  Deal objects have many optional parameters.
+  Traditional constructors would require:
+  • Multiple overloaded constructors
+    (telescoping constructor anti-pattern)
+  • Or setters on mutable object
+    (breaks immutability, allows invalid state)
+
+  <b>Builder Solution:</b>
+  • Separates Deal construction from representation
+  • Provides fluent, readable API
+  • Handles required vs. optional parameters
+  • Creates fully-initialized objects
+  • Enables method chaining
+
+  <b>Implementation Pattern:</b>
+  1. <b>DealBuilder</b> is static nested class
+     in BuilderPatternImplementation
+  2. Constructor takes required parameters
+  3. Fluent methods set optional parameters
+  4. build() creates final Deal object
+
+  <b>Key Benefits in This Domain:</b>
+  • Test data creation is very clean
+  • Different deal types (standard, premium)
+    are easy to construct
+  • Director provides reusable templates
+  • Easy to add new optional fields
+  • Improves code readability
+
+  <b>Pattern Variations Used:</b>
+  • Constructor with required params
+  • Default values for optional params
+  • Defensive copying (withProducts)
+  • Director for common configurations
+end note
+
+@enduml

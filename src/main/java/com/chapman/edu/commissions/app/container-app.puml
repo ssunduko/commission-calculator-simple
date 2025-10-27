@@ -1,0 +1,204 @@
+@startuml Deal Management Application - Container Diagram
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam componentBackgroundColor #e3f2fd
+skinparam componentBorderColor #1976d2
+skinparam databaseBackgroundColor #f3e5f5
+skinparam databaseBorderColor #7b1fa2
+skinparam actorBackgroundColor #fff3e0
+skinparam actorBorderColor #f57c00
+skinparam arrowColor #6c757d
+
+' Title
+title Deal Management Application - Container Diagram (C4 Level 2)
+
+' Actor
+actor "User\n(Sales Rep/Manager)" as user <<Person>> #fff3e0
+
+' System boundary
+package "Deal Management Application" {
+
+    ' Web Application Container
+    component "Embedded Tomcat\nWeb Server" as tomcat <<Container: Apache Tomcat 10.1>> #e3f2fd
+
+    ' REST API Container
+    component "REST API" as api <<Container: Jakarta Servlets>> #e3f2fd
+
+    ' Business Logic Container
+    component "Business Logic\nLayer" as service <<Container: Java Classes>> #e3f2fd
+
+    ' Data Access Container
+    component "Data Access\nLayer" as repository <<Container: JDBC Repositories>> #e3f2fd
+
+    ' H2 Console Container
+    component "H2 Database\nConsole" as h2console <<Container: Web Interface>> #fff9c4
+}
+
+' Database
+database "H2 Embedded\nDatabase" as db <<Database: H2>> #f3e5f5
+
+' Relationships - User interactions
+user --> tomcat : Makes HTTP requests\n[HTTPS/HTTP]
+tomcat --> api : Routes to servlet
+api --> service : Calls business methods
+service --> repository : Persists/retrieves data
+repository --> db : Executes SQL\n[JDBC]
+
+' H2 Console interactions
+user ..> h2console : Accesses for debugging\n[HTTP]
+h2console ..> db : Queries database\n[JDBC]
+
+' Component notes
+note right of tomcat
+  <b>Web Server</b>
+
+  Embedded servlet container:
+  • Hosts REST API
+  • Manages HTTP lifecycle
+  • Routes requests to servlets
+  • Serves H2 console
+
+  <b>Technology:</b>
+  Apache Tomcat 10.1 (embedded)
+end note
+
+note right of api
+  <b>REST API Layer</b>
+
+  Provides HTTP endpoints for:
+  • Deal CRUD operations
+  • Query and filtering
+  • Business operations (close deal)
+
+  <b>Technology:</b>
+  • Jakarta Servlets
+  • Gson for JSON
+  • HTTP methods: GET, POST, PUT, DELETE
+
+  <b>Endpoints:</b>
+  /api/v1/integration/deals
+end note
+
+note left of service
+  <b>Service Layer</b>
+
+  Encapsulates business rules:
+  • Deal validation
+  • Status transitions
+  • Business constraints
+  • Complex queries
+
+  <b>Key Classes:</b>
+  • DealService
+  • UserService
+
+  <b>Responsibilities:</b>
+  • Enforce "deal value must be positive"
+  • Validate "can only delete OPEN deals"
+  • Calculate pipeline metrics
+end note
+
+note left of repository
+  <b>Repository Layer</b>
+
+  Manages data persistence:
+  • SQL query execution
+  • Object-relational mapping
+  • Transaction management
+
+  <b>Key Classes:</b>
+  • H2DealRepository
+  • H2UserRepository
+  • DatabaseManager
+
+  <b>Pattern:</b>
+  Repository Pattern with
+  Repository<T> interface
+end note
+
+note right of h2console
+  <b>Development Tool</b>
+
+  Web-based SQL interface:
+  • Query execution
+  • Schema inspection
+  • Data browsing
+
+  <b>URL:</b>
+  /h2-console
+end note
+
+note bottom of db
+  <b>Persistence Store</b>
+
+  File-based relational database:
+  • deals table (deal records)
+  • users table (user accounts)
+  • Embedded in application
+
+  <b>Technology:</b>
+  H2 Database Engine
+
+  <b>Connection:</b>
+  jdbc:h2:./data/commissions
+
+  <b>Schema:</b>
+  Auto-initialized on startup
+end note
+
+note as N1
+  <b>HTTP Request Flow</b>
+
+  User → Tomcat → API → Service → Repository → Database
+
+  Example: POST /api/v1/integration/deals
+  1. User sends JSON payload
+  2. Tomcat receives HTTP request
+  3. API parses request, validates format
+  4. Service validates business rules
+  5. Repository executes SQL INSERT
+  6. Database persists data
+  7. Response flows back: DB → Repo → Service → API → Tomcat → User
+end note
+
+legend right
+  <b>C4 Model - Level 2: Container Diagram</b>
+
+  Zooms into the Deal Management Application to show
+  the high-level technical building blocks (containers).
+
+  <b>Container Definition:</b>
+  A container is a separately runnable/deployable unit
+  that executes code or stores data.
+
+  <b>This Diagram Shows:</b>
+  • Web Server (Tomcat) - executes servlets
+  • REST API - handles HTTP requests
+  • Business Logic - enforces rules
+  • Data Access - manages persistence
+  • H2 Console - development tool
+  • Database - stores data
+
+  <b>Key Architectural Patterns:</b>
+  • Layered Architecture (API → Service → Repository)
+  • Embedded Server (Tomcat runs in-process)
+  • Repository Pattern (data access abstraction)
+  • Dependency Injection (manual)
+
+  <b>Audience:</b>
+  • Software architects
+  • Developers
+  • Technical leads
+
+  <b>Technology Stack:</b>
+  • Java 21
+  • Jakarta Servlets
+  • JDBC
+  • H2 Database
+  • Gson
+  • SLF4J/Logback
+endlegend
+
+@enduml

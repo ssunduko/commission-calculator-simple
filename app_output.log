@@ -1,0 +1,495 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------< com.chapman.edu.commissions:commission-calculator-simple >------
+[INFO] Building commission-calculator-simple 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- exec:3.2.0:java (default-cli) @ commission-calculator-simple ---
+01:55:11.982 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- ================================================================================
+01:55:11.988 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Starting Deal Management Application
+01:55:11.989 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- ================================================================================
+01:55:11.989 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [1/7] Initializing database...
+01:55:12.736 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.integration.database.DatabaseManager -- Database connection established: jdbc:h2:./data/commissions;AUTO_SERVER=TRUE
+01:55:12.741 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.integration.database.DatabaseManager -- Database schema initialized successfully
+01:55:12.742 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Database initialized: H2 embedded database
+01:55:12.742 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Database location: ./data/commissions.mv.db
+01:55:12.742 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [2/7] Creating repositories (Data Access Layer)...
+01:55:12.748 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Created: H2DealRepository, H2UserRepository
+01:55:12.748 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [3/7] Creating services (Business Logic Layer)...
+01:55:12.753 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Created: DealService, UserService
+01:55:12.754 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [4/7] Creating controllers (Presentation Layer)...
+01:55:12.797 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Created: DealController, UserController, WebUIController, JSPController
+01:55:12.797 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [5/7] Configuring embedded Tomcat server...
+01:55:13.051 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered servlet: DealController at /api/v1/integration/deals/*
+01:55:13.052 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered servlet: UserController at /api/v1/integration/users/*
+01:55:13.052 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered servlet: WebUIController at /ui/* (PrintWriter-based UI)
+01:55:13.052 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered servlet: JSPController at /jsp/* (JSP-based UI)
+01:55:13.054 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered JSP servlet for .jsp file processing
+01:55:13.055 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       JSP scratch directory: C:\Users\ssund\AppData\Local\Temp\jsp
+01:55:13.056 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered servlet: H2 Console at /h2-console/*
+01:55:13.083 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered static file servlet for Web UI
+01:55:13.084 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Registered JSP directory: C:\Commission Calculator\commission-calculator-simple\src\main\webapp
+01:55:13.084 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [6/7] Loading sample data...
+01:55:13.089 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.integration.service.UserService -- Creating new user: john.doe@example.com
+01:55:13.182 [com.chapman.edu.commissions.app.DealManagementApp.main()] WARN com.chapman.edu.commissions.app.DealManagementApp --       Sample data may already exist or error occurred: Email already exists: john.doe@example.com
+01:55:13.182 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --       Sample data loaded successfully
+01:55:13.183 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- [7/7] Starting Tomcat server...
+Oct 24, 2025 1:55:14 AM org.apache.coyote.AbstractProtocol init
+INFO: Initializing ProtocolHandler ["http-nio-8080"]
+Oct 24, 2025 1:55:14 AM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service [Tomcat]
+Oct 24, 2025 1:55:14 AM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet engine: [Apache Tomcat/10.1.15]
+Oct 24, 2025 1:55:14 AM org.apache.catalina.util.SessionIdGeneratorBase createSecureRandom
+WARNING: Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [121] milliseconds.
+Oct 24, 2025 1:55:14 AM org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler ["http-nio-8080"]
+01:55:15.018 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- ================================================================================
+01:55:15.019 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Deal Management Application started successfully!
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- ================================================================================
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Server Information:
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Server:           Apache Tomcat 10.1
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Port:             8080
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Base URL:         http://localhost:8080
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.020 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- API Endpoints:
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   List all deals:   GET    http://localhost:8080/api/v1/integration/deals
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Get deal by ID:   GET    http://localhost:8080/api/v1/integration/deals/{{id}}
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Create deal:      POST   http://localhost:8080/api/v1/integration/deals
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Update deal:      PUT    http://localhost:8080/api/v1/integration/deals/{{id}}
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Delete deal:      DELETE http://localhost:8080/api/v1/integration/deals/{{id}}
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Close deal:       POST   http://localhost:8080/api/v1/integration/deals/{{id}}/close
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Query Parameters:
+01:55:15.021 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Filter by status: GET    http://localhost:8080/api/v1/integration/deals?status=OPEN
+01:55:15.022 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Filter by rep:    GET    http://localhost:8080/api/v1/integration/deals?salesRepId=USER-123
+01:55:15.023 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.023 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Web User Interfaces:
+01:55:15.023 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   JavaScript UI:    http://localhost:8080/index.html
+01:55:15.023 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   PrintWriter UI:   http://localhost:8080/ui
+01:55:15.023 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   JSP UI:           http://localhost:8080/jsp/deals
+01:55:15.026 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Dashboard:        http://localhost:8080/dashboard.html
+01:55:15.026 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   CLI Mode:         mvn exec:java -Dexec.mainClass="com.chapman.edu.commissions.app.cli.DealManagementCLI"
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Development Tools:
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   H2 Console:       http://localhost:8080/h2-console
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Swagger UI:       http://localhost:8080/swagger-ui/
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Database Connection:
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   JDBC URL:         jdbc:h2:./data/commissions
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Username:         sa
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Password:         (empty)
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Sample Data:
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Users:            2 sales representatives created
+01:55:15.027 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Deals:            3 sample deals created
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   Test user:        john.doe@example.com / password
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- Example cURL Commands:
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   # Get all deals
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   curl http://localhost:8080/api/v1/integration/deals
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.028 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   # Get deals by status
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   curl http://localhost:8080/api/v1/integration/deals?status=OPEN
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- 
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   # Create new deal
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --   curl -X POST http://localhost:8080/api/v1/integration/deals \
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --        -H 'Content-Type: application/json' \
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp --        -d '{{"title":"New Deal","salesRepId":"USER-123",...}}'
+01:55:15.029 [com.chapman.edu.commissions.app.DealManagementApp.main()] INFO com.chapman.edu.commissions.app.DealManagementApp -- ================================================================================
+01:55:34.256 [http-nio-8080-exec-1] DEBUG com.chapman.edu.commissions.integration.service.DealService -- Retrieving all deals
+01:55:34.269 [http-nio-8080-exec-1] DEBUG com.chapman.edu.commissions.integration.repository.H2DealRepository -- Found 6 deals
+Oct 24, 2025 1:55:34 AM org.apache.catalina.core.ApplicationDispatcher invoke
+SEVERE: Servlet.service() for servlet [jsp] threw exception
+java.lang.ClassNotFoundException: org.apache.el.ExpressionFactoryImpl
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1353)
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1165)
+	at jakarta.el.ExpressionFactory.newInstance(ExpressionFactory.java:130)
+	at jakarta.el.ExpressionFactory.newInstance(ExpressionFactory.java:75)
+	at org.apache.jasper.compiler.PageInfo.<init>(PageInfo.java:82)
+	at org.apache.jasper.compiler.Compiler.generateJava(Compiler.java:120)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:396)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:372)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:356)
+	at org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:603)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:396)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:286)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Oct 24, 2025 1:55:34 AM org.apache.catalina.core.ApplicationDispatcher invoke
+SEVERE: Servlet.service() for servlet [jsp] threw exception
+java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:129)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:58)
+	at org.apache.catalina.core.DefaultInstanceManager.newInstance(DefaultInstanceManager.java:151)
+	at org.apache.jasper.servlet.JspServletWrapper.getServlet(JspServletWrapper.java:189)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:410)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:290)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Oct 24, 2025 1:55:34 AM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [jspController] in context with path [] threw exception [org.apache.jasper.JasperException: java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp] with root cause
+java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:129)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:58)
+	at org.apache.catalina.core.DefaultInstanceManager.newInstance(DefaultInstanceManager.java:151)
+	at org.apache.jasper.servlet.JspServletWrapper.getServlet(JspServletWrapper.java:189)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:410)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:290)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+01:56:39.220 [http-nio-8080-exec-2] DEBUG com.chapman.edu.commissions.integration.service.DealService -- Retrieving all deals
+01:56:39.222 [http-nio-8080-exec-2] DEBUG com.chapman.edu.commissions.integration.repository.H2DealRepository -- Found 6 deals
+Oct 24, 2025 1:56:39 AM org.apache.catalina.core.ApplicationDispatcher invoke
+SEVERE: Servlet.service() for servlet [jsp] threw exception
+java.lang.ClassNotFoundException: org.apache.el.ExpressionFactoryImpl
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1353)
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1165)
+	at jakarta.el.ExpressionFactory.newInstance(ExpressionFactory.java:130)
+	at jakarta.el.ExpressionFactory.newInstance(ExpressionFactory.java:75)
+	at org.apache.jasper.compiler.PageInfo.<init>(PageInfo.java:82)
+	at org.apache.jasper.compiler.Compiler.generateJava(Compiler.java:120)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:396)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:372)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:356)
+	at org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:603)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:396)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:286)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Oct 24, 2025 1:56:39 AM org.apache.catalina.core.ApplicationDispatcher invoke
+SEVERE: Servlet.service() for servlet [jsp] threw exception
+java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:129)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:58)
+	at org.apache.catalina.core.DefaultInstanceManager.newInstance(DefaultInstanceManager.java:151)
+	at org.apache.jasper.servlet.JspServletWrapper.getServlet(JspServletWrapper.java:189)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:410)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:290)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Oct 24, 2025 1:56:39 AM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [jspController] in context with path [] threw exception [org.apache.jasper.JasperException: java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp] with root cause
+java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:129)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:58)
+	at org.apache.catalina.core.DefaultInstanceManager.newInstance(DefaultInstanceManager.java:151)
+	at org.apache.jasper.servlet.JspServletWrapper.getServlet(JspServletWrapper.java:189)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:410)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:290)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+01:58:20.243 [http-nio-8080-exec-4] DEBUG com.chapman.edu.commissions.integration.service.DealService -- Retrieving all deals
+01:58:20.246 [http-nio-8080-exec-4] DEBUG com.chapman.edu.commissions.integration.repository.H2DealRepository -- Found 6 deals
+Oct 24, 2025 1:58:20 AM org.apache.catalina.core.ApplicationDispatcher invoke
+SEVERE: Servlet.service() for servlet [jsp] threw exception
+java.lang.ClassNotFoundException: org.apache.el.ExpressionFactoryImpl
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1353)
+	at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1165)
+	at jakarta.el.ExpressionFactory.newInstance(ExpressionFactory.java:130)
+	at jakarta.el.ExpressionFactory.newInstance(ExpressionFactory.java:75)
+	at org.apache.jasper.compiler.PageInfo.<init>(PageInfo.java:82)
+	at org.apache.jasper.compiler.Compiler.generateJava(Compiler.java:120)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:396)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:372)
+	at org.apache.jasper.compiler.Compiler.compile(Compiler.java:356)
+	at org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:603)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:396)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:286)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Oct 24, 2025 1:58:20 AM org.apache.catalina.core.ApplicationDispatcher invoke
+SEVERE: Servlet.service() for servlet [jsp] threw exception
+java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:129)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:58)
+	at org.apache.catalina.core.DefaultInstanceManager.newInstance(DefaultInstanceManager.java:151)
+	at org.apache.jasper.servlet.JspServletWrapper.getServlet(JspServletWrapper.java:189)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:410)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:290)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+Oct 24, 2025 1:58:20 AM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [jspController] in context with path [] threw exception [org.apache.jasper.JasperException: java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp] with root cause
+java.lang.ClassNotFoundException: org.apache.jsp.WEB_002dINF.jsp.dashboard_jsp
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:129)
+	at org.apache.jasper.servlet.JasperLoader.loadClass(JasperLoader.java:58)
+	at org.apache.catalina.core.DefaultInstanceManager.newInstance(DefaultInstanceManager.java:151)
+	at org.apache.jasper.servlet.JspServletWrapper.getServlet(JspServletWrapper.java:189)
+	at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:410)
+	at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:642)
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:408)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:340)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:277)
+	at com.chapman.edu.commissions.app.jsp.JSPController.handleDashboard(JSPController.java:290)
+	at com.chapman.edu.commissions.app.jsp.JSPController.doGet(JSPController.java:63)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:340)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+
+C:\Commission Calculator\commission-calculator-simple>
+
+C:\Commission Calculator\commission-calculator-simple>

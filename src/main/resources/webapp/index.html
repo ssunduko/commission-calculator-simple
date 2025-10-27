@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Deal Management System</h1>
+            <p class="subtitle">Manage your sales deals efficiently</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" onclick="showTab('deals')">All Deals</button>
+            <button class="tab-button" onclick="showTab('create')">Create Deal</button>
+            <button class="tab-button" onclick="showTab('dashboard')">Dashboard</button>
+        </nav>
+
+        <!-- Deals List Tab -->
+        <div id="deals-tab" class="tab-content active">
+            <div class="controls">
+                <div class="filters">
+                    <label>
+                        Filter by Status:
+                        <select id="statusFilter" onchange="loadDeals()">
+                            <option value="">All Statuses</option>
+                            <option value="OPEN">Open</option>
+                            <option value="WON">Won</option>
+                            <option value="LOST">Lost</option>
+                            <option value="PENDING">Pending</option>
+                        </select>
+                    </label>
+                    <label>
+                        Sales Rep ID:
+                        <input type="text" id="salesRepFilter" placeholder="e.g., USER-123" />
+                    </label>
+                    <button onclick="loadDeals()" class="btn btn-primary">Apply Filters</button>
+                    <button onclick="clearFilters()" class="btn btn-secondary">Clear</button>
+                </div>
+                <button onclick="loadDeals()" class="btn btn-refresh">Refresh</button>
+            </div>
+
+            <div id="dealsContainer">
+                <p class="loading">Loading deals...</p>
+            </div>
+        </div>
+
+        <!-- Create Deal Tab -->
+        <div id="create-tab" class="tab-content">
+            <div class="form-container">
+                <h2>Create New Deal</h2>
+                <form id="createDealForm" onsubmit="createDeal(event)">
+                    <div class="form-group">
+                        <label for="dealTitle">Deal Title *</label>
+                        <input type="text" id="dealTitle" required placeholder="e.g., Enterprise Software License - Acme Corp">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dealSalesRepId">Sales Representative *</label>
+                        <select id="dealSalesRepId" required>
+                            <option value="">-- Select a Sales Rep --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dealStatus">Status</label>
+                        <select id="dealStatus">
+                            <option value="OPEN">Open</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="WON">Won</option>
+                            <option value="LOST">Lost</option>
+                        </select>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Products</h3>
+                        <div id="productsContainer">
+                            <div class="product-item">
+                                <input type="text" class="product-id" placeholder="Product ID (e.g., PROD-001)" required>
+                                <input type="text" class="product-name" placeholder="Product Name" required>
+                                <input type="number" class="product-quantity" placeholder="Quantity" min="1" value="1" required>
+                                <input type="number" class="product-price" placeholder="Price" step="0.01" min="0" required>
+                                <button type="button" onclick="removeProduct(this)" class="btn btn-danger btn-small">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addProduct()" class="btn btn-secondary">Add Product</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Create Deal</button>
+                        <button type="button" onclick="resetForm()" class="btn btn-secondary">Reset</button>
+                    </div>
+                </form>
+                <div id="createMessage" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Deals</h3>
+                    <p class="stat-value" id="totalDeals">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Open Deals</h3>
+                    <p class="stat-value" id="openDeals">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Won Deals</h3>
+                    <p class="stat-value" id="wonDeals">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Value</h3>
+                    <p class="stat-value" id="totalValue">-</p>
+                </div>
+            </div>
+            <div class="dashboard-info">
+                <h3>System Status</h3>
+                <div id="systemStatus">
+                    <p><strong>API Base URL:</strong> <span id="apiUrl">-</span></p>
+                    <p><strong>Status:</strong> <span id="connectionStatus" class="badge">Checking...</span></p>
+                    <p><strong>H2 Console:</strong> <a href="/h2-console" target="_blank">Open H2 Console</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
