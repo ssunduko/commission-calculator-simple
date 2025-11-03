@@ -135,6 +135,11 @@ public class Deal {
      * @return the total value of all products in the deal
      */
     public BigDecimal calculateTotalValue() {
+        // Handle null or empty products list
+        if (products == null || products.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
         BigDecimal result = products.stream()
                 .map(product -> product.getPrice().multiply(new BigDecimal(product.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

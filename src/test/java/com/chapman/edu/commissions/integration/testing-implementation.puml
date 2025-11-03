@@ -1,0 +1,686 @@
+@startuml Integration Testing Architecture - MVC Layered Application
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+skinparam packageStyle rectangle
+
+' Title
+title Testing Implementation - Layered MVC Architecture\nUnit, Mock, Integration, API, MockServer, and External Server Testing\n187 Tests Across 17 Test Classes
+
+' ==================== PRODUCTION CODE ====================
+package "Production Code\n(System Under Test)" <<Rectangle>> #e3f2fd {
+
+    class Deal <<Model>> {
+        -id: String
+        -title: String
+        -status: DealStatus
+        -products: List<DealProduct>
+        +calculateTotalValue(): BigDecimal
+        +equals(Object): boolean
+        +hashCode(): int
+    }
+
+    class DealProduct <<Model>> {
+        -productId: String
+        -productName: String
+        -quantity: int
+        -price: BigDecimal
+        +calculateTotalPrice(): BigDecimal
+    }
+
+    class User <<Model>> {
+        -id: String
+        -email: String
+        -roles: Set<UserRole>
+        -active: boolean
+    }
+
+    class DealController <<Servlet>> {
+        -dealService: DealService
+        +doGet(request, response): void
+        +doPost(request, response): void
+        +doPut(request, response): void
+        +doDelete(request, response): void
+    }
+
+    class AuthenticationFilter <<Filter>> {
+        -userService: UserService
+        +doFilter(req, res, chain): void
+        -isPublicEndpoint(path): boolean
+    }
+
+    class DealService <<Service>> {
+        -dealRepository: Repository<Deal>
+        +getAllDeals(): List<Deal>
+        +createDeal(deal): Deal
+        +updateDeal(id, deal): Deal
+        +deleteDeal(id): boolean
+        +closeDealAsWon(id): Deal
+        -validateDeal(deal): void
+    }
+
+    interface Repository<T> <<Interface>> {
+        +findAll(): List<T>
+        +findById(id): Optional<T>
+        +save(entity): T
+        +deleteById(id): boolean
+    }
+
+    class H2DealRepository <<Repository>> {
+        -dbManager: DatabaseManager
+        +findAll(): List<Deal>
+        +findById(id): Optional<Deal>
+        +save(deal): Deal
+        +deleteById(id): boolean
+        -mapResultSetToDeal(rs): Deal
+    }
+
+    class DatabaseManager <<Singleton>> {
+        -connection: Connection
+        +getInstance(): DatabaseManager
+        +getConnection(): Connection
+        +resetDatabase(): void
+    }
+}
+
+' ==================== MODEL UNIT TESTS ====================
+package "Model Unit Tests\n(Domain Logic Testing - 36 tests)" <<Rectangle>> #e8f5e9 {
+
+    class DealModelUnitTest <<Unit Test>> {
+        +testCalculateTotalValue(): void
+        +testDealEqualsSameId(): void
+        +testDealHashCode(): void
+        +testDealStatusLifecycle(): void
+        +testAddProduct(): void
+        +testNullProductsHandling(): void
+    }
+
+    class DealProductModelUnitTest <<Unit Test>> {
+        +testCalculateTotalPrice(): void
+        +testConstructorAndGetters(): void
+        +testProductEquality(): void
+        +testSetters(): void
+    }
+
+    class UserModelUnitTest <<Unit Test>> {
+        +testRoleManagement(): void
+        +testActiveStatus(): void
+        +testUserEquality(): void
+        +testEmailValidation(): void
+    }
+
+    note right of DealModelUnitTest
+        <b>Model Unit Testing (36 tests):</b>
+        - Tests domain model business logic
+        - No dependencies
+        - Fast execution
+        - Validates calculations
+        - Tests equals/hashCode contract
+        - Tests status lifecycle
+
+        <b>Deal Model (20 tests):</b>
+        calculateTotalValue(), equals(), hashCode()
+
+        <b>DealProduct Model (7 tests):</b>
+        calculateTotalPrice(), constructors
+
+        <b>User Model (9 tests):</b>
+        Role management, active status
+    end note
+}
+
+' ==================== UNIT TESTS ====================
+package "Unit Tests\n(Isolated Testing with Mocks - 49 tests)" <<Rectangle>> #e8f5e9 {
+
+    class H2DealRepositoryUnitTest <<Unit Test>> {
+        -dbManager: DatabaseManager
+        -repository: H2DealRepository
+        +testSaveNewDeal(): void
+        +testFindById(): void
+        +testUpdateDeal(): void
+        +testDeleteById(): void
+        +testNullCloseDate(): void
+    }
+
+    class DealServiceUnitTest <<Unit Test>> {
+        -mockRepository: Repository<Deal>
+        -service: DealService
+        +testCreateValidDeal(): void
+        +testCreateDealWithoutTitle(): void
+        +testCannotUpdateCancelledDeal(): void
+        +testFilterDealsByStatus(): void
+        +testCalculatePipelineValue(): void
+    }
+
+    class DealControllerUnitTest <<Unit Test>> {
+        -mockDealService: DealService
+        -mockRequest: HttpServletRequest
+        -mockResponse: HttpServletResponse
+        -controller: DealController
+        +testCreateDeal(): void
+        +testGetAllDeals(): void
+        +testGetDealById(): void
+        +testUpdateDeal(): void
+        +testDeleteDeal(): void
+    }
+
+    class AuthenticationFilterUnitTest <<Unit Test>> {
+        -mockUserService: UserService
+        -mockRequest: HttpServletRequest
+        -mockResponse: HttpServletResponse
+        -filter: AuthenticationFilter
+        +testPublicEndpointRoot(): void
+        +testValidCredentials(): void
+        +testInvalidCredentials(): void
+    }
+}
+
+' ==================== MOCK TESTS ====================
+package "Mock Tests\n(Pure Isolation with Mocks - 33 tests)" <<Rectangle>> #fff3e0 {
+
+    class H2DealRepositoryMockTest <<Mock Test>> {
+        -mockDbManager: DatabaseManager
+        -mockConnection: Connection
+        -mockStatement: PreparedStatement
+        -mockResultSet: ResultSet
+        -repository: H2DealRepository
+        +testFindByIdWithMocks(): void
+        +testFindByIdNotFoundWithMocks(): void
+        +testFindByIdSQLException(): void
+        +testDeleteByIdWithMocks(): void
+    }
+
+    class DealServiceMockTest <<Mock Test>> {
+        -mockRepository: Repository<Deal>
+        -service: DealService
+        +testCreateDealWithArgumentCaptor(): void
+        +testUpdateDealVerifyInteractions(): void
+        +testDeleteDealVerifyCalls(): void
+        +testGetAllDealsOrdering(): void
+    }
+
+    class DealControllerMockTest <<Mock Test>> {
+        -mockDealService: DealService
+        -mockRequest: HttpServletRequest
+        -mockResponse: HttpServletResponse
+        -controller: DealController
+        +testCreateDealWithArgumentCaptor(): void
+        +testUpdateDealVerifyServiceCall(): void
+        +testDeleteDealVerifyInteraction(): void
+    }
+
+    note right of H2DealRepositoryMockTest
+        <b>Mock Testing Pattern:</b>
+        - Mock ALL dependencies
+        - No real database
+        - Fast execution
+        - Test error scenarios
+        - Verify interactions
+
+        <b>Mockito Features:</b>
+        - @Mock annotations
+        - when().thenReturn()
+        - verify() interactions
+        - doThrow() for exceptions
+        - ArgumentCaptor for verification
+
+        <b>Mock Test Count: 33 tests</b>
+        - Repository Mock: 10 tests
+        - Service Mock: 12 tests
+        - Controller Mock: 11 tests
+    end note
+}
+
+' ==================== INTEGRATION TESTS ====================
+package "Integration Tests\n(Multi-Layer with Real Dependencies - 35 tests)" <<Rectangle>> #f3e5f5 {
+
+    class H2DealRepositoryIntegrationTest <<Integration Test>> {
+        -dbManager: DatabaseManager
+        -dealRepository: H2DealRepository
+        -userRepository: H2UserRepository
+        +testFullCRUDLifecycle(): void
+        +testForeignKeyConstraint(): void
+        +testJSONPersistence(): void
+        +testDirectDatabaseQuery(): void
+        +testUpdateDoesNotCreateNewRow(): void
+    }
+
+    class DealServiceIntegrationTest <<Integration Test>> {
+        -dbManager: DatabaseManager
+        -dealRepository: H2DealRepository
+        -dealService: DealService
+        +testServiceWithRealDatabase(): void
+        +testBusinessLogicWithPersistence(): void
+        +testTransactionBoundaries(): void
+        +testValidationWithDatabase(): void
+    }
+
+    class DealControllerIntegrationTest <<Integration Test>> {
+        -dbManager: DatabaseManager
+        -dealRepository: H2DealRepository
+        -dealService: DealService
+        -controller: DealController
+        +testControllerToDatabase(): void
+        +testFullStackWithoutHTTP(): void
+        +testRequestResponseFlow(): void
+    }
+
+    class AuthenticationFilterIntegrationTest <<Integration Test>> {
+        -dbManager: DatabaseManager
+        -userRepository: H2UserRepository
+        -userService: UserService
+        -filter: AuthenticationFilter
+        +testFilterWithRealAuthentication(): void
+        +testDatabaseUserLookup(): void
+        +testFilterChainIntegration(): void
+    }
+
+    note right of H2DealRepositoryIntegrationTest
+        <b>Integration Testing Focus:</b>
+        - Real database (H2)
+        - Actual SQL execution
+        - Foreign key constraints
+        - JSON serialization
+        - Database schema validation
+        - Transaction behavior
+
+        <b>Layer Integration Pattern:</b>
+        - Service Integration: Service + Repository + DB
+        - Controller Integration: Controller + Service + Repo + DB
+        - Security Integration: Filter + Service + Repo + DB
+
+        <b>Setup Pattern:</b>
+        @BeforeAll: Init database once
+        @BeforeEach: Reset database
+        @AfterAll: Cleanup
+
+        <b>Integration Test Count: 35 tests</b>
+        - Repository: 10 tests
+        - Service: 9 tests
+        - Controller: 9 tests
+        - Security: 7 tests
+    end note
+}
+
+' ==================== API TESTS ====================
+package "API Tests\n(End-to-End HTTP Testing - 14 tests)" <<Rectangle>> #fce4ec {
+
+    class DealControllerAPITest <<API Test>> {
+        -app: IntegrationApplication
+        +testUnauthenticatedRequest(): void
+        +testValidAuthentication(): void
+        +testCreateDeal(): void
+        +testGetAllDeals(): void
+        +testGetDealById(): void
+        +testUpdateDeal(): void
+        +testDeleteDeal(): void
+        +testCloseDealAsWon(): void
+    }
+
+    note right of DealControllerAPITest
+        <b>End-to-End API Testing:</b>
+        - Real HTTP requests
+        - Full application stack
+        - RestAssured framework
+        - HTTP status codes
+        - JSON request/response
+        - Authentication flow
+
+        <b>Testing Layers:</b>
+        HTTP → Filter → Controller
+        → Service → Repository → Database
+
+        <b>RestAssured Pattern:</b>
+        given() - Setup (auth, headers, body)
+        when() - Execute (GET, POST, PUT, DELETE)
+        then() - Assert (status, JSON, headers)
+
+        <b>API Test Count: 14 tests</b>
+    end note
+}
+
+' ==================== MOCKSERVER TESTS ====================
+package "MockServer Tests\n(HTTP Endpoint Mocking - 10 tests)" <<Rectangle>> #e1f5fe {
+
+    class DealControllerMockServerTest <<MockServer Test>> {
+        -mockServerClient: MockServerClient
+        -mockServer: ClientAndServer
+        +testGetAllDealsFromMockServer(): void
+        +testGetDealByIdFromMockServer(): void
+        +testCreateDealViaMockServer(): void
+        +testUpdateDealViaMockServer(): void
+        +testDeleteDealViaMockServer(): void
+        +testMockServerErrorResponse(): void
+    }
+
+    note right of DealControllerMockServerTest
+        <b>MockServer Testing Pattern:</b>
+        - Creates LOCAL mock HTTP server
+        - Simulates external API endpoints
+        - Tests client-side HTTP logic
+        - No real external service needed
+        - Validates request/response handling
+
+        <b>MockServer Features:</b>
+        - mockServerClient.when(request)
+        - .respond(response)
+        - HTTP method matching
+        - Path pattern matching
+        - Status code simulation
+        - JSON response bodies
+
+        <b>Use Cases:</b>
+        - Testing API client code
+        - Simulating partner APIs
+        - Testing error scenarios
+        - Development without external dependencies
+
+        <b>MockServer Test Count: 10 tests</b>
+    end note
+}
+
+' ==================== EXTERNAL SERVER TESTS ====================
+package "External Server Tests\n(Third-Party API Integration - 10 tests)" <<Rectangle>> #fff9c4 {
+
+    class DealControllerExternalServerTest <<External Server Test>> {
+        +testGetAllDealsFromExternalAPI(): void
+        +testGetDealByIdFromExternalAPI(): void
+        +testCreateDealViaExternalAPI(): void
+        +testUpdateDealViaExternalAPI(): void
+        +testDeleteDealViaExternalAPI(): void
+        +testExternalAPIResponseTime(): void
+        +testExternalAPINotFound(): void
+        +testExternalAPIResponseStructure(): void
+        +testExternalAPIWithQueryParameters(): void
+        +testExtractAndValidateFields(): void
+    }
+
+    note right of DealControllerExternalServerTest
+        <b>External API Testing Pattern:</b>
+        - Calls REAL external mock API service
+        - Endpoint: mock.apidog.com
+        - Tests network communication
+        - Validates third-party integration
+        - Tests latency and performance
+
+        <b>RestAssured Usage:</b>
+        RestAssured.baseURI = external_url
+        given().when().get().then()
+
+        <b>Differences from MockServer:</b>
+        - MockServer: LOCAL mock HTTP server
+        - External: REMOTE third-party API
+        - MockServer: In-process
+        - External: Network communication
+
+        <b>Use Cases:</b>
+        - Partner API integration testing
+        - API sandbox validation
+        - Contract testing
+        - Network behavior testing
+
+        <b>External Server Test Count: 10 tests</b>
+    end note
+}
+
+' ==================== TEST FRAMEWORKS ====================
+package "Test Frameworks\n(Testing Tools)" <<Rectangle>> #eceff1 {
+
+    class JUnit5 <<Framework>> {
+        +@Test
+        +@BeforeAll
+        +@BeforeEach
+        +@AfterAll
+        +@DisplayName
+        +@Order
+        +Assertions
+    }
+
+    class Mockito <<Framework>> {
+        +@Mock
+        +@ExtendWith
+        +when()
+        +verify()
+        +doThrow()
+        +ArgumentCaptor
+    }
+
+    class RestAssured <<Framework>> {
+        +given()
+        +when()
+        +then()
+        +auth()
+        +get(), post(), put(), delete()
+        +baseURI
+    }
+
+    class MockServer <<Framework>> {
+        +MockServerClient
+        +ClientAndServer
+        +request()
+        +response()
+        +when().respond()
+    }
+
+    class Hamcrest <<Matchers>> {
+        +equalTo()
+        +notNullValue()
+        +hasSize()
+        +containsString()
+    }
+}
+
+' ==================== RELATIONSHIPS ====================
+
+' Model Tests relationships
+DealModelUnitTest --> Deal : tests
+DealProductModelUnitTest --> DealProduct : tests
+UserModelUnitTest --> User : tests
+
+' Unit Tests relationships
+H2DealRepositoryUnitTest --> H2DealRepository : tests with\nreal database
+H2DealRepositoryUnitTest ..> DatabaseManager : uses real
+
+DealServiceUnitTest --> DealService : tests
+DealServiceUnitTest ..> Repository : mocks
+
+DealControllerUnitTest --> DealController : tests
+DealControllerUnitTest ..> Mockito : uses
+
+AuthenticationFilterUnitTest --> AuthenticationFilter : tests
+AuthenticationFilterUnitTest ..> Mockito : uses
+
+' Mock Tests relationships
+H2DealRepositoryMockTest --> H2DealRepository : tests
+H2DealRepositoryMockTest ..> Mockito : mocks all\ndependencies
+
+DealServiceMockTest --> DealService : tests
+DealServiceMockTest ..> Mockito : uses ArgumentCaptor
+
+DealControllerMockTest --> DealController : tests
+DealControllerMockTest ..> Mockito : verifies interactions
+
+' Integration Tests relationships
+H2DealRepositoryIntegrationTest --> H2DealRepository : tests
+H2DealRepositoryIntegrationTest --> DatabaseManager : uses real\ndatabase
+
+DealServiceIntegrationTest --> DealService : tests
+DealServiceIntegrationTest --> H2DealRepository : uses real
+DealServiceIntegrationTest --> DatabaseManager : uses real
+
+DealControllerIntegrationTest --> DealController : tests
+DealControllerIntegrationTest --> DealService : uses real
+DealControllerIntegrationTest --> H2DealRepository : uses real
+DealControllerIntegrationTest --> DatabaseManager : uses real
+
+AuthenticationFilterIntegrationTest --> AuthenticationFilter : tests
+AuthenticationFilterIntegrationTest --> DatabaseManager : uses real
+
+' API Tests relationships
+DealControllerAPITest --> DealController : tests via HTTP
+DealControllerAPITest --> AuthenticationFilter : tests via HTTP
+DealControllerAPITest --> DealService : tests via HTTP
+DealControllerAPITest --> H2DealRepository : tests via HTTP
+DealControllerAPITest ..> RestAssured : uses
+
+' MockServer Tests relationships
+DealControllerMockServerTest ..> MockServer : creates local\nmock server
+DealControllerMockServerTest ..> RestAssured : uses
+
+' External Server Tests relationships
+DealControllerExternalServerTest ..> RestAssured : uses
+DealControllerExternalServerTest ..> "Apidog Mock API" : calls external
+
+' Framework usage
+DealModelUnitTest ..> JUnit5 : uses
+H2DealRepositoryUnitTest ..> JUnit5 : uses
+DealServiceUnitTest ..> JUnit5 : uses
+DealServiceUnitTest ..> Mockito : uses
+H2DealRepositoryMockTest ..> Mockito : uses
+DealServiceMockTest ..> Mockito : uses
+DealControllerMockTest ..> Mockito : uses
+H2DealRepositoryIntegrationTest ..> JUnit5 : uses
+DealServiceIntegrationTest ..> JUnit5 : uses
+DealControllerIntegrationTest ..> JUnit5 : uses
+DealControllerAPITest ..> JUnit5 : uses
+DealControllerAPITest ..> RestAssured : uses
+DealControllerAPITest ..> Hamcrest : uses
+DealControllerMockServerTest ..> JUnit5 : uses
+DealControllerMockServerTest ..> MockServer : uses
+DealControllerExternalServerTest ..> JUnit5 : uses
+DealControllerExternalServerTest ..> RestAssured : uses
+
+' ==================== TESTING PYRAMID ====================
+
+note as TestingPyramid
+    <b>TESTING PYRAMID - 187 Total Tests</b>
+
+    ┌──────────────────────────┐
+    │  External Server (10)    │ ← Slowest, Real Network
+    ├──────────────────────────┤
+    │  MockServer (10)         │ ← Local HTTP Mocking
+    ├──────────────────────────┤
+    │  API Tests (14)          │ ← End-to-End HTTP
+    ├──────────────────────────┤
+    │  Integration Tests (35)  │ ← Multiple Layers + DB
+    ├──────────────────────────┤
+    │  Mock Tests (33)         │ ← Pure Isolation
+    ├──────────────────────────┤
+    │  Unit Tests (85)         │ ← Fastest, Most Tests
+    └──────────────────────────┘
+
+    <b>Test Distribution:</b>
+    - Model Unit: 36 tests (19%)
+    - Repository Unit: 13 tests (7%)
+    - Service Unit: 15 tests (8%)
+    - Controller Unit: 10 tests (5%)
+    - Security Unit: 11 tests (6%)
+    - Repository Mock: 10 tests (5%)
+    - Service Mock: 12 tests (6%)
+    - Controller Mock: 11 tests (6%)
+    - Repository Integration: 10 tests (5%)
+    - Service Integration: 9 tests (5%)
+    - Controller Integration: 9 tests (5%)
+    - Security Integration: 7 tests (4%)
+    - API: 14 tests (7%)
+    - MockServer: 10 tests (5%)
+    - External: 10 tests (5%)
+end note
+
+' ==================== LEGEND ====================
+
+legend right
+    <b>Testing Types Explained (187 Tests Total):</b>
+
+    <b>1. MODEL UNIT TESTS (36 tests):</b>
+    - Test domain model business logic
+    - No dependencies
+    - Fastest execution
+    - Examples: Deal.calculateTotalValue()
+
+    <b>2. UNIT TESTS (49 tests):</b>
+    - Test single component in isolation
+    - Fast execution (milliseconds)
+    - Mock external dependencies
+    - Focus on business logic
+    - Examples: Service layer validation
+
+    <b>3. MOCK TESTS (33 tests):</b>
+    - Pure isolation with mocked dependencies
+    - Test error scenarios
+    - Verify method interactions
+    - No I/O operations
+    - Examples: Repository with mocked DB
+
+    <b>4. INTEGRATION TESTS (35 tests):</b>
+    - Test multiple components together
+    - Real external dependencies (database)
+    - Verify integration points
+    - Layer + Layer Below pattern
+    - Examples: Service + Repository + DB
+
+    <b>5. API TESTS (14 tests):</b>
+    - Test entire application stack
+    - Real HTTP requests/responses
+    - Black-box testing
+    - Slowest tests
+    - Examples: POST /deals returns 201
+
+    <b>6. MOCKSERVER TESTS (10 tests):</b>
+    - Local HTTP endpoint mocking
+    - Simulates external APIs in-process
+    - Tests client-side HTTP logic
+    - No external dependencies
+    - Examples: Mock partner API responses
+
+    <b>7. EXTERNAL SERVER TESTS (10 tests):</b>
+    - Tests against real external mock API
+    - Network communication testing
+    - Third-party API integration
+    - Validates API contracts
+    - Examples: Apidog mock API calls
+
+    <b>Test Frameworks Used:</b>
+    - JUnit 5: Test execution framework
+    - Mockito: Mocking framework
+    - RestAssured: HTTP client for API tests
+    - MockServer: HTTP endpoint mocking
+    - Hamcrest: Matchers for assertions
+
+    <b>Key Principles:</b>
+    - Test at appropriate level
+    - Fast tests run frequently
+    - Comprehensive coverage
+    - Test behavior, not implementation
+    - Arrange-Act-Assert pattern
+    - Layer + Layer Below integration
+
+    <b>Directory Structure:</b>
+    integration/
+      model/unit/              ← Model unit tests (36)
+      repository/
+        unit/                  ← Repository unit tests (13)
+        mock/                  ← Repository mock tests (10)
+        integration/           ← Repository integration tests (10)
+      service/
+        unit/                  ← Service unit tests (15)
+        mock/                  ← Service mock tests (12)
+        integration/           ← Service integration tests (9)
+      controller/
+        unit/                  ← Controller unit tests (10)
+        mock/                  ← Controller mock tests (11)
+        integration/           ← Controller integration tests (9)
+        api/                   ← API tests (14)
+        mockserver/            ← MockServer tests (10)
+        externalserver/        ← External server tests (10)
+      security/
+        unit/                  ← Filter unit tests (11)
+        integration/           ← Filter integration tests (7)
+endlegend
+
+@enduml

@@ -4,6 +4,8 @@ import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealProduct;
 import com.chapman.edu.commissions.model.DealStatus;
 
+import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternStructure.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,28 +25,57 @@ import java.util.UUID;
 public class AdapterPatternImplementation {
 
     /**
-     * Target Interface
-     * This is the interface that the third-party payment system expects.
+     * Adapter
+     * This class implements the Target interface and translates calls to the Adaptee.
      */
-    public interface PaymentTransaction {
-        String getTransactionId();
-        String getCustomerId();
-        double getAmount();
-        String getCurrency();
-        String getTransactionDate();
-        List<PaymentItem> getItems();
-        String getStatus();
+    public static class DealReportAdapter implements ReportData {
+        private Deal deal;
+
+        public DealReportAdapter(Deal deal) {
+            this.deal = deal;
+        }
+
+        @Override
+        public String getReportTitle() {
+            return deal.getTitle();
+        }
+
+        @Override
+        public BigDecimal getReportValue() {
+            return deal.getValue();
+        }
+
+        @Override
+        public String getOwnerName() {
+            return deal.getSalesRepId(); // In a real scenario, we might look up the name from the ID
+        }
+
+        @Override
+        public List<String> getItemDescriptions() {
+            return deal.getProducts().stream()
+                    .map(product -> product.getProductName() + " (Qty: " + product.getQuantity() + ")")
+                    .toList();
+        }
+
+        @Override
+        public BigDecimal getTotalAmount() {
+            return deal.calculateTotalValue();
+        }
     }
 
     /**
-     * Another interface required by the Target
+     * Client
+     * This class interacts with the Target interface.
      */
-    public interface PaymentItem {
-        String getItemId();
-        String getDescription();
-        int getQuantity();
-        double getUnitPrice();
-        double getTotalPrice();
+    public static class ReportGenerator {
+        public void generateReport(AdapterPatternStructure.ReportData data) {
+            System.out.println("Report: " + data.getReportTitle());
+            System.out.println("Owner: " + data.getOwnerName());
+            System.out.println("Value: " + data.getReportValue());
+            System.out.println("Items:");
+            data.getItemDescriptions().forEach(item -> System.out.println("- " + item));
+            System.out.println("Total Amount: " + data.getTotalAmount());
+        }
     }
 
     /**
@@ -103,6 +134,23 @@ public class AdapterPatternImplementation {
         }
 
         @Override
+        public List<PaymentItem> getItems() {
+            List<PaymentItem> paymentItems = new ArrayList<>();
+
+            for (DealProduct product : deal.getProducts()) {
+                PaymentItem item = new PaymentItemImpl(
+                        product.getProductId(),
+                        product.getProductName(),
+                        product.getQuantity(),
+                        product.getPrice().doubleValue()
+                );
+                paymentItems.add(item);
+            }
+
+            return paymentItems;
+        }
+
+        @Override
         public String getTransactionId() {
             return deal.getId() != null ? deal.getId() : UUID.randomUUID().toString();
         }
@@ -126,23 +174,6 @@ public class AdapterPatternImplementation {
         public String getTransactionDate() {
             LocalDate date = deal.getCloseDate() != null ? deal.getCloseDate() : LocalDate.now();
             return date.format(DATE_FORMATTER);
-        }
-
-        @Override
-        public List<PaymentItem> getItems() {
-            List<PaymentItem> paymentItems = new ArrayList<>();
-
-            for (DealProduct product : deal.getProducts()) {
-                PaymentItem item = new PaymentItemImpl(
-                    product.getProductId(),
-                    product.getProductName(),
-                    product.getQuantity(),
-                    product.getPrice().doubleValue()
-                );
-                paymentItems.add(item);
-            }
-
-            return paymentItems;
         }
 
         @Override

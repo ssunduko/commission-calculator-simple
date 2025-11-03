@@ -210,7 +210,7 @@ public class DatabaseManager {
      * WARNING: This deletes all data!
      */
     public void resetDatabase() {
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
             stmt.execute("DROP TABLE IF EXISTS disputes");
             stmt.execute("DROP TABLE IF EXISTS deals");
             stmt.execute("DROP TABLE IF EXISTS commission_plans");

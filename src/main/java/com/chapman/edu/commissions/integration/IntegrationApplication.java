@@ -1,6 +1,7 @@
 package com.chapman.edu.commissions.integration;
 
 import com.chapman.edu.commissions.integration.controller.DealController;
+import com.chapman.edu.commissions.integration.controller.UserController;
 import com.chapman.edu.commissions.integration.database.DatabaseManager;
 import com.chapman.edu.commissions.integration.repository.H2DealRepository;
 import com.chapman.edu.commissions.integration.repository.H2UserRepository;
@@ -96,8 +97,26 @@ public class IntegrationApplication {
     /**
      * Starts the application.
      * Demonstrates the complete application lifecycle.
+     * Blocks until server shutdown (suitable for main application).
      */
     public void start() throws LifecycleException {
+        startServer(true); // blocking mode
+    }
+
+    /**
+     * Starts the application without blocking.
+     * Suitable for testing where you need the server running but want to continue execution.
+     */
+    public void startNonBlocking() throws LifecycleException {
+        startServer(false); // non-blocking mode
+    }
+
+    /**
+     * Internal method to start the server with optional blocking.
+     *
+     * @param block if true, blocks until server shutdown; if false, returns immediately
+     */
+    private void startServer(boolean block) throws LifecycleException {
         logger.info("Starting Commission Calculator Integration Application...");
 
         // Step 1: Initialize database
@@ -117,6 +136,7 @@ public class IntegrationApplication {
         // Step 4: Create controllers (Presentation Layer)
         logger.info("Creating controllers...");
         DealController dealController = new DealController(dealService);
+        UserController userController = new UserController(userService);
 
         // Step 5: Create security filter
         AuthenticationFilter authFilter = new AuthenticationFilter(userService);
@@ -132,14 +152,33 @@ public class IntegrationApplication {
         String docBase = new File(".").getAbsolutePath();
         Context context = tomcat.addContext(contextPath, docBase);
 
-        // Register authentication filter for all requests
-        // Note: Filter registration in Tomcat 10+ requires ServletContext
-        // For this educational example, we skip filter registration to simplify
-        // In production, use web.xml or programmatic registration via ServletContext
+        // Register authentication filter FIRST before servlets
+        // This filter protects: API endpoints, H2 Console, and Swagger UI
+        // Public endpoints (/, /index.html, static resources) are still accessible
+        logger.info("Registering authentication filter...");
+
+        // Use Tomcat-specific API for filter registration
+        org.apache.tomcat.util.descriptor.web.FilterDef filterDef = new org.apache.tomcat.util.descriptor.web.FilterDef();
+        filterDef.setFilterName("authenticationFilter");
+        filterDef.setFilter(authFilter);
+        context.addFilterDef(filterDef);
+
+        org.apache.tomcat.util.descriptor.web.FilterMap filterMap = new org.apache.tomcat.util.descriptor.web.FilterMap();
+        filterMap.setFilterName("authenticationFilter");
+        filterMap.addURLPattern("/*");
+        filterMap.setDispatcher(DispatcherType.REQUEST.name());
+        filterMap.setDispatcher(DispatcherType.FORWARD.name());
+        context.addFilterMap(filterMap);
+
+        logger.info("Authentication filter registered for all endpoints");
 
         // Register Deal Controller servlet
         Tomcat.addServlet(context, "dealController", dealController);
         context.addServletMappingDecoded("/api/v1/integration/deals/*", "dealController");
+
+        // Register User Controller servlet
+        Tomcat.addServlet(context, "userController", userController);
+        context.addServletMappingDecoded("/api/v1/integration/users/*", "userController");
 
         // Register H2 Console servlet (web interface for database)
         // Accessible at: http://localhost:8080/h2-console
@@ -186,8 +225,20 @@ public class IntegrationApplication {
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
-        // Keep the server running
-        tomcat.getServer().await();
+        // Keep the server running (only if blocking mode)
+        if (block) {
+            tomcat.getServer().await();
+        }
+    }
+
+    /**
+     * Stops the server.
+     * Useful for testing scenarios where you need to explicitly stop the server.
+     */
+    public void stop() throws LifecycleException {
+        if (tomcat != null) {
+            tomcat.stop();
+        }
     }
 
     /**
@@ -258,6 +309,11 @@ public class IntegrationApplication {
 
     /**
      * Shuts down the application gracefully.
+     *
+     * NOTE: We do NOT close the DatabaseManager here because it's a singleton
+     * shared across the application (and test classes). Closing it would break
+     * other tests or application components. DatabaseManager has its own shutdown
+     * hook to close when the JVM exits.
      */
     private void shutdown() {
         logger.info("Shutting down Commission Calculator Integration Application...");
@@ -268,9 +324,10 @@ public class IntegrationApplication {
                 tomcat.destroy();
             }
 
-            if (dbManager != null) {
-                dbManager.close();
-            }
+            // Do NOT close dbManager - it's a singleton with its own lifecycle
+            // if (dbManager != null) {
+            //     dbManager.close();
+            // }
 
             logger.info("Application shut down successfully");
         } catch (Exception e) {

@@ -3,17 +3,9 @@ package com.chapman.edu.commissions.patterns.structural.decorator;
 import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealProduct;
 import com.chapman.edu.commissions.model.DealStatus;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.BasicDeal;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.DealComponent;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.DiscountDecorator;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.LoggingDecorator;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.PremiumDecorator;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.UrgencyDecorator;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternStructure.AcceleratorDecorator;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternStructure.BaseCommission;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternStructure.BonusDecorator;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternStructure.Commission;
-import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternStructure.TaxDecorator;
+import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternImplementation.*;
+import com.chapman.edu.commissions.patterns.structural.decorator.DecoratorPatternStructure.*;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

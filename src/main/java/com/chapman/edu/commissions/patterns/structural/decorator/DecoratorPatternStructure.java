@@ -1,6 +1,10 @@
 package com.chapman.edu.commissions.patterns.structural.decorator;
 
+import com.chapman.edu.commissions.model.Deal;
+import com.chapman.edu.commissions.model.DealProduct;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * This class demonstrates the structure of the Decorator Pattern.
@@ -26,27 +30,6 @@ public class DecoratorPatternStructure {
     }
 
     /**
-     * Concrete Component - defines an object to which additional responsibilities can be attached
-     */
-    public static class BaseCommission implements Commission {
-        private BigDecimal amount;
-        
-        public BaseCommission(BigDecimal amount) {
-            this.amount = amount;
-        }
-        
-        @Override
-        public BigDecimal calculate() {
-            return amount;
-        }
-        
-        @Override
-        public String getDescription() {
-            return "Base Commission";
-        }
-    }
-
-    /**
      * Decorator - maintains a reference to a Component object and defines an interface that conforms to Component's interface
      */
     public static abstract class CommissionDecorator implements Commission {
@@ -68,70 +51,44 @@ public class DecoratorPatternStructure {
     }
 
     /**
-     * Concrete Decorator - adds responsibilities to the component
+     * Component Interface - defines the interface for objects that can have responsibilities added to them
      */
-    public static class BonusDecorator extends CommissionDecorator {
-        private BigDecimal bonusAmount;
-        
-        public BonusDecorator(Commission decoratedCommission, BigDecimal bonusAmount) {
-            super(decoratedCommission);
-            this.bonusAmount = bonusAmount;
-        }
-        
-        @Override
-        public BigDecimal calculate() {
-            return decoratedCommission.calculate().add(bonusAmount);
-        }
-        
-        @Override
-        public String getDescription() {
-            return decoratedCommission.getDescription() + " + Bonus";
-        }
+    public interface DealComponent {
+        String getTitle();
+        BigDecimal calculateValue();
+        String getSalesRepId();
+        List<DealProduct> getProducts();
     }
 
-    /**
-     * Concrete Decorator - adds responsibilities to the component
-     */
-    public static class AcceleratorDecorator extends CommissionDecorator {
-        private BigDecimal multiplier;
-        
-        public AcceleratorDecorator(Commission decoratedCommission, BigDecimal multiplier) {
-            super(decoratedCommission);
-            this.multiplier = multiplier;
-        }
-        
-        @Override
-        public BigDecimal calculate() {
-            return decoratedCommission.calculate().multiply(multiplier);
-        }
-        
-        @Override
-        public String getDescription() {
-            return decoratedCommission.getDescription() + " with Accelerator";
-        }
-    }
 
     /**
-     * Concrete Decorator - adds responsibilities to the component
+     * Decorator - maintains a reference to a DealComponent object and defines an interface that conforms to DealComponent's interface
      */
-    public static class TaxDecorator extends CommissionDecorator {
-        private BigDecimal taxRate;
-        
-        public TaxDecorator(Commission decoratedCommission, BigDecimal taxRate) {
-            super(decoratedCommission);
-            this.taxRate = taxRate;
+    public static abstract class DealDecorator implements DealComponent {
+        protected DealComponent decoratedDeal;
+
+        public DealDecorator(DealComponent decoratedDeal) {
+            this.decoratedDeal = decoratedDeal;
         }
-        
+
         @Override
-        public BigDecimal calculate() {
-            BigDecimal commission = decoratedCommission.calculate();
-            BigDecimal taxAmount = commission.multiply(taxRate);
-            return commission.subtract(taxAmount);
+        public String getTitle() {
+            return decoratedDeal.getTitle();
         }
-        
+
         @Override
-        public String getDescription() {
-            return decoratedCommission.getDescription() + " after Tax";
+        public BigDecimal calculateValue() {
+            return decoratedDeal.calculateValue();
+        }
+
+        @Override
+        public String getSalesRepId() {
+            return decoratedDeal.getSalesRepId();
+        }
+
+        @Override
+        public List<DealProduct> getProducts() {
+            return decoratedDeal.getProducts();
         }
     }
 }

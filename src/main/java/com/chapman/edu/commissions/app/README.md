@@ -4,18 +4,6 @@
 
 The **Deal Management Application** is a comprehensive educational example demonstrating enterprise-grade RESTful web application architecture using Java, Jakarta Servlets, and embedded Tomcat. Built on top of the integration layer classes, this application showcases best practices in layered architecture, separation of concerns, and SOLID design principles.
 
-## Table of Contents
-
-1. [What Was Created](#what-was-created)
-2. [Architecture Overview](#architecture-overview)
-3. [Design Patterns](#design-patterns)
-4. [Technology Stack](#technology-stack)
-5. [Running the Application](#running-the-application)
-6. [API Endpoints](#api-endpoints)
-7. [Architectural Diagrams](#architectural-diagrams)
-8. [Educational Value](#educational-value)
-9. [Code Structure](#code-structure)
-
 ---
 
 ## What Was Created
@@ -662,7 +650,7 @@ To extend this application, consider:
 
 ## Authors
 
-Commission Calculator Team - Educational Project for Chapman University
+Sergey L. Sundukovskiy, Ph.D. - Educational Project for Chapman University
 
 ---
 

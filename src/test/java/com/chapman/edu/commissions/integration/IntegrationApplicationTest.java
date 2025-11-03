@@ -9,7 +9,6 @@ import com.chapman.edu.commissions.model.*;
 import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,12 +81,16 @@ class IntegrationApplicationTest {
 
     /**
      * Clean up after all tests.
+     *
+     * NOTE: We do NOT close the DatabaseManager here because it's a singleton
+     * shared across all test classes. Closing it would cause "object already closed"
+     * errors in other tests. The DatabaseManager handles its own cleanup via
+     * shutdown hooks.
      */
     @AfterAll
     static void tearDown() {
-        if (dbManager != null) {
-            dbManager.close();
-        }
+        // DatabaseManager is a singleton - do not close it here
+        // It will be closed when the JVM shuts down
     }
 
     // ========== USER SERVICE TESTS ==========

@@ -4,12 +4,8 @@ import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealProduct;
 import com.chapman.edu.commissions.model.DealStatus;
 import com.chapman.edu.commissions.model.User;
-import com.chapman.edu.commissions.model.CommissionPlan;
-import com.chapman.edu.commissions.model.CommissionCalculation;
-import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternImplementation.PaymentTransaction;
-import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternImplementation.PaymentItem;
-import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternImplementation.PaymentItemImpl;
-import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternImplementation.PaymentProcessor;
+import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternImplementation.*;
+import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternStructure.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

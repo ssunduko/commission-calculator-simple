@@ -19,6 +19,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
 
@@ -81,11 +82,16 @@ public class DealManagementCLIClient {
     private final HttpClient httpClient;
     private final Gson gson;
     private final Scanner scanner;
+    private final String authHeaderValue;
 
     // API Configuration
     private static final String API_BASE_URL = "http://localhost:8080";
     private static final String DEALS_ENDPOINT = "/api/v1/integration/deals";
     private static final String USERS_ENDPOINT = "/api/v1/integration/users";
+
+    // Default authentication credentials (from IntegrationApplication sample data)
+    private static final String DEFAULT_EMAIL = "john.doe@example.com";
+    private static final String DEFAULT_PASSWORD = "password";
 
     private static final String DIVIDER = "=".repeat(80);
     private static final String SEPARATOR = "-".repeat(80);
@@ -127,6 +133,26 @@ public class DealManagementCLIClient {
 
         // Scanner for user input
         this.scanner = new Scanner(System.in);
+
+        // Prepare HTTP Basic Authentication header
+        // Format: "Authorization: Basic base64(email:password)"
+        this.authHeaderValue = createBasicAuthHeader(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+    }
+
+    /**
+     * Creates a Basic Authentication header value.
+     *
+     * HTTP Basic Auth format:
+     * Authorization: Basic base64(email:password)
+     *
+     * @param email The user's email
+     * @param password The user's password
+     * @return The complete Authorization header value
+     */
+    private String createBasicAuthHeader(String email, String password) {
+        String credentials = email + ":" + password;
+        String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+        return "Basic " + encodedCredentials;
     }
 
     /**
@@ -183,6 +209,7 @@ public class DealManagementCLIClient {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_BASE_URL + DEALS_ENDPOINT))
+                    .header("Authorization", authHeaderValue)
                     .GET()
                     .build();
 
@@ -241,6 +268,7 @@ public class DealManagementCLIClient {
             // Send HTTP GET request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_BASE_URL + DEALS_ENDPOINT))
+                    .header("Authorization", authHeaderValue)
                     .GET()
                     .build();
 
@@ -290,6 +318,7 @@ public class DealManagementCLIClient {
             String url = API_BASE_URL + DEALS_ENDPOINT + "?status=" + statusInput;
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
+                    .header("Authorization", authHeaderValue)
                     .GET()
                     .build();
 
@@ -337,6 +366,7 @@ public class DealManagementCLIClient {
             String url = API_BASE_URL + DEALS_ENDPOINT + "/" + dealId;
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
+                    .header("Authorization", authHeaderValue)
                     .GET()
                     .build();
 
@@ -433,6 +463,7 @@ public class DealManagementCLIClient {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_BASE_URL + DEALS_ENDPOINT))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", authHeaderValue)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
@@ -475,6 +506,7 @@ public class DealManagementCLIClient {
             String url = API_BASE_URL + DEALS_ENDPOINT + "/" + dealId + "/close";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
+                    .header("Authorization", authHeaderValue)
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build();
 
@@ -521,6 +553,7 @@ public class DealManagementCLIClient {
             String url = API_BASE_URL + DEALS_ENDPOINT + "/" + dealId;
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
+                    .header("Authorization", authHeaderValue)
                     .DELETE()
                     .build();
 
@@ -552,6 +585,7 @@ public class DealManagementCLIClient {
             // Fetch all deals via HTTP
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_BASE_URL + DEALS_ENDPOINT))
+                    .header("Authorization", authHeaderValue)
                     .GET()
                     .build();
 
@@ -619,6 +653,7 @@ public class DealManagementCLIClient {
             // Send HTTP GET request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_BASE_URL + USERS_ENDPOINT))
+                    .header("Authorization", authHeaderValue)
                     .GET()
                     .build();
 

@@ -4,6 +4,9 @@ import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealProduct;
 import com.chapman.edu.commissions.model.DealStatus;
 
+import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternStructure.*;
+import com.chapman.edu.commissions.patterns.structural.adapter.AdapterPatternImplementation.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -30,13 +33,13 @@ public class AdapterPatternUsage {
         
         System.out.println("\n=== Using Deal with Report Generator (via Adapter) ===");
         // Use the DealReportAdapter to adapt the Deal to the ReportData interface
-        AdapterPatternStructure.ReportData reportData = new AdapterPatternStructure.DealReportAdapter(deal);
-        AdapterPatternStructure.ReportGenerator reportGenerator = new AdapterPatternStructure.ReportGenerator();
+        AdapterPatternStructure.ReportData reportData = new DealReportAdapter(deal);
+        ReportGenerator reportGenerator = new ReportGenerator();
         reportGenerator.generateReport(reportData);
         
         System.out.println("\n=== Using Deal with Payment Processor (via Adapter) ===");
         // Use the DealPaymentAdapter to adapt the Deal to the PaymentTransaction interface
-        AdapterPatternImplementation.PaymentTransaction paymentTransaction = new AdapterPatternImplementation.DealPaymentAdapter(deal);
+        PaymentTransaction paymentTransaction = new AdapterPatternImplementation.DealPaymentAdapter(deal);
         AdapterPatternImplementation.PaymentProcessor paymentProcessor = new AdapterPatternImplementation.PaymentProcessor();
         paymentProcessor.processPayment(paymentTransaction);
         

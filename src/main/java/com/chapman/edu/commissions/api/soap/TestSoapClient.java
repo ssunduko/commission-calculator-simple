@@ -1,3 +1,5 @@
+package com.chapman.edu.commissions.api.soap;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;

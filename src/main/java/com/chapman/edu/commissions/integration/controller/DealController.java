@@ -1,7 +1,7 @@
 package com.chapman.edu.commissions.integration.controller;
 
-import com.chapman.edu.commissions.api.rest.BaseServlet;
-import com.chapman.edu.commissions.api.rest.JsonHelper;
+import com.chapman.edu.commissions.integration.servlet.BaseServlet;
+import com.chapman.edu.commissions.integration.servlet.JsonHelper;
 import com.chapman.edu.commissions.integration.service.DealService;
 import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealStatus;
