@@ -21,7 +21,7 @@ import java.util.Scanner;
  * Provides a menu-driven interface for managing sales deals without
  * requiring a web browser or HTTP client.
  *
- * <b>FEATURES:</b>
+ * **FEATURES:**
  * - List all deals with filtering options
  * - View detailed information about specific deals
  * - Create new deals with products
@@ -30,11 +30,15 @@ import java.util.Scanner;
  * - View statistics and dashboard
  * - Interactive menu navigation
  *
- * <b>USAGE:</b>
+ * **USAGE:**
+ * ```
  * mvn exec:java -Dexec.mainClass="com.chapman.edu.commissions.app.cli.DealManagementCLI"
+ * ```
  *
  * Or with arguments:
+ * ```
  * mvn exec:java -Dexec.mainClass="com.chapman.edu.commissions.app.cli.DealManagementCLI" -Dexec.args="--cli"
+ * ```
  *
  * @author Commission Calculator Team
  * @version 1.0

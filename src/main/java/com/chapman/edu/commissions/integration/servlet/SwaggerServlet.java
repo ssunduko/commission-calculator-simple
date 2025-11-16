@@ -23,6 +23,9 @@ import java.io.PrintWriter;
  * - API documentation as code
  * - Self-documenting REST APIs
  * - OpenAPI specification format
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class SwaggerServlet extends HttpServlet {
 

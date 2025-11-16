@@ -97,7 +97,16 @@ The application follows a **3-Tier Layered Architecture**:
 ```
 src/main/java/com/chapman/edu/commissions/integration/
 ├── controller/
-│   └── DealController.java           # MVC Controller for Deal endpoints
+│   ├── DealController.java           # MVC Controller for Deal endpoints
+│   └── UserController.java           # MVC Controller for User endpoints
+├── dto/                               # ⭐ Data Transfer Objects (DTO Pattern)
+│   ├── DealDTO.java                  # Deal response DTO
+│   ├── DealProductDTO.java           # Nested product DTO
+│   ├── CreateDealRequest.java        # Deal creation request DTO
+│   ├── UpdateDealRequest.java        # Deal update request DTO
+│   ├── UserDTO.java                  # User response DTO (no password!)
+│   ├── DealMapper.java               # DTO ↔ Entity mapper for Deals
+│   └── UserMapper.java               # DTO ↔ Entity mapper for Users
 ├── service/
 │   ├── DealService.java              # Business logic for Deals
 │   └── UserService.java              # Business logic for Users
@@ -109,6 +118,8 @@ src/main/java/com/chapman/edu/commissions/integration/
 ├── security/
 │   └── AuthenticationFilter.java    # HTTP Basic Auth filter
 ├── servlet/
+│   ├── BaseServlet.java              # Base servlet with common functionality
+│   ├── JsonHelper.java               # JSON serialization utilities
 │   └── SwaggerServlet.java           # Swagger UI and OpenAPI spec
 └── IntegrationApplication.java       # Main application entry point
 ```
@@ -190,52 +201,68 @@ curl -u john.doe@example.com:password \
 
 ### Sample Request/Response
 
-**Create Deal Request:**
+**Create Deal Request** (CreateDealRequest DTO):
 ```json
 {
   "title": "Enterprise Software License",
-  "customerName": "Acme Corporation",
   "salesRepId": "USER-xxx",
-  "expectedCloseDate": "2025-12-31",
   "products": [
     {
-      "name": "Software License",
+      "productId": "PROD-001",
+      "productName": "Software License",
       "price": 50000.00,
-      "quantity": 1
+      "quantity": 1,
+      "discount": 0
     },
     {
-      "name": "Training Package",
+      "productId": "PROD-002",
+      "productName": "Training Package",
       "price": 10000.00,
-      "quantity": 1
+      "quantity": 1,
+      "discount": 0
     }
   ]
 }
 ```
 
-**Response (201 Created):**
+**Note:** CreateDealRequest does NOT include:
+- `id` (server-generated)
+- `status` (server-controlled, defaults to OPEN)
+- `createdDate` / `lastModifiedDate` (server-controlled)
+- `closeDate` (set when deal is closed)
+- `totalValue` (computed from products)
+
+**Response (201 Created)** (DealDTO):
 ```json
 {
   "id": "DEAL-123e4567-e89b-12d3-a456-426614174000",
   "title": "Enterprise Software License",
-  "customerName": "Acme Corporation",
   "status": "OPEN",
   "salesRepId": "USER-xxx",
-  "expectedCloseDate": "2025-12-31",
-  "actualCloseDate": null,
+  "closeDate": null,
   "products": [
     {
-      "name": "Software License",
+      "productId": "PROD-001",
+      "productName": "Software License",
       "price": 50000.00,
-      "quantity": 1
+      "quantity": 1,
+      "discount": 0
     },
     {
-      "name": "Training Package",
+      "productId": "PROD-002",
+      "productName": "Training Package",
       "price": 10000.00,
-      "quantity": 1
+      "quantity": 1,
+      "discount": 0
     }
-  ]
+  ],
+  "totalValue": 60000.00,
+  "createdDate": "2025-11-08",
+  "lastModifiedDate": "2025-11-08"
 }
 ```
+
+**Note:** DealDTO includes computed and server-controlled fields that weren't in the request.
 
 ## Testing
 
@@ -272,23 +299,42 @@ The integration tests cover:
    - Models: Deal, User, DealProduct domain objects
    - Views: JSON representations
 
-2. **Repository Pattern**
+2. **DTO Pattern (Data Transfer Object)** ⭐ NEW
+   - Decouples API from internal domain model
+   - Separate DTOs for requests (`CreateDealRequest`, `UpdateDealRequest`) and responses (`DealDTO`, `UserDTO`)
+   - Mappers handle conversion between DTOs and entities (`DealMapper`, `UserMapper`)
+   - Security: UserDTO excludes sensitive fields like passwords
+   - Benefits:
+     - API contract independent of database structure
+     - Can change domain entities without breaking API consumers
+     - Clear separation between what clients send vs receive
+     - Server-controlled fields (id, createdDate) not in request DTOs
+   - Location: `com.chapman.edu.commissions.integration.dto` package
+
+3. **Repository Pattern**
    - Abstracts data access logic
    - Repository interface with H2 implementations
    - Separation of business logic from persistence
 
-3. **Service Layer Pattern**
+4. **Service Layer Pattern**
    - Encapsulates business logic
    - Coordinates between controllers and repositories
    - Transaction boundaries
 
-4. **Singleton Pattern**
+5. **Mapper Pattern** ⭐ NEW
+   - Centralized conversion logic between DTOs and entities
+   - Static methods for stateless transformation
+   - Null-safe conversions
+   - Bidirectional mapping (DTO→Entity and Entity→DTO)
+   - Example: `DealMapper.toDTO(deal)` converts Deal entity to DealDTO
+
+6. **Singleton Pattern**
    - DatabaseManager (single database connection)
 
-5. **Filter/Interceptor Pattern**
+7. **Filter/Interceptor Pattern**
    - AuthenticationFilter for cross-cutting security concerns
 
-6. **Dependency Injection**
+8. **Dependency Injection**
    - Manual constructor-based DI
    - Loose coupling between layers
 
@@ -355,10 +401,16 @@ CREATE TABLE deals (
 
 ## Key Concepts Demonstrated
 
-### 1. Layered Architecture
+### 1. Layered Architecture with DTO Pattern
 - Clear separation between presentation, business, and data access layers
+- **DTO Layer** sits between HTTP and domain model:
+  - Controllers receive DTOs from clients
+  - Mappers convert DTOs to entities before calling services
+  - Services work with domain entities (not DTOs)
+  - Mappers convert entities back to DTOs for responses
 - Each layer communicates only with adjacent layers
-- Dependencies flow downward (Controller → Service → Repository)
+- Dependencies flow downward (Controller → DTO → Service → Repository)
+- Data transformation happens at layer boundaries
 
 ### 2. JDBC and Database Management
 - Connection management with DatabaseManager

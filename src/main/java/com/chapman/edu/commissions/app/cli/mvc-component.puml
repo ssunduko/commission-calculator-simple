@@ -1,0 +1,553 @@
+@startuml MVC Architecture - CLI Implementation
+
+' Define the styles (matching integration architecture style)
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+skinparam packageStyle rectangle
+
+' Title
+title MVC Architecture - Command Line Interface Implementation
+
+' ==================== TRADITIONAL MVC IMPLEMENTATION ====================
+package "Direct Service Access CLI\n(DealManagementCLI)" {
+
+    ' VIEW COMPONENTS
+    package "VIEW Layer\n(Console I/O)" as View1 #e3f2fd {
+        class DealManagementCLI_View <<View>> {
+            +printWelcomeBanner(): void
+            +printMainMenu(): void
+            +printDealSummary(deal): void
+            +printDetailedDeal(deal): void
+            +showDashboard(): void
+            +listAllUsers(): void
+            +clearScreen(): void
+        }
+    }
+
+    ' CONTROLLER COMPONENTS
+    package "CONTROLLER Layer\n(Menu Handlers)" as Controller1 #fff3e0 {
+        class DealManagementCLI_Controller <<Controller>> {
+            -scanner: Scanner
+            +start(): void
+            +listAllDeals(): void
+            +listDealsByStatus(): void
+            +viewDealDetails(): void
+            +createNewDeal(): void
+            +closeDeal(): void
+            +deleteDeal(): void
+            +shutdown(): void
+        }
+    }
+
+    ' MODEL COMPONENTS
+    package "MODEL Layer\n(Business Logic)" as Model1 #e8f5e9 {
+        class DealService <<Service/Model>> {
+            -dealRepository: Repository<Deal>
+            +getAllDeals(): List<Deal>
+            +getDealById(id): Optional<Deal>
+            +getDealsByStatus(status): List<Deal>
+            +createDeal(deal): Deal
+            +updateDeal(id, deal): Deal
+            +deleteDeal(id): boolean
+            +closeDealAsWon(id): Deal
+        }
+
+        class UserService <<Service/Model>> {
+            -userRepository: H2UserRepository
+            +getAllUsers(): List<User>
+            +getUserById(id): Optional<User>
+            +authenticate(email, password): Optional<User>
+        }
+
+        class H2DealRepository <<Repository/Data>> {
+            -dbManager: DatabaseManager
+            +findAll(): List<Deal>
+            +findById(id): Optional<Deal>
+            +save(deal): Deal
+            +deleteById(id): boolean
+        }
+
+        class DatabaseManager <<Singleton/Database>> {
+            {static} -instance: DatabaseManager
+            -connection: Connection
+            {static} +getInstance(): DatabaseManager
+            +getConnection(): Connection
+            +resetDatabase(): void
+        }
+    }
+
+    package "DOMAIN ENTITIES" as Domain1 #fce4ec {
+        class Deal <<Entity>> {
+            -id: String
+            -title: String
+            -status: DealStatus
+            -salesRepId: String
+            -products: List<DealProduct>
+            +calculateTotalValue(): BigDecimal
+        }
+
+        class User <<Entity>> {
+            -id: String
+            -firstName: String
+            -lastName: String
+            -email: String
+            -roles: Set<UserRole>
+        }
+    }
+}
+
+' ==================== REST API CLIENT MVC IMPLEMENTATION ====================
+package "REST API Client CLI\n(DealManagementCLIClient)" {
+
+    ' VIEW COMPONENTS
+    package "VIEW Layer\n(Console I/O)" as View2 #e3f2fd {
+        class DealManagementCLIClient_View <<View>> {
+            +printWelcomeBanner(): void
+            +printMainMenu(): void
+            +printDealSummary(deal): void
+            +printDetailedDeal(deal): void
+            +showDashboard(): void
+            +listAllUsers(): void
+            +clearScreen(): void
+        }
+    }
+
+    ' CONTROLLER COMPONENTS
+    package "CONTROLLER Layer\n(HTTP Client)" as Controller2 #fff3e0 {
+        class DealManagementCLIClient_Controller <<Controller>> {
+            -httpClient: HttpClient
+            -scanner: Scanner
+            -authHeaderValue: String
+            +start(): void
+            +checkServerConnection(): boolean
+            +listAllDeals(): void
+            +listDealsByStatus(): void
+            +viewDealDetails(): void
+            +createNewDeal(): void
+            +closeDeal(): void
+            +deleteDeal(): void
+            +shutdown(): void
+        }
+    }
+
+    ' MODEL COMPONENTS
+    package "MODEL Layer\n(HTTP/JSON Client)" as Model2 #e8f5e9 {
+        class HttpClient <<Java 11+ HTTP>> {
+            +send(request, handler): HttpResponse
+            +newBuilder(): Builder
+        }
+
+        class Gson <<JSON Serializer>> {
+            +toJson(object): String
+            +fromJson(json, type): T
+        }
+
+        class HttpRequest <<HTTP Request>> {
+            +uri(): URI
+            +method(): String
+            +headers(): HttpHeaders
+            +body(): BodyPublisher
+        }
+
+        class HttpResponse <<HTTP Response>> {
+            +statusCode(): int
+            +body(): String
+            +headers(): HttpHeaders
+        }
+    }
+
+    package "DTOs\n(Data Transfer)" as DTO2 #fce4ec {
+        class Deal_DTO <<DTO>> {
+            -id: String
+            -title: String
+            -status: DealStatus
+            -salesRepId: String
+            -products: List<DealProductDTO>
+            +calculateTotalValue(): BigDecimal
+        }
+
+        class User_DTO <<DTO>> {
+            -id: String
+            -firstName: String
+            -lastName: String
+            -email: String
+            -roles: Set<UserRole>
+        }
+    }
+}
+
+' ==================== EXTERNAL SYSTEMS ====================
+package "Backend Server\n(localhost:8080)" as Backend #ffebee {
+    class DealController <<REST API>> {
+        +GET /api/v1/integration/deals
+        +GET /api/v1/integration/deals/{id}
+        +POST /api/v1/integration/deals
+        +PUT /api/v1/integration/deals/{id}
+        +DELETE /api/v1/integration/deals/{id}
+        +POST /api/v1/integration/deals/{id}/close
+    }
+
+    class UserController <<REST API>> {
+        +GET /api/v1/integration/users
+        +GET /api/v1/integration/users/{id}
+    }
+}
+
+' ==================== MVC RELATIONSHIPS - TRADITIONAL CLI ====================
+
+' MVC Pattern: Controller uses View
+DealManagementCLI_Controller ..> DealManagementCLI_View : displays via
+
+' MVC Pattern: Controller uses Model
+DealManagementCLI_Controller ..> DealService : uses
+DealManagementCLI_Controller ..> UserService : uses
+
+' Model dependencies
+DealService ..> H2DealRepository : uses
+UserService ..> H2DealRepository : uses
+H2DealRepository ..> DatabaseManager : uses
+
+' Model works with Entities
+DealService ..> Deal : manages
+UserService ..> User : manages
+H2DealRepository ..> Deal : persists
+
+' ==================== MVC RELATIONSHIPS - REST API CLIENT ====================
+
+' MVC Pattern: Controller uses View
+DealManagementCLIClient_Controller ..> DealManagementCLIClient_View : displays via
+
+' MVC Pattern: Controller uses Model (HTTP Client)
+DealManagementCLIClient_Controller ..> HttpClient : uses
+DealManagementCLIClient_Controller ..> Gson : uses
+
+' HTTP communication
+DealManagementCLIClient_Controller ..> HttpRequest : creates
+HttpClient ..> HttpResponse : returns
+
+' JSON serialization
+Gson ..> Deal_DTO : serializes
+Gson ..> User_DTO : serializes
+
+' Network communication
+DealManagementCLIClient_Controller ..> DealController : "HTTP GET/POST/DELETE"
+DealManagementCLIClient_Controller ..> UserController : "HTTP GET"
+
+' ==================== COMPONENT NOTES ====================
+
+note right of DealManagementCLI_View
+  <b>VIEW (MVC Pattern)</b>
+
+  Responsible for presenting information
+  to the user via console output.
+
+  <b>Key Responsibilities:</b>
+  - Format and display data
+  - Show menus and prompts
+  - Render deal summaries and details
+  - Display statistics dashboard
+
+  <b>MVC Principle:</b>
+  View knows nothing about business
+  logic or data storage. It only
+  displays what the Controller tells it.
+
+  <b>Example Methods:</b>
+  - printDealSummary(): Renders deal list
+  - printDetailedDeal(): Shows full details
+  - showDashboard(): Displays statistics
+
+  <b>Reusable:</b>
+  Same view methods used by both
+  Controller implementations.
+end note
+
+note left of DealManagementCLI_Controller
+  <b>CONTROLLER (MVC Pattern)</b>
+
+  Orchestrates user interactions and
+  coordinates Model and View.
+
+  <b>Key Responsibilities:</b>
+  - Handle user input (menu selections)
+  - Validate and parse user data
+  - Call appropriate Model methods
+  - Update View with results
+  - Manage application flow
+
+  <b>MVC Principle:</b>
+  Controller contains no business logic
+  and no presentation logic. It only
+  coordinates between Model and View.
+
+  <b>User Interaction Flow:</b>
+  1. Display menu (View)
+  2. Get user choice (Scanner)
+  3. Call Model to execute action
+  4. Display results (View)
+
+  <b>Direct Service Access:</b>
+  Calls DealService methods directly
+  (e.g., dealService.createDeal())
+end note
+
+note bottom of DealService
+  <b>MODEL (MVC Pattern)</b>
+
+  Encapsulates business logic and
+  data management.
+
+  <b>Key Responsibilities:</b>
+  - Enforce business rules
+  - Validate data
+  - Coordinate data persistence
+  - Calculate derived values
+
+  <b>MVC Principle:</b>
+  Model is independent of View and
+  Controller. It can be reused in
+  web, mobile, or CLI applications.
+
+  <b>Business Rules Examples:</b>
+  - Deal must have title and products
+  - Cannot delete WON deals
+  - Calculate total value from products
+
+  <b>Layer Isolation:</b>
+  Model doesn't know about console
+  output or menu selections. It only
+  provides data and operations.
+end note
+
+note left of DealManagementCLIClient_Controller
+  <b>CONTROLLER (REST Client MVC)</b>
+
+  Similar to traditional Controller but
+  communicates via HTTP instead of
+  direct method calls.
+
+  <b>Key Differences:</b>
+  - Uses HttpClient instead of Services
+  - Serializes data to JSON
+  - Handles HTTP status codes
+  - Manages network errors
+
+  <b>HTTP Communication:</b>
+  - GET: Retrieve data
+  - POST: Create or execute actions
+  - PUT: Update data
+  - DELETE: Remove data
+
+  <b>Example Flow:</b>
+  1. User selects "Create Deal"
+  2. Collect input via View
+  3. Create Deal DTO object
+  4. Serialize to JSON (Gson)
+  5. POST to /api/v1/integration/deals
+  6. Deserialize response
+  7. Display result via View
+
+  <b>Authentication:</b>
+  Every request includes HTTP Basic
+  Auth header (Base64 encoded credentials).
+end note
+
+note right of HttpClient
+  <b>MODEL (HTTP Client MVC)</b>
+
+  In REST client architecture, the
+  Model is the HTTP client and JSON
+  serializer, not business logic.
+
+  <b>Why HTTP Client is "Model":</b>
+  - Represents data source (REST API)
+  - Provides data to Controller
+  - Abstracts communication details
+  - Independent of View
+
+  <b>Java 11+ HttpClient:</b>
+  - Modern, non-blocking capable
+  - Supports HTTP/2
+  - Fluent builder API
+  - Async request handling
+
+  <b>Gson (JSON):</b>
+  - Serializes Java objects to JSON
+  - Deserializes JSON to Java objects
+  - Custom type adapters for LocalDate
+
+  <b>Network Layer:</b>
+  Model handles all network communication,
+  Controller doesn't know about HTTP details.
+end note
+
+note right of Deal_DTO
+  <b>DATA TRANSFER OBJECTS</b>
+
+  DTOs are used for API communication,
+  separate from domain entities.
+
+  <b>Why DTOs in REST Client:</b>
+  - Match API contract exactly
+  - Decouple client from server internals
+  - Easy JSON serialization
+  - Version-independent
+
+  <b>Difference from Entities:</b>
+  Entity: Domain model with business logic
+  DTO: Data container for API transfer
+
+  <b>Example:</b>
+  Server might change Deal entity structure,
+  but API contract (DTO) stays stable.
+end note
+
+note right of DealController
+  <b>BACKEND REST API</b>
+
+  The server that CLIClient communicates with.
+
+  <b>Architecture:</b>
+  - Embedded Tomcat (Port 8080)
+  - Servlet-based controllers
+  - RESTful endpoints
+  - JSON request/response
+  - HTTP Basic Authentication
+
+  <b>Endpoints:</b>
+  GET /deals - List all deals
+  GET /deals/{id} - Get deal details
+  POST /deals - Create new deal
+  PUT /deals/{id} - Update deal
+  DELETE /deals/{id} - Delete deal
+  POST /deals/{id}/close - Close deal
+
+  <b>Response Format:</b>
+  {
+    "id": "DEAL-xxx",
+    "title": "Deal Title",
+    "status": "OPEN",
+    "products": [...]
+  }
+
+  <b>Authentication Required:</b>
+  Authorization: Basic base64(email:password)
+end note
+
+note top of DatabaseManager
+  <b>PERSISTENCE LAYER</b>
+
+  Traditional CLI accesses database
+  directly through repositories.
+
+  <b>Singleton Pattern:</b>
+  Ensures single database connection
+  shared across all repositories.
+
+  <b>H2 Database:</b>
+  - Embedded SQL database
+  - File-based persistence
+  - JDBC access
+  - Schema auto-initialization
+
+  <b>Connection Management:</b>
+  - Single connection pool
+  - Lazy initialization
+  - Graceful shutdown
+
+  <b>Data Flow:</b>
+  Controller → Service → Repository
+  → DatabaseManager → H2 Database
+end note
+
+' ==================== LEGEND ====================
+
+note right of DatabaseManager
+  <b>MVC Architecture - Two Implementations:</b>
+
+  <b>1. TRADITIONAL MVC (Direct Service Access):</b>
+
+  <b>Model:</b> DealService, UserService, H2Repository
+  - Business logic layer
+  - Data access layer
+  - Direct database access
+
+  <b>View:</b> Console output methods
+  - printDealSummary()
+  - printDetailedDeal()
+  - showDashboard()
+
+  <b>Controller:</b> Menu handlers
+  - listAllDeals()
+  - createNewDeal()
+  - Direct service calls
+
+  <b>Data Flow:</b>
+  User Input → Controller → Service → Repository → Database
+  Database → Repository → Service → Controller → View → Console
+
+  ---
+
+  <b>2. REST API CLIENT MVC (HTTP Communication):</b>
+
+  <b>Model:</b> HttpClient, Gson, DTOs
+  - HTTP client for API calls
+  - JSON serialization
+  - Network communication
+
+  <b>View:</b> Console output methods (same as traditional)
+  - printDealSummary()
+  - printDetailedDeal()
+  - showDashboard()
+
+  <b>Controller:</b> HTTP-aware menu handlers
+  - listAllDeals() → GET /deals
+  - createNewDeal() → POST /deals
+  - HTTP request construction
+
+  <b>Data Flow:</b>
+  User Input → Controller → HTTP Request → REST API
+  REST API → HTTP Response → Controller → View → Console
+
+  ---
+
+  <b>Key MVC Principles:</b>
+
+  1. <b>Separation of Concerns:</b>
+     Each component has one responsibility
+
+  2. <b>Loose Coupling:</b>
+     Components interact via interfaces
+
+  3. <b>Reusability:</b>
+     Model can be used by different Views
+     View can display data from different Models
+
+  4. <b>Testability:</b>
+     Each component tested independently
+
+  ---
+
+  <b>Comparison:</b>
+
+  <b>Traditional CLI:</b>
+  - Monolithic (single JVM)
+  - Fast (no network overhead)
+  - Simple (direct calls)
+  - Tightly coupled to backend
+
+  <b>REST Client CLI:</b>
+  - Distributed (client-server)
+  - Network latency
+  - Complex (HTTP, JSON)
+  - Loosely coupled via API
+
+  Both demonstrate MVC pattern but with
+  different Model implementations!
+end note
+
+@enduml

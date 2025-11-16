@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
  * - Input validation for user data
  *
  * Layer: Service Layer (Business Logic)
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class UserService {
 

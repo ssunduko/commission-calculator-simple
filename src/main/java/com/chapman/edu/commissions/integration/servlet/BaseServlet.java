@@ -18,6 +18,9 @@ import java.io.PrintWriter;
  * - Template Method Pattern: Defines the skeleton of HTTP handling
  * - DRY Principle: Common JSON/HTTP logic centralized here
  * - Single Responsibility: Handles HTTP communication concerns
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public abstract class BaseServlet extends HttpServlet {
 

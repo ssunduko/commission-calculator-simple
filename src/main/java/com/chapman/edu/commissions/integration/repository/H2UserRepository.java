@@ -25,6 +25,9 @@ import java.util.UUID;
  * - Email uniqueness constraint handling
  *
  * Layer: Data Access Layer (Repository)
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class H2UserRepository implements Repository<User> {
 

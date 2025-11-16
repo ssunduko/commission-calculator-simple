@@ -1,6 +1,6 @@
 package com.chapman.edu.commissions.integration.controller;
 
-import com.chapman.edu.commissions.api.rest.BaseServlet;
+import com.chapman.edu.commissions.integration.servlet.BaseServlet;
 import com.chapman.edu.commissions.integration.service.UserService;
 import com.chapman.edu.commissions.model.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ import java.util.List;
  * Used by the web UI to populate the sales representative dropdown
  * when creating deals.
  *
- * @author Commission Calculator Team
+ * @author Sergey L. Sundukovskiy
  * @version 1.0
  */
 public class UserController extends BaseServlet {

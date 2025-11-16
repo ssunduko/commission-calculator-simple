@@ -80,8 +80,8 @@ function createDealCard(deal) {
     const statusClass = 'badge-' + (deal.status || 'open').toLowerCase();
     const totalValue = deal.products && Array.isArray(deal.products)
         ? deal.products.reduce((sum, p) => {
-            const quantity = p.quantity || 0;
-            const price = p.unitPrice || p.price || 0;
+            const quantity = Number(p.quantity) || 0;
+            const price = Number(p.unitPrice || p.price) || 0;
             return sum + (quantity * price);
           }, 0).toFixed(2)
         : '0.00';
@@ -92,7 +92,7 @@ function createDealCard(deal) {
                 <h4>Products (${deal.products.length})</h4>
                 <div class="product-list">
                     ${deal.products.map(p => {
-                        const price = p.unitPrice || p.price || 0;
+                        const price = Number(p.unitPrice || p.price) || 0;
                         return `
                         <div class="product">
                             <span>${p.productId || 'N/A'}</span>
@@ -377,8 +377,8 @@ async function loadDashboard() {
         const totalValue = deals.reduce((sum, deal) => {
             const dealValue = deal.products && Array.isArray(deal.products)
                 ? deal.products.reduce((s, p) => {
-                    const quantity = p.quantity || 0;
-                    const price = p.unitPrice || p.price || 0;
+                    const quantity = Number(p.quantity) || 0;
+                    const price = Number(p.unitPrice || p.price) || 0;
                     return s + (quantity * price);
                   }, 0)
                 : 0;

@@ -354,11 +354,10 @@ public class BigBangIntegrationTest {
 
         Map<String, Object> newDeal = new HashMap<>();
         newDeal.put("title", "Big Bang Test Deal - Cloud Migration");
-        newDeal.put("status", "OPEN");
         newDeal.put("salesRepId", salesRepUserId);
         newDeal.put("products", Arrays.asList(
-            Map.of("productId", "PROD-CLOUD", "productName", "Cloud Platform", "quantity", 1, "price", 50000.00),
-            Map.of("productId", "PROD-SUPPORT", "productName", "Premium Support", "quantity", 1, "price", 10000.00)
+            Map.of("productId", "PROD-CLOUD", "productName", "Cloud Platform", "quantity", 1, "price", "50000.00", "discount", "0"),
+            Map.of("productId", "PROD-SUPPORT", "productName", "Premium Support", "quantity", 1, "price", "10000.00", "discount", "0")
         ));
 
         Response createResponse = given()
@@ -405,7 +404,8 @@ public class BigBangIntegrationTest {
         updatedDeal.put("status", "OPEN");
         updatedDeal.put("salesRepId", salesRepUserId);
         updatedDeal.put("products", Arrays.asList(
-            Map.of("productId", "PROD-CLOUD", "productName", "Cloud Platform", "quantity", 2, "price", 50000.00)
+            Map.of("productId", "PROD-CLOUD", "productName", "Cloud Platform", "quantity", 2, "price", "50000.00", "discount", "0"),
+            Map.of("productId", "PROD-SUPPORT", "productName", "Premium Support", "quantity", 1, "price", "10000.00", "discount", "0")
         ));
 
         given()
@@ -515,10 +515,9 @@ public class BigBangIntegrationTest {
 
         Map<String, Object> salesRepDeal = new HashMap<>();
         salesRepDeal.put("title", "Sales Rep Deal - Enterprise Contract");
-        salesRepDeal.put("status", "OPEN");
         salesRepDeal.put("salesRepId", salesRepUserId);
         salesRepDeal.put("products", Arrays.asList(
-            Map.of("productId", "PROD-ENT", "productName", "Enterprise License", "quantity", 1, "price", 100000.00)
+            Map.of("productId", "PROD-ENT", "productName", "Enterprise License", "quantity", 1, "price", "100000.00", "discount", "0")
         ));
 
         String salesRepDealId = given()
@@ -655,10 +654,10 @@ public class BigBangIntegrationTest {
         System.out.println("→ TEST: Missing required fields (Business Validation)...");
 
         Map<String, Object> invalidDeal = new HashMap<>();
-        invalidDeal.put("status", "OPEN"); // Missing title!
+        // Missing title!
         invalidDeal.put("salesRepId", salesRepUserId);
         invalidDeal.put("products", Arrays.asList(
-            Map.of("productId", "PROD-1", "productName", "Product", "quantity", 1, "price", 1000.00)
+            Map.of("productId", "PROD-1", "productName", "Product", "quantity", 1, "price", "1000.00", "discount", "0")
         ));
 
         given()
@@ -680,7 +679,6 @@ public class BigBangIntegrationTest {
 
         Map<String, Object> noProductsDeal = new HashMap<>();
         noProductsDeal.put("title", "Deal With No Products");
-        noProductsDeal.put("status", "OPEN");
         noProductsDeal.put("salesRepId", salesRepUserId);
         noProductsDeal.put("products", Arrays.asList()); // Empty!
 
@@ -703,10 +701,9 @@ public class BigBangIntegrationTest {
 
         Map<String, Object> invalidUserDeal = new HashMap<>();
         invalidUserDeal.put("title", "Invalid User Deal");
-        invalidUserDeal.put("status", "OPEN");
         invalidUserDeal.put("salesRepId", "USER-nonexistent-fake-id"); // Invalid!
         invalidUserDeal.put("products", Arrays.asList(
-            Map.of("productId", "PROD-1", "productName", "Product", "quantity", 1, "price", 1000.00)
+            Map.of("productId", "PROD-1", "productName", "Product", "quantity", 1, "price", "1000.00", "discount", "0")
         ));
 
         given()
@@ -765,10 +762,9 @@ public class BigBangIntegrationTest {
 
         Map<String, Object> linkedDeal = new HashMap<>();
         linkedDeal.put("title", "Relationship Test Deal");
-        linkedDeal.put("status", "OPEN");
         linkedDeal.put("salesRepId", salesRepUserId); // Foreign key to users table
         linkedDeal.put("products", Arrays.asList(
-            Map.of("productId", "PROD-REL", "productName", "Relationship Product", "quantity", 1, "price", 5000.00)
+            Map.of("productId", "PROD-REL", "productName", "Relationship Product", "quantity", 1, "price", "5000.00", "discount", "0")
         ));
 
         String linkedDealId = given()
@@ -800,7 +796,7 @@ public class BigBangIntegrationTest {
             .body("products[0].productId", equalTo("PROD-REL"))
             .body("products[0].productName", equalTo("Relationship Product"))
             .body("products[0].quantity", equalTo(1))
-            .body("products[0].price", equalTo(5000.0f));
+            .body("products[0].price", equalTo("5000.00"));
 
         System.out.println("  ✓ Products correctly serialized and deserialized");
 

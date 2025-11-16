@@ -1,0 +1,386 @@
+@startuml Rate Limiting Performance Architecture
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Rate Limiting Performance Architecture - Commission Calculator
+
+' Rate Limiter Interface
+interface RateLimiter <<Strategy>> {
+  +tryAcquire(key: String): boolean
+  +tryAcquire(key: String, timeout: Duration): boolean
+  +getAvailablePermits(key: String): long
+  +getTimeUntilNextPermit(key: String): Duration
+  +reset(key: String): void
+  +resetAll(): void
+}
+
+' Token Bucket Rate Limiter
+class TokenBucketRateLimiter <<ConcreteStrategy>> {
+  -config: RateLimitConfig
+  -buckets: Map<String, TokenBucket>
+  +TokenBucketRateLimiter(config: RateLimitConfig)
+  +tryAcquire(key: String): boolean
+  +tryAcquire(key: String, timeout: Duration): boolean
+  +getAvailablePermits(key: String): long
+  +getTimeUntilNextPermit(key: String): Duration
+  +reset(key: String): void
+  +resetAll(): void
+}
+
+' Token Bucket Inner Class
+class TokenBucket <<InnerClass>> {
+  -capacity: long
+  -refillRate: double
+  -tokens: double
+  -lastRefill: Instant
+  -lock: Lock
+  +TokenBucket(config: RateLimitConfig)
+  +tryConsume(): boolean
+  +getAvailableTokens(): long
+  +getTimeUntilNextToken(): Duration
+  -refill(): void
+}
+
+' Sliding Window Rate Limiter
+class SlidingWindowRateLimiter <<ConcreteStrategy>> {
+  -config: RateLimitConfig
+  -windows: Map<String, RequestWindow>
+  +SlidingWindowRateLimiter(config: RateLimitConfig)
+  +tryAcquire(key: String): boolean
+  +tryAcquire(key: String, timeout: Duration): boolean
+  +getAvailablePermits(key: String): long
+  +getTimeUntilNextPermit(key: String): Duration
+  +reset(key: String): void
+  +resetAll(): void
+}
+
+' Request Window Inner Class
+class RequestWindow <<InnerClass>> {
+  -limit: long
+  -windowDuration: Duration
+  -requestTimestamps: Queue<Instant>
+  -lock: Lock
+  +RequestWindow(config: RateLimitConfig)
+  +tryAddRequest(): boolean
+  +getAvailableRequests(): long
+  +getTimeUntilNextSlot(): Duration
+  -removeExpiredRequests(): void
+}
+
+' Rate Limit Config
+class RateLimitConfig <<ValueObject>> {
+  -requestsPerWindow: long
+  -windowDuration: Duration
+  -blockOnExceeded: boolean
+  -maxWaitTime: Duration
+  +defaultConfig(): RateLimitConfig
+  +strictConfig(): RateLimitConfig
+  +permissiveConfig(): RateLimitConfig
+  +builder(): Builder
+  +getRequestsPerWindow(): long
+  +getWindowDuration(): Duration
+  +isBlockOnExceeded(): boolean
+  +getMaxWaitTime(): Duration
+  +getRequestsPerSecond(): double
+}
+
+' Config Builder
+class Builder <<Builder>> {
+  -requestsPerWindow: long
+  -windowDuration: Duration
+  -blockOnExceeded: boolean
+  -maxWaitTime: Duration
+  +requestsPerWindow(long): Builder
+  +windowDuration(Duration): Builder
+  +blockOnExceeded(boolean): Builder
+  +maxWaitTime(Duration): Builder
+  +build(): RateLimitConfig
+}
+
+' Rate Limit Filter
+class RateLimitFilter <<Filter>> {
+  -rateLimiter: RateLimiter
+  -keyExtractor: Function<HttpServletRequest, String>
+  -config: RateLimitConfig
+  +RateLimitFilter(rateLimiter: RateLimiter, keyExtractor: Function, config: RateLimitConfig)
+  +createIpBasedFilter(config: RateLimitConfig): RateLimitFilter
+  +createUserBasedFilter(config: RateLimitConfig): RateLimitFilter
+  +createApiKeyBasedFilter(config: RateLimitConfig): RateLimitFilter
+  +init(filterConfig: FilterConfig): void
+  +doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): void
+  +destroy(): void
+  -setRateLimitHeaders(response: HttpServletResponse, key: String): void
+  -handleRateLimitExceeded(response: HttpServletResponse, key: String): void
+  -extractIpAddress(request: HttpServletRequest): String
+  -extractUserId(request: HttpServletRequest): String
+  -extractApiKey(request: HttpServletRequest): String
+}
+
+' Rate Limit Exception
+class RateLimitExceededException <<Exception>> {
+  -key: String
+  -limit: long
+  -retryAfter: Duration
+  +RateLimitExceededException(key: String, limit: long, retryAfter: Duration)
+  +getKey(): String
+  +getLimit(): long
+  +getRetryAfter(): Duration
+  +getRetryAfterSeconds(): long
+}
+
+' Error Response Inner Class
+class RateLimitErrorResponse <<InnerClass>> {
+  -status: int
+  -message: String
+  -limit: long
+  -retryAfter: long
+  -timestamp: long
+  +RateLimitErrorResponse(status: int, message: String, limit: long, retryAfter: long)
+  +getStatus(): int
+  +getMessage(): String
+  +getLimit(): long
+  +getRetryAfter(): long
+  +getTimestamp(): long
+}
+
+' Relationships - Strategy Pattern
+RateLimiter <|.. TokenBucketRateLimiter
+RateLimiter <|.. SlidingWindowRateLimiter
+
+' Relationships - Inner Classes
+TokenBucketRateLimiter +-- TokenBucket
+SlidingWindowRateLimiter +-- RequestWindow
+RateLimitFilter +-- RateLimitErrorResponse
+
+' Relationships - Config Builder
+RateLimitConfig +-- Builder
+Builder ..> RateLimitConfig : creates >
+
+' Relationships - Dependencies
+TokenBucketRateLimiter o--> "1" RateLimitConfig : uses >
+SlidingWindowRateLimiter o--> "1" RateLimitConfig : uses >
+RateLimitFilter o--> "1" RateLimiter : uses >
+RateLimitFilter o--> "1" RateLimitConfig : uses >
+
+' Relationships - Collections
+TokenBucketRateLimiter o--> "0..*" TokenBucket : manages >
+SlidingWindowRateLimiter o--> "0..*" RequestWindow : manages >
+
+' Component notes
+note right of RateLimiter
+  <b>Strategy Pattern Interface</b>
+
+  Abstraction for rate limiting algorithms.
+
+  <b>Implementations:</b>
+  • TokenBucketRateLimiter: Allows bursts
+  • SlidingWindowRateLimiter: Accurate tracking
+  • (Extensible for other algorithms)
+
+  <b>Key Methods:</b>
+  • tryAcquire(key): Attempt to proceed
+  • getAvailablePermits(key): Check quota
+  • reset(key): Clear limits (admin/testing)
+
+  <b>Design Principle:</b>
+  Dependency Inversion - depend on abstraction
+end note
+
+note bottom of TokenBucketRateLimiter
+  <b>Token Bucket Algorithm</b>
+
+  Classic rate limiting approach used by
+  AWS, Google Cloud, and other major platforms.
+
+  <b>How It Works:</b>
+  1. Bucket holds tokens (up to capacity)
+  2. Tokens refill at constant rate
+  3. Each request consumes 1 token
+  4. If no tokens, request denied
+
+  <b>Advantages:</b>
+  • Allows burst traffic (up to capacity)
+  • Simple and efficient O(1) operations
+  • Smooth long-term rate limiting
+
+  <b>Trade-offs:</b>
+  • Less accurate than sliding window
+  • Possible burst at refill time
+
+  <b>Thread Safety:</b>
+  ConcurrentHashMap + per-bucket locks
+end note
+
+note bottom of SlidingWindowRateLimiter
+  <b>Sliding Window Algorithm</b>
+
+  More accurate than fixed window,
+  prevents boundary exploitation.
+
+  <b>How It Works:</b>
+  1. Store timestamp of each request
+  2. On new request, remove expired timestamps
+  3. Count remaining requests in window
+  4. Allow if under limit
+
+  <b>Advantages:</b>
+  • No boundary reset issues
+  • Accurate request counting
+  • Prevents burst at boundaries
+
+  <b>Trade-offs:</b>
+  • Higher memory (stores all timestamps)
+  • O(n) cleanup per request
+
+  <b>Thread Safety:</b>
+  ConcurrentHashMap + per-window locks
+end note
+
+note left of RateLimitConfig
+  <b>Value Object - Configuration</b>
+
+  Immutable configuration for rate limiting.
+
+  <b>Builder Pattern:</b>
+  Fluent API for flexible configuration
+
+  <b>Predefined Configs:</b>
+  • defaultConfig(): 100 req/min
+  • strictConfig(): 10 req/min
+  • permissiveConfig(): 1000 req/min
+
+  <b>Parameters:</b>
+  • requestsPerWindow: Max requests
+  • windowDuration: Time window
+  • blockOnExceeded: Wait or reject
+  • maxWaitTime: Max blocking time
+
+  <b>Immutability:</b>
+  Thread-safe, shareable across threads
+end note
+
+note right of RateLimitFilter
+  <b>Intercepting Filter Pattern</b>
+
+  Servlet filter applying rate limiting
+  to all HTTP requests.
+
+  <b>Key Extraction Strategies:</b>
+  • IP-based: By client IP address
+  • User-based: By authenticated user ID
+  • API Key-based: By API key header
+
+  <b>HTTP Headers Set:</b>
+  • X-RateLimit-Limit: Max allowed
+  • X-RateLimit-Remaining: Remaining quota
+  • X-RateLimit-Reset: Seconds until reset
+  • Retry-After: When to retry (if exceeded)
+
+  <b>Response Code:</b>
+  429 Too Many Requests (RFC 6585)
+
+  <b>Integration:</b>
+  Works with any RateLimiter implementation
+  (Strategy Pattern)
+end note
+
+note bottom of RateLimitExceededException
+  <b>Domain Exception</b>
+
+  Thrown when rate limit is exceeded.
+
+  <b>Contains:</b>
+  • Key that exceeded limit
+  • Limit that was exceeded
+  • Duration until retry allowed
+
+  <b>HTTP Mapping:</b>
+  Maps to 429 Too Many Requests
+
+  <b>Retry-After Header:</b>
+  Provides standard HTTP retry guidance
+end note
+
+note left of TokenBucket
+  <b>Per-Key State</b>
+
+  Internal state for each rate-limited key.
+
+  <b>Algorithm Details:</b>
+  • Refills continuously based on time
+  • Uses double for fractional tokens
+  • Lock prevents concurrent modification
+
+  <b>Memory Efficient:</b>
+  Only stores: capacity, rate, tokens, timestamp
+
+  <b>Refill Strategy:</b>
+  Lazy refill on each tryConsume() call
+end note
+
+note left of RequestWindow
+  <b>Per-Key State</b>
+
+  Internal state for sliding window tracking.
+
+  <b>Algorithm Details:</b>
+  • Queue stores request timestamps
+  • Cleanup removes expired entries
+  • Lock prevents concurrent modification
+
+  <b>Memory Usage:</b>
+  O(limit) per key - stores all timestamps
+
+  <b>Cleanup Strategy:</b>
+  Lazy cleanup on each tryAddRequest() call
+end note
+
+' Legend
+note right of RequestWindow
+  <b>Rate Limiting Architecture:</b>
+
+  <b>Design Patterns Used:</b>
+  • <b>Strategy Pattern:</b> RateLimiter interface with multiple algorithms
+  • <b>Builder Pattern:</b> RateLimitConfig.Builder for flexible construction
+  • <b>Intercepting Filter:</b> RateLimitFilter for cross-cutting concern
+  • <b>Value Object:</b> Immutable RateLimitConfig
+  • <b>Exception Handling:</b> RateLimitExceededException for domain errors
+
+  <b>Rate Limiting Algorithms:</b>
+  • <b>Token Bucket:</b> Allows bursts, constant refill rate
+  • <b>Sliding Window:</b> Accurate tracking, no boundary issues
+
+  <b>Key Extraction Strategies:</b>
+  • <b>IP-based:</b> Rate limit by client IP (default)
+  • <b>User-based:</b> Rate limit by authenticated user
+  • <b>API Key-based:</b> Rate limit by API key
+
+  <b>HTTP Standards Compliance:</b>
+  • 429 Too Many Requests (RFC 6585)
+  • X-RateLimit-* headers (de facto standard)
+  • Retry-After header (RFC 7231)
+
+  <b>Thread Safety:</b>
+  • ConcurrentHashMap for key-to-state mapping
+  • ReentrantLock per key for state modifications
+  • No global locks (high concurrency support)
+
+  <b>Performance Characteristics:</b>
+  • Token Bucket: O(1) acquire, O(1) memory per key
+  • Sliding Window: O(n) acquire, O(limit) memory per key
+
+  <b>Use Cases:</b>
+  • API rate limiting (prevent abuse)
+  • DDoS protection (mitigate attacks)
+  • Fair resource allocation (prevent monopolization)
+  • Cost control (limit expensive operations)
+end note
+
+@enduml

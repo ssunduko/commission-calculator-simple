@@ -163,7 +163,7 @@ note as N1
   7. Response flows back: DB → Repo → Service → API → Tomcat → User
 end note
 
-legend right
+note right of h2console
   <b>C4 Model - Level 2: Container Diagram</b>
 
   Zooms into the Deal Management Application to show
@@ -199,6 +199,5 @@ legend right
   • H2 Database
   • Gson
   • SLF4J/Logback
-endlegend
-
+end note
 @enduml

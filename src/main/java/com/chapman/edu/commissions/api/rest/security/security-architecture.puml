@@ -367,7 +367,7 @@ note left of Secured
 end note
 
 ' Legend
-legend right
+note right of Secured
   <b>Integrated Security Architecture:</b>
 
   <b>Authentication Flow:</b>
@@ -408,6 +408,5 @@ legend right
   • Thread-safe context management
   • Extensible authentication strategies
   • Clear security abstractions
-endlegend
-
+end note
 @enduml

@@ -585,9 +585,10 @@ public class DealManagementApp {
         logger.info("  Password:         (empty)");
         logger.info("");
         logger.info("Sample Data:");
-        logger.info("  Users:            2 sales representatives created");
+        logger.info("  Users:            3 users created (1 admin, 2 sales reps)");
         logger.info("  Deals:            3 sample deals created");
-        logger.info("  Test user:        john.doe@example.com / password");
+        logger.info("  Admin user:       admin@store.com / password");
+        logger.info("  Test users:       john.doe@example.com / password, jane.smith@example.com / password");
         logger.info("");
         logger.info("Example cURL Commands:");
         logger.info("  # Get all deals");
@@ -632,6 +633,15 @@ public class DealManagementApp {
             // Create Sample Users
             // ================================================================
 
+            // Admin User: Administrator with all roles
+            User adminUser = new User();
+            adminUser.setFirstName("Admin");
+            adminUser.setLastName("User");
+            adminUser.setEmail("admin@store.com");
+            adminUser.setPasswordHash("password"); // In production: use bcrypt/argon2
+            adminUser.setRoles(java.util.Set.of(UserRole.SYSTEM_ADMIN, UserRole.SALES_MANAGER, UserRole.SALES_REP));
+            adminUser.setActive(true);
+
             // User 1: Basic sales representative
             User user1 = new User();
             user1.setFirstName("John");
@@ -651,10 +661,12 @@ public class DealManagementApp {
             user2.setActive(true);
 
             // Save users and capture generated IDs
+            User savedAdmin = userService.createUser(adminUser);
             User savedUser1 = userService.createUser(user1);
             User savedUser2 = userService.createUser(user2);
 
-            logger.info("      Created users: {} ({}), {} ({})",
+            logger.info("      Created users: {} ({}), {} ({}), {} ({})",
+                    savedAdmin.getEmail(), savedAdmin.getId(),
                     savedUser1.getEmail(), savedUser1.getId(),
                     savedUser2.getEmail(), savedUser2.getId());
 

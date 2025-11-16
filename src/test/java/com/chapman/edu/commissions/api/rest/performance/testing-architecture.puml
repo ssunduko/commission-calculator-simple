@@ -1,0 +1,440 @@
+@startuml Rate Limiting Test Architecture
+
+' Define the styles
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f8f9fa
+skinparam classBorderColor #dee2e6
+skinparam arrowColor #6c757d
+skinparam stereotypeCBackgroundColor #e9ecef
+
+' Title
+title Rate Limiting Test Architecture - Commission Calculator
+
+' Test Classes
+class TokenBucketRateLimiterTest <<TestClass>> {
+  -rateLimiter: RateLimiter
+  -config: RateLimitConfig
+  +{nested} BasicRateLimiting
+  +{nested} TokenRefillMechanism
+  +{nested} ConcurrentAccess
+  +{nested} ConfigurationVariations
+  +{nested} ResetFunctionality
+  +{nested} EdgeCases
+}
+
+class SlidingWindowRateLimiterTest <<TestClass>> {
+  -rateLimiter: RateLimiter
+  -config: RateLimitConfig
+  +{nested} SlidingWindowBehavior
+  +{nested} AccuracyTests
+  +{nested} ConcurrentAccess
+  +{nested} ResetFunctionality
+  +{nested} TimeUntilNextPermit
+}
+
+class RateLimitFilterTest <<TestClass>> {
+  -filter: RateLimitFilter
+  -rateLimiter: RateLimiter
+  -config: RateLimitConfig
+  -request: HttpServletRequest
+  -response: HttpServletResponse
+  -filterChain: FilterChain
+  +{nested} IpBasedRateLimiting
+  +{nested} UserBasedRateLimiting
+  +{nested} ApiKeyBasedRateLimiting
+  +{nested} ErrorResponseFormat
+  +{nested} HeaderTracking
+  +{nested} NonHttpRequests
+}
+
+' Nested Test Classes - TokenBucket
+class BasicRateLimiting <<NestedTest>> {
+  +shouldAllowRequestsWithinLimit()
+  +shouldDenyRequestsExceedingLimit()
+  +shouldTrackPermitsCorrectly()
+  +shouldIsolateDifferentKeys()
+}
+
+class TokenRefillMechanism <<NestedTest>> {
+  +shouldRefillTokensOverTime()
+  +shouldNotExceedBucketCapacity()
+}
+
+class ConcurrentAccessTokenBucket <<NestedTest>> {
+  +shouldHandleConcurrentRequestsSafely()
+  +shouldHandleDifferentKeysConcurrently()
+}
+
+class ConfigurationVariations <<NestedTest>> {
+  +shouldRespectDifferentRateLimits(long)
+  +shouldWorkWithPredefinedConfigs()
+}
+
+class ResetFunctionalityTokenBucket <<NestedTest>> {
+  +shouldResetSingleKey()
+  +shouldResetAllKeys()
+  +shouldNotAffectOtherKeysWhenResettingOne()
+}
+
+class EdgeCases <<NestedTest>> {
+  +shouldHandleNullKeyGracefully()
+  +shouldHandleEmptyKey()
+  +shouldCalculateTimeUntilNextPermit()
+}
+
+' Nested Test Classes - SlidingWindow
+class SlidingWindowBehavior <<NestedTest>> {
+  +shouldAllowRequestsWithinLimit()
+  +shouldDenyRequestsExceedingLimit()
+  +shouldAllowRequestsAfterWindowSlides()
+  +shouldGraduallyAllowRequestsAsWindowSlides()
+}
+
+class AccuracyTests <<NestedTest>> {
+  +shouldPreventBoundaryExploitation()
+  +shouldTrackAvailablePermitsAccurately()
+}
+
+class ConcurrentAccessSlidingWindow <<NestedTest>> {
+  +shouldHandleConcurrentRequestsSafely()
+}
+
+class ResetFunctionalitySlidingWindow <<NestedTest>> {
+  +shouldResetSingleKey()
+  +shouldResetAllKeys()
+}
+
+class TimeUntilNextPermit <<NestedTest>> {
+  +shouldReturnZeroWhenPermitsAvailable()
+  +shouldCalculateTimeUntilNextPermit()
+}
+
+' Nested Test Classes - Filter
+class IpBasedRateLimiting <<NestedTest>> {
+  +shouldAllowRequestsWithinLimit()
+  +shouldDenyRequestsExceedingLimit()
+  +shouldUseXForwardedForHeaderWhenPresent()
+  +shouldSetRateLimitHeaders()
+}
+
+class UserBasedRateLimiting <<NestedTest>> {
+  +shouldUseUserIdWhenAvailable()
+  +shouldFallBackToIpWhenNoUserId()
+}
+
+class ApiKeyBasedRateLimiting <<NestedTest>> {
+  +shouldUseApiKeyWhenPresent()
+  +shouldFallBackToIpWhenNoApiKey()
+}
+
+class ErrorResponseFormat <<NestedTest>> {
+  +shouldReturnJsonErrorResponse()
+}
+
+class HeaderTracking <<NestedTest>> {
+  +shouldUpdateRemainingCountAfterEachRequest()
+}
+
+class NonHttpRequests <<NestedTest>> {
+  +shouldPassThroughNonHttpRequests()
+}
+
+' Production Classes Being Tested
+class TokenBucketRateLimiter <<ProductionClass>> {
+}
+
+class SlidingWindowRateLimiter <<ProductionClass>> {
+}
+
+class RateLimitFilter <<ProductionClass>> {
+}
+
+class RateLimitConfig <<ProductionClass>> {
+}
+
+interface RateLimiter <<Interface>> {
+}
+
+' Test Utilities
+class Mockito <<TestingFramework>> {
+  +mock(Class): T
+  +when(T): OngoingStubbing
+  +verify(T): T
+  +never(): VerificationMode
+  +times(int): VerificationMode
+  +any(): T
+  +eq(T): T
+}
+
+class JUnit5 <<TestingFramework>> {
+  +@Test
+  +@Nested
+  +@BeforeEach
+  +@DisplayName
+  +@ParameterizedTest
+  +@ValueSource
+  +assertEquals()
+  +assertTrue()
+  +assertFalse()
+  +assertDoesNotThrow()
+}
+
+class ExecutorService <<Concurrency>> {
+  +newFixedThreadPool(int): ExecutorService
+  +submit(Runnable): Future
+  +shutdown(): void
+}
+
+class CountDownLatch <<Concurrency>> {
+  +CountDownLatch(int)
+  +countDown(): void
+  +await(long, TimeUnit): boolean
+}
+
+' Relationships - Test to Production
+TokenBucketRateLimiterTest ..> TokenBucketRateLimiter : tests >
+SlidingWindowRateLimiterTest ..> SlidingWindowRateLimiter : tests >
+RateLimitFilterTest ..> RateLimitFilter : tests >
+
+' Relationships - Test to Config
+TokenBucketRateLimiterTest ..> RateLimitConfig : uses >
+SlidingWindowRateLimiterTest ..> RateLimitConfig : uses >
+RateLimitFilterTest ..> RateLimitConfig : uses >
+
+' Relationships - Test to Interface
+TokenBucketRateLimiterTest ..> RateLimiter : uses >
+SlidingWindowRateLimiterTest ..> RateLimiter : uses >
+RateLimitFilterTest ..> RateLimiter : uses >
+
+' Relationships - Nested Tests to Parent
+TokenBucketRateLimiterTest +-- BasicRateLimiting
+TokenBucketRateLimiterTest +-- TokenRefillMechanism
+TokenBucketRateLimiterTest +-- ConcurrentAccessTokenBucket
+TokenBucketRateLimiterTest +-- ConfigurationVariations
+TokenBucketRateLimiterTest +-- ResetFunctionalityTokenBucket
+TokenBucketRateLimiterTest +-- EdgeCases
+
+SlidingWindowRateLimiterTest +-- SlidingWindowBehavior
+SlidingWindowRateLimiterTest +-- AccuracyTests
+SlidingWindowRateLimiterTest +-- ConcurrentAccessSlidingWindow
+SlidingWindowRateLimiterTest +-- ResetFunctionalitySlidingWindow
+SlidingWindowRateLimiterTest +-- TimeUntilNextPermit
+
+RateLimitFilterTest +-- IpBasedRateLimiting
+RateLimitFilterTest +-- UserBasedRateLimiting
+RateLimitFilterTest +-- ApiKeyBasedRateLimiting
+RateLimitFilterTest +-- ErrorResponseFormat
+RateLimitFilterTest +-- HeaderTracking
+RateLimitFilterTest +-- NonHttpRequests
+
+' Relationships - Test to Frameworks
+TokenBucketRateLimiterTest ..> JUnit5 : uses >
+SlidingWindowRateLimiterTest ..> JUnit5 : uses >
+RateLimitFilterTest ..> JUnit5 : uses >
+RateLimitFilterTest ..> Mockito : uses >
+
+' Relationships - Concurrency Testing
+ConcurrentAccessTokenBucket ..> ExecutorService : uses >
+ConcurrentAccessTokenBucket ..> CountDownLatch : uses >
+ConcurrentAccessSlidingWindow ..> ExecutorService : uses >
+ConcurrentAccessSlidingWindow ..> CountDownLatch : uses >
+
+' Component notes
+note right of TokenBucketRateLimiterTest
+  <b>Token Bucket Algorithm Tests</b>
+
+  Comprehensive test coverage for token bucket
+  rate limiting implementation.
+
+  <b>Test Categories:</b>
+  • Basic functionality (allow/deny)
+  • Token refill mechanism (time-based)
+  • Concurrent access (thread safety)
+  • Configuration variations (parameterized)
+  • Reset functionality (cleanup)
+  • Edge cases (null, empty keys)
+
+  <b>Testing Techniques:</b>
+  • Nested tests for organization
+  • Time-based assertions (Thread.sleep)
+  • Concurrency testing (ExecutorService)
+  • Parameterized tests (@ValueSource)
+
+  <b>Total Tests:</b> 15+ test methods
+end note
+
+note bottom of SlidingWindowRateLimiterTest
+  <b>Sliding Window Algorithm Tests</b>
+
+  Focuses on sliding window specific behaviors,
+  especially accuracy and boundary prevention.
+
+  <b>Test Categories:</b>
+  • Sliding window behavior
+  • Accuracy tests (boundary prevention)
+  • Concurrent access (thread safety)
+  • Reset functionality
+  • Time until next permit
+
+  <b>Key Tests:</b>
+  • shouldPreventBoundaryExploitation():
+    Verifies advantage over fixed window
+  • shouldGraduallyAllowRequestsAsWindowSlides():
+    Tests sliding behavior over time
+
+  <b>Testing Techniques:</b>
+  • Time-based testing with delays
+  • Boundary condition testing
+  • Concurrency verification
+
+  <b>Total Tests:</b> 10+ test methods
+end note
+
+note left of RateLimitFilterTest
+  <b>Servlet Filter Tests</b>
+
+  Tests HTTP integration and filter behavior.
+
+  <b>Test Categories:</b>
+  • IP-based rate limiting
+  • User-based rate limiting
+  • API key-based rate limiting
+  • Error response format
+  • Header tracking
+  • Non-HTTP request handling
+
+  <b>Mocking Strategy:</b>
+  • HttpServletRequest (mock)
+  • HttpServletResponse (mock)
+  • FilterChain (mock)
+  • PrintWriter (real, for JSON verification)
+
+  <b>Verification:</b>
+  • HTTP status codes (200, 429)
+  • Response headers (X-RateLimit-*)
+  • JSON error format
+  • Filter chain invocation
+
+  <b>Total Tests:</b> 12+ test methods
+end note
+
+note bottom of BasicRateLimiting
+  <b>Nested Test Classes</b>
+
+  JUnit 5 @Nested annotation provides:
+  • Logical test organization
+  • Separate setUp per category
+  • Clear test structure in IDE
+  • Better test reports
+
+  <b>Benefits:</b>
+  • Each nested class can have own @BeforeEach
+  • Related tests grouped together
+  • Hierarchical display in test runners
+  • Easier to understand test purpose
+end note
+
+note right of Mockito
+  <b>Test Doubles Framework</b>
+
+  Mockito provides mocking capabilities:
+  • Create mock objects
+  • Stub method return values
+  • Verify method invocations
+  • Capture arguments
+
+  <b>Usage in Tests:</b>
+  • Mock HttpServletRequest/Response
+  • Verify filter chain calls
+  • Capture header values
+  • Verify status codes
+
+  <b>Pattern:</b>
+  AAA - Arrange (mock), Act (call), Assert (verify)
+end note
+
+note left of JUnit5
+  <b>Testing Framework</b>
+
+  JUnit 5 features used:
+  • @Nested: Organize related tests
+  • @DisplayName: Readable test names
+  • @BeforeEach: Test setup
+  • @ParameterizedTest: Data-driven tests
+  • Assertions: assertEquals, assertTrue, etc.
+
+  <b>Test Lifecycle:</b>
+  1. @BeforeEach runs before each test
+  2. Test method executes
+  3. Assertions verify behavior
+  4. Cleanup (if @AfterEach)
+end note
+
+note bottom of ExecutorService
+  <b>Concurrency Testing</b>
+
+  Tests verify thread safety:
+  • Multiple threads accessing same key
+  • Multiple threads with different keys
+  • Race condition detection
+  • Atomic operation verification
+
+  <b>Pattern:</b>
+  1. Create thread pool
+  2. Submit concurrent tasks
+  3. Use CountDownLatch for coordination
+  4. Assert expected total behavior
+
+  <b>Verification:</b>
+  Exactly N requests succeed across all threads
+end note
+
+' Legend
+legend right
+  <b>Test Architecture Highlights:</b>
+
+  <b>Test Organization:</b>
+  • Main test classes per production class
+  • @Nested inner classes for logical grouping
+  • DisplayName annotations for readability
+
+  <b>Testing Patterns:</b>
+  • <b>AAA:</b> Arrange-Act-Assert structure
+  • <b>Given-When-Then:</b> BDD-style naming
+  • <b>Test Doubles:</b> Mocks for external dependencies
+
+  <b>Test Coverage Areas:</b>
+  • <b>Functional:</b> Correct behavior under normal conditions
+  • <b>Edge Cases:</b> Null, empty, boundary conditions
+  • <b>Concurrency:</b> Thread safety verification
+  • <b>Performance:</b> Time-based behavior
+  • <b>Integration:</b> Filter + limiter interaction
+
+  <b>JUnit 5 Features Demonstrated:</b>
+  • @Nested tests for organization
+  • @ParameterizedTest for data-driven tests
+  • @DisplayName for readable test names
+  • Lifecycle hooks (@BeforeEach, @AfterEach)
+  • Assertions and assumptions
+
+  <b>Mockito Features Demonstrated:</b>
+  • Mock creation (mock())
+  • Stubbing (when().thenReturn())
+  • Verification (verify())
+  • Argument capturing (ArgumentCaptor)
+
+  <b>Concurrency Testing:</b>
+  • ExecutorService for thread pools
+  • CountDownLatch for coordination
+  • AtomicInteger for thread-safe counting
+  • CopyOnWriteArrayList for concurrent results
+
+  <b>Test Quality Metrics:</b>
+  • 35+ test methods across 3 test classes
+  • Nested test organization (18 nested classes)
+  • Edge case coverage (null, empty, timing)
+  • Concurrency verification (multi-threaded)
+endlegend
+
+@enduml

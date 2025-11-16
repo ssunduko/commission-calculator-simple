@@ -44,6 +44,9 @@ import java.util.Optional;
  * - /swagger-ui/* - Swagger UI interface (SECURED)
  * - /api-docs/* - OpenAPI documentation (SECURED)
  * - /h2-console/* - H2 database console (SECURED)
+ *manager@store.com
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class AuthenticationFilter implements Filter {
 

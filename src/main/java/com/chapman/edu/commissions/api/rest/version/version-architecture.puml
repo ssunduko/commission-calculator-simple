@@ -247,7 +247,7 @@ note right of VersionedDealServlet
 end note
 
 ' Legend
-legend right
+note right of VersionedDealServlet
   <b>Path-Based Versioning Strategy:</b>
 
   <b>Concept:</b>
@@ -286,6 +286,6 @@ legend right
   <b>V1 vs V2 Differences:</b>
   V1: Basic CRUD, no pagination
   V2: Pagination, advanced filtering, metadata
-endlegend
+end note
 
 @enduml

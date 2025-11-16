@@ -72,6 +72,9 @@ import java.util.List;
  * - Swagger UI at http://localhost:8080/swagger-ui/
  * - HTTP Basic Authentication for API endpoints
  * - Sample data for testing
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class IntegrationApplication {
 

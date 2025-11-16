@@ -2,6 +2,7 @@ package com.chapman.edu.commissions.integration.servlet;
 
 import com.google.gson.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +18,9 @@ import java.time.format.DateTimeFormatter;
  * - Custom type adapters for LocalDate and LocalDateTime
  * - Singleton pattern for Gson instance
  * - Null-safe serialization
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class JsonHelper {
 
@@ -25,6 +29,21 @@ public class JsonHelper {
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()  // Makes JSON output human-readable
             .serializeNulls()     // Include null fields in JSON output
+            // Custom serializer for BigDecimal (converts to string)
+            .registerTypeAdapter(BigDecimal.class, (JsonSerializer<BigDecimal>)
+                (src, typeOfSrc, context) -> new JsonPrimitive(src.toString()))
+            // Custom deserializer for BigDecimal (parses from string or number)
+            .registerTypeAdapter(BigDecimal.class, (JsonDeserializer<BigDecimal>)
+                (json, typeOfT, context) -> {
+                    if (json.isJsonPrimitive()) {
+                        if (json.getAsJsonPrimitive().isString()) {
+                            return new BigDecimal(json.getAsString());
+                        } else if (json.getAsJsonPrimitive().isNumber()) {
+                            return json.getAsBigDecimal();
+                        }
+                    }
+                    return BigDecimal.ZERO;
+                })
             // Custom serializer for LocalDate (converts to ISO-8601 format: yyyy-MM-dd)
             .registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>)
                 (src, typeOfSrc, context) -> new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE)))

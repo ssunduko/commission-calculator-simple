@@ -1,6 +1,6 @@
 package com.chapman.edu.commissions.integration.repository;
 
-import com.chapman.edu.commissions.api.rest.JsonHelper;
+import com.chapman.edu.commissions.integration.servlet.JsonHelper;
 import com.chapman.edu.commissions.api.rest.Repository;
 import com.chapman.edu.commissions.integration.database.DatabaseManager;
 import com.chapman.edu.commissions.model.Deal;
@@ -34,6 +34,9 @@ import java.util.UUID;
  * - Proper resource cleanup with try-with-resources
  *
  * Layer: Data Access Layer (Repository)
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class H2DealRepository implements Repository<Deal> {
 

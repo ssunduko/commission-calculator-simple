@@ -3,6 +3,7 @@ package com.chapman.edu.commissions.integration.controller;
 import com.chapman.edu.commissions.integration.servlet.BaseServlet;
 import com.chapman.edu.commissions.integration.servlet.JsonHelper;
 import com.chapman.edu.commissions.integration.service.DealService;
+import com.chapman.edu.commissions.integration.dto.*;
 import com.chapman.edu.commissions.model.Deal;
 import com.chapman.edu.commissions.model.DealStatus;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,14 +19,29 @@ import java.util.Optional;
  * This servlet acts as the Controller in the MVC pattern:
  * - Handles HTTP requests (presentation layer)
  * - Delegates business logic to Service layer
- * - Transforms requests/responses between HTTP and domain model
+ * - Transforms requests/responses between HTTP and DTOs (Data Transfer Objects)
  * - Handles errors and returns appropriate HTTP status codes
  *
- * Layered Architecture:
- * Controller (this) -> Service (DealService) -> Repository (H2DealRepository) -> Database
+ * Layered Architecture with DTO Pattern:
+ * HTTP Request -> Controller -> [DTO -> Entity] -> Service -> Repository -> Database
+ * HTTP Response <- Controller <- [Entity -> DTO] <- Service <- Repository <- Database
+ *
+ * **DTO PATTERN IN ACTION:**
+ * This controller demonstrates the DTO pattern by:
+ * 1. Accepting CreateDealRequest/UpdateDealRequest DTOs from clients (not entities)
+ * 2. Using DealMapper to convert DTOs to entities before calling service layer
+ * 3. Using DealMapper to convert entities to DealDTO for responses
+ * 4. Never directly exposing domain entities to the API layer
+ *
+ * **Benefits demonstrated here:**
+ * - API contract is independent of database structure
+ * - Can change domain entities without breaking API consumers
+ * - Clear separation between what clients send vs what they receive
+ * - Security: only expose fields that should be visible externally
  *
  * Demonstrates:
  * - Separation of Concerns: Controller only handles HTTP, no business logic
+ * - DTO Pattern: Decouples API from domain model
  * - Dependency Injection: Receives service via constructor
  * - Error handling and HTTP status code mapping
  * - RESTful API design patterns
@@ -39,6 +55,9 @@ import java.util.Optional;
  * - POST /api/v1/integration/deals/{id}/close - Close deal as WON
  *
  * Layer: Presentation Layer (Controller/View)
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class DealController extends BaseServlet {
 
@@ -131,6 +150,8 @@ public class DealController extends BaseServlet {
     /**
      * Handles GET all deals with optional filtering.
      * Delegates to service layer for business logic.
+     *
+     * DTO Pattern: Converts Deal entities from service to DealDTOs for API response.
      */
     private void handleGetAllDeals(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -158,7 +179,9 @@ public class DealController extends BaseServlet {
                 deals = dealService.getAllDeals();
             }
 
-            sendJsonResponse(response, deals, HttpServletResponse.SC_OK);
+            // DTO PATTERN: Convert entities to DTOs before sending to client
+            List<DealDTO> dealDTOs = DealMapper.toDTOList(deals);
+            sendJsonResponse(response, dealDTOs, HttpServletResponse.SC_OK);
 
         } catch (Exception e) {
             sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -168,13 +191,17 @@ public class DealController extends BaseServlet {
 
     /**
      * Handles GET single deal by ID.
+     *
+     * DTO Pattern: Converts Deal entity to DealDTO for API response.
      */
     private void handleGetDealById(String dealId, HttpServletResponse response) throws IOException {
         try {
             Optional<Deal> deal = dealService.getDealById(dealId);
 
             if (deal.isPresent()) {
-                sendJsonResponse(response, deal.get(), HttpServletResponse.SC_OK);
+                // DTO PATTERN: Convert entity to DTO before sending to client
+                DealDTO dealDTO = DealMapper.toDTO(deal.get());
+                sendJsonResponse(response, dealDTO, HttpServletResponse.SC_OK);
             } else {
                 sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND,
                         "Deal not found: " + dealId);
@@ -189,18 +216,27 @@ public class DealController extends BaseServlet {
     /**
      * Handles POST to create a new deal.
      * Demonstrates validation error handling.
+     *
+     * DTO Pattern: Accepts CreateDealRequest DTO from client, converts to entity,
+     * then converts created entity back to DealDTO for response.
      */
     private void handleCreateDeal(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            // Read and parse the request body
+            // Read and parse the request body as CreateDealRequest DTO
+            // DTO PATTERN: Client sends CreateDealRequest (not Deal entity)
             String requestBody = readRequestBody(request);
-            Deal deal = JsonHelper.fromJson(requestBody, Deal.class);
+            CreateDealRequest createRequest = JsonHelper.fromJson(requestBody, CreateDealRequest.class);
+
+            // DTO PATTERN: Convert DTO to entity for service layer
+            Deal deal = DealMapper.fromCreateRequest(createRequest);
 
             // Delegate to service layer for business logic and validation
             Deal createdDeal = dealService.createDeal(deal);
 
-            // Return 201 Created with the saved deal
-            sendJsonResponse(response, createdDeal, HttpServletResponse.SC_CREATED);
+            // DTO PATTERN: Convert entity to DTO for response
+            // Return 201 Created with the saved deal as DTO
+            DealDTO dealDTO = DealMapper.toDTO(createdDeal);
+            sendJsonResponse(response, dealDTO, HttpServletResponse.SC_CREATED);
 
         } catch (IllegalArgumentException e) {
             // Business validation failed
@@ -214,18 +250,27 @@ public class DealController extends BaseServlet {
 
     /**
      * Handles PUT to update an existing deal.
+     *
+     * DTO Pattern: Accepts UpdateDealRequest DTO from client, converts to entity,
+     * then converts updated entity back to DealDTO for response.
      */
     private void handleUpdateDeal(String dealId, HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            // Read and parse the request body
+            // Read and parse the request body as UpdateDealRequest DTO
+            // DTO PATTERN: Client sends UpdateDealRequest (not Deal entity)
             String requestBody = readRequestBody(request);
-            Deal deal = JsonHelper.fromJson(requestBody, Deal.class);
+            UpdateDealRequest updateRequest = JsonHelper.fromJson(requestBody, UpdateDealRequest.class);
+
+            // DTO PATTERN: Convert DTO to entity for service layer
+            Deal deal = DealMapper.fromUpdateRequest(updateRequest);
 
             // Delegate to service layer
             Deal updatedDeal = dealService.updateDeal(dealId, deal);
 
-            // Return 200 OK with the updated deal
-            sendJsonResponse(response, updatedDeal, HttpServletResponse.SC_OK);
+            // DTO PATTERN: Convert entity to DTO for response
+            // Return 200 OK with the updated deal as DTO
+            DealDTO dealDTO = DealMapper.toDTO(updatedDeal);
+            sendJsonResponse(response, dealDTO, HttpServletResponse.SC_OK);
 
         } catch (IllegalArgumentException e) {
             // Business validation or not found
@@ -269,11 +314,16 @@ public class DealController extends BaseServlet {
     /**
      * Handles POST to close a deal as WON.
      * Example of action-based endpoint (not just CRUD).
+     *
+     * DTO Pattern: Converts closed Deal entity to DealDTO for response.
      */
     private void handleCloseDeal(String dealId, HttpServletResponse response) throws IOException {
         try {
             Deal closedDeal = dealService.closeDealAsWon(dealId);
-            sendJsonResponse(response, closedDeal, HttpServletResponse.SC_OK);
+
+            // DTO PATTERN: Convert entity to DTO for response
+            DealDTO dealDTO = DealMapper.toDTO(closedDeal);
+            sendJsonResponse(response, dealDTO, HttpServletResponse.SC_OK);
 
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("not found")) {

@@ -22,6 +22,9 @@ import java.sql.Statement;
  *
  * In a production system, this would use a connection pool like HikariCP,
  * but for educational purposes, we demonstrate the core concepts.
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class DatabaseManager {
 

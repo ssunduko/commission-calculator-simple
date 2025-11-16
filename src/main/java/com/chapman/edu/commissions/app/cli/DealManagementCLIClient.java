@@ -30,51 +30,57 @@ import java.util.Scanner;
  * with the backend exclusively through the REST API (HTTP), rather than
  * directly accessing services or repositories.
  *
- * <b>ARCHITECTURE COMPARISON:</b>
+ * **ARCHITECTURE COMPARISON:**
  *
- * OLD APPROACH (Direct Service Access):
+ * **OLD APPROACH (Direct Service Access):**
+ * ```
  * CLI -> DealService -> H2DealRepository -> Database
+ * ```
  * Problem: Tight coupling, no network layer, monolithic
  *
- * NEW APPROACH (REST API Client):
+ * **NEW APPROACH (REST API Client):**
+ * ```
  * CLI -> HTTP Client -> REST API -> DealController -> DealService -> Repository -> Database
+ * ```
  * Benefits: Loose coupling, network-ready, true client-server architecture
  *
- * <b>KEY DIFFERENCES:</b>
+ * **KEY DIFFERENCES:**
  *
- * 1. COMMUNICATION:
+ * 1. **COMMUNICATION:**
  *    - Old: Direct method calls (dealService.createDeal())
  *    - New: HTTP requests (POST http://localhost:8080/api/v1/integration/deals)
  *
- * 2. DEPENDENCY:
+ * 2. **DEPENDENCY:**
  *    - Old: Depends on Service, Repository, Database layers
  *    - New: Depends only on HTTP Client and JSON serialization
  *
- * 3. DEPLOYMENT:
+ * 3. **DEPLOYMENT:**
  *    - Old: Must run in same JVM as server
  *    - New: Can run on different machine, different network
  *
- * 4. DATA FORMAT:
+ * 4. **DATA FORMAT:**
  *    - Old: Java objects passed directly
  *    - New: JSON over HTTP
  *
- * <b>HTTP CLIENT FEATURES:</b>
+ * **HTTP CLIENT FEATURES:**
  * - Uses Java 11+ HttpClient (modern, non-blocking capable)
  * - JSON serialization with Gson
  * - Proper error handling for network failures
  * - RESTful communication (GET, POST, DELETE)
  *
- * <b>PREREQUISITES:</b>
+ * **PREREQUISITES:**
  * The DealManagementApp server must be running on localhost:8080
  *
- * <b>USAGE:</b>
+ * **USAGE:**
+ * ```bash
  * # Start server first
  * mvn exec:java -Dexec.mainClass="com.chapman.edu.commissions.app.DealManagementApp"
  *
  * # Then start CLI client (in separate terminal)
  * mvn exec:java -Dexec.mainClass="com.chapman.edu.commissions.app.cli.DealManagementCLIClient"
+ * ```
  *
- * @author Commission Calculator Team
+ * @author Sergey L. Sundukovskiy
  * @version 2.0
  */
 public class DealManagementCLIClient {
@@ -142,8 +148,10 @@ public class DealManagementCLIClient {
     /**
      * Creates a Basic Authentication header value.
      *
-     * HTTP Basic Auth format:
+     * **HTTP Basic Auth format:**
+     * ```
      * Authorization: Basic base64(email:password)
+     * ```
      *
      * @param email The user's email
      * @param password The user's password
@@ -256,7 +264,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Lists all deals via GET /api/v1/integration/deals
+     * Lists all deals via `GET /api/v1/integration/deals`
      */
     private void listAllDeals() {
         clearScreen();
@@ -299,7 +307,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Lists deals filtered by status via GET /api/v1/integration/deals?status=STATUS
+     * Lists deals filtered by status via `GET /api/v1/integration/deals?status=STATUS`
      */
     private void listDealsByStatus() {
         clearScreen();
@@ -350,7 +358,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Views deal details via GET /api/v1/integration/deals/{id}
+     * Views deal details via `GET /api/v1/integration/deals/{id}`
      */
     private void viewDealDetails() {
         clearScreen();
@@ -388,7 +396,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Creates a new deal via POST /api/v1/integration/deals
+     * Creates a new deal via `POST /api/v1/integration/deals`
      */
     private void createNewDeal() {
         clearScreen();
@@ -490,7 +498,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Closes a deal via POST /api/v1/integration/deals/{id}/close
+     * Closes a deal via `POST /api/v1/integration/deals/{id}/close`
      */
     private void closeDeal() {
         clearScreen();
@@ -529,7 +537,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Deletes a deal via DELETE /api/v1/integration/deals/{id}
+     * Deletes a deal via `DELETE /api/v1/integration/deals/{id}`
      */
     private void deleteDeal() {
         clearScreen();
@@ -641,7 +649,7 @@ public class DealManagementCLIClient {
     }
 
     /**
-     * Lists all users via GET /api/v1/integration/users
+     * Lists all users via `GET /api/v1/integration/users`
      */
     private void listAllUsers() {
         clearScreen();

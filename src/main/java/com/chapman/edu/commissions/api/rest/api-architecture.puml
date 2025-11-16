@@ -301,7 +301,7 @@ note left of Deal
 end note
 
 ' Legend
-legend right
+note right of Deal
   <b>REST API Architecture Components:</b>
 
   <b>Embedded Server:</b> Self-contained Tomcat instance
@@ -342,6 +342,6 @@ legend right
   • 204 No Content → Successful DELETE
   • 400 Bad Request → Invalid input
   • 404 Not Found → Resource doesn't exist
-endlegend
+end note
 
 @enduml

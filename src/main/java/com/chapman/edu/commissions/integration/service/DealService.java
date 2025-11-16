@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
  * - Logging and error handling at business level
  *
  * Layer: Service Layer (Business Logic)
+ *
+ * @author Sergey L. Sundukovskiy
+ * @version 1.0
  */
 public class DealService {
 
