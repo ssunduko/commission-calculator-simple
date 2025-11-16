@@ -130,6 +130,7 @@ public class DealMapper {
         Deal deal = new Deal();
         deal.setTitle(request.getTitle());
         deal.setSalesRepId(request.getSalesRepId());
+        deal.setStatus(request.getStatus());
 
         // Convert DTOs to entities
         if (request.getProducts() != null) {

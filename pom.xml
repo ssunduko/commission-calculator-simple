@@ -245,6 +245,14 @@
             <version>5.6.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Selenide (includes Selenium WebDriver) -->
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>selenide</artifactId>
+            <version>7.0.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

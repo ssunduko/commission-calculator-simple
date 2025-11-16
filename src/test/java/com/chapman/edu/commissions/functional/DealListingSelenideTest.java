@@ -1,23 +1,20 @@
 package com.chapman.edu.commissions.functional;
 
 import com.chapman.edu.commissions.app.DealManagementApp;
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
 import org.junit.jupiter.api.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Duration;
 
-public class DealListingTest {
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.*;
 
-    private WebDriver driver;
-    private WebDriverWait wait;
+public class DealListingSelenideTest {
+
     private static final String BASE_URL = "http://localhost:8080";
     private static Thread serverThread;
     private static DealManagementApp app;
@@ -42,6 +39,7 @@ public class DealListingTest {
 
     @AfterAll
     public static void stopServer() {
+        // Server will stop automatically when JVM exits due to daemon thread
     }
 
     private static void waitForServerToStart() throws Exception {
@@ -80,76 +78,74 @@ public class DealListingTest {
 
     @BeforeEach
     public void setUp() {
-        driver = new FirefoxDriver();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        // Configure Selenide
+        Configuration.browser = "firefox";
+        Configuration.baseUrl = BASE_URL;
+        Configuration.timeout = 10000; // 10 seconds
+        Configuration.browserSize = "1400x900";
+
+        // Screenshot settings
+        Configuration.screenshots = true;
+        Configuration.savePageSource = false;
+        Configuration.reportsFolder = "target/screenshots";
     }
 
     @AfterEach
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        // Close browser
+        closeWebDriver();
     }
 
     @Test
-    public void testDealListing() {
+    public void testDealListingWithScreenshots() throws IOException {
         // Open deals page
-        driver.get(BASE_URL + "/jsp/deals");
-
-        // Set window size
-        driver.manage().window().setSize(new Dimension(1400, 900));
+        open("/jsp/deals");
+        screenshot("01-deals-page-loaded");
 
         // Click Clear link
-        WebElement clearLink = wait.until(
-                ExpectedConditions.elementToBeClickable(By.linkText("Clear"))
-        );
-        clearLink.click();
+        $("a[href*='/jsp/deals']").shouldBe(visible).click();
+        screenshot("02-after-clear-click");
 
         // Click on deal card #3 deal ID
-        WebElement dealCard3Id = wait.until(
-                ExpectedConditions.elementToBeClickable(
-                        By.cssSelector(".deal-card:nth-child(3) .deal-id")
-                )
-        );
-        dealCard3Id.click();
+        $(".deal-card:nth-child(3) .deal-id").shouldBe(visible).click();
+        screenshot("03-deal-card-3-clicked");
 
         // Click on deal card #3 info value
-        WebElement infoValue = wait.until(
-                ExpectedConditions.elementToBeClickable(
-                        By.cssSelector(".deal-card:nth-child(3) .info-item:nth-child(1) > .info-value")
-                )
-        );
-        infoValue.click();
+        $(".deal-card:nth-child(3) .info-item:nth-child(1) > .info-value")
+                .shouldBe(visible)
+                .click();
+        screenshot("04-info-value-clicked");
 
         // Click on deal card #2
-        WebElement dealCard2 = wait.until(
-                ExpectedConditions.elementToBeClickable(
-                        By.cssSelector(".deal-card:nth-child(2)")
-                )
-        );
-        dealCard2.click();
+        $(".deal-card:nth-child(2)").shouldBe(visible).click();
+        screenshot("05-deal-card-2-clicked");
 
-        // Click on sales rep ID input
-        WebElement salesRepInput = wait.until(
-                ExpectedConditions.elementToBeClickable(By.name("salesRepId"))
-        );
-        salesRepInput.click();
-
-        // Type sales rep ID
-        salesRepInput.sendKeys("USER-2530b14b-6081-4861-8760-774c95e609d5");
+        // Enter sales rep ID
+        $("input[name='salesRepId']")
+                .shouldBe(visible)
+                .click();
+        $("input[name='salesRepId']")
+                .setValue("USER-2530b14b-6081-4861-8760-774c95e609d5");
+        screenshot("06-sales-rep-id-entered");
 
         // Click Apply Filters button
-        WebElement applyButton = wait.until(
-                ExpectedConditions.elementToBeClickable(
-                        By.cssSelector(".btn-primary")
-                )
-        );
-        applyButton.click();
+        $(".btn-primary").shouldBe(visible).click();
+        screenshot("07-filters-applied");
+
+        // Wait a moment for results to load
+        sleep(1000);
+        screenshot("08-filtered-results");
 
         // Click Clear link again
-        WebElement clearLink2 = wait.until(
-                ExpectedConditions.elementToBeClickable(By.linkText("Clear"))
-        );
-        clearLink2.click();
+        $("a[href*='/jsp/deals']").shouldBe(visible).click();
+        screenshot("09-final-clear-clicked");
+    }
+
+    /**
+     * Captures a screenshot with a custom name
+     */
+    private void screenshot(String name) {
+        String screenshotPath = Selenide.screenshot(name);
+        System.out.println("Screenshot saved: " + screenshotPath);
     }
 }

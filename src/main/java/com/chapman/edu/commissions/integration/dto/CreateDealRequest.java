@@ -1,5 +1,7 @@
 package com.chapman.edu.commissions.integration.dto;
 
+import com.chapman.edu.commissions.model.DealStatus;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -50,6 +52,11 @@ public class CreateDealRequest {
     private String salesRepId;
 
     /**
+     * Deal status (optional, defaults to OPEN if not provided).
+     */
+    private DealStatus status;
+
+    /**
      * List of products in the deal (required, at least one).
      */
     private List<DealProductDTO> products;
@@ -61,6 +68,13 @@ public class CreateDealRequest {
     public CreateDealRequest(String title, String salesRepId, List<DealProductDTO> products) {
         this.title = title;
         this.salesRepId = salesRepId;
+        this.products = products;
+    }
+
+    public CreateDealRequest(String title, String salesRepId, DealStatus status, List<DealProductDTO> products) {
+        this.title = title;
+        this.salesRepId = salesRepId;
+        this.status = status;
         this.products = products;
     }
 
@@ -79,6 +93,14 @@ public class CreateDealRequest {
 
     public void setSalesRepId(String salesRepId) {
         this.salesRepId = salesRepId;
+    }
+
+    public DealStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DealStatus status) {
+        this.status = status;
     }
 
     public List<DealProductDTO> getProducts() {
