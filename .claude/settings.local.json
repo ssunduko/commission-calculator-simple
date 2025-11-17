@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "Bash(rm:*)",
-      "Bash(mvn clean:*)"
+      "Bash(mvn clean:*)",
+      "Bash(dir:*)",
+      "Bash(mvn test:*)",
+      "Bash(cat:*)",
+      "Bash(mvn exec:java:*)",
+      "Bash(timeout 30 mvn exec:java:*)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn test-compile:*)"
     ],
     "deny": [],
     "ask": []
